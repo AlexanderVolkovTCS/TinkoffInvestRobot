@@ -1,19 +1,21 @@
 //
-//  ViewController.swift
+//  VisualizationViewController.swift
 //  Tinkoff2
 //
 //  Created by Никита Мелехин on 20.05.2022.
 //
 
+import Foundation
+
 import UIKit
 import Combine
 import TinkoffInvestSDK
 
-class ViewController: UIViewController {
+class VisualizationViewController: UIViewController {
     let padding = 16.0
     
     var cancellables = Set<AnyCancellable>()
-    var sdk = TinkoffInvestSDK(tokenProvider: DefaultTokenProvider(token: ""), sandbox: DefaultTokenProvider(token: ""))
+    var sdk = TinkoffInvestSDK(tokenProvider: DefaultTokenProvider(token: "t."), sandbox: DefaultTokenProvider(token: ""))
     
     func isConnectedToInternet() -> Bool {
         let hostname = "google.com"
@@ -49,7 +51,7 @@ class ViewController: UIViewController {
         view.addConstraints([headerHC1, headerHC2, headerHC3])
         
         let headerLabel = UILabel()
-        headerLabel.text = "Tinkoff Investment"
+        headerLabel.text = "Visualizer"
         headerLabel.textColor = .black
         headerLabel.translatesAutoresizingMaskIntoConstraints = false
         let headerLabelHC1 = NSLayoutConstraint(item: headerLabel, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: header, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: -self.padding)
@@ -74,18 +76,32 @@ class ViewController: UIViewController {
         
         print(isConnectedToInternet())
         
-        self.sdk.userService.getAccounts().flatMap {
-            self.sdk.portfolioService.getPortfolio(accountID: $0.accounts.first!.id)
-        }.sink { result in
-          switch result {
-          case .failure(let error):
-              print(error.localizedDescription)
-          case .finished:
-              print("did finish loading getPortfolio")
-          }
-        } receiveValue: { portfolio in
-          print(portfolio)
-        }.store(in: &cancellables)
+        self.sdk.userService.getAccounts().sink { result in
+            switch result {
+            case .failure(let error):
+                print(error.localizedDescription)
+            case .finished:
+                print(result)
+                print("did finish loading getPortfolio")
+            default:
+                print(result)
+            }
+          } receiveValue: { portfolio in
+            print(portfolio)
+          }.store(in: &cancellables)
+        
+//        self.sdk.userService.getAccounts().flatMap {
+//            self.sdk.portfolioService.getPortfolio(accountID: $0.accounts.first!.id)
+//        }.sink { result in
+//          switch result {
+//          case .failure(let error):
+//              print(error.localizedDescription)
+//          case .finished:
+//              print("did finish loading getPortfolio")
+//          }
+//        } receiveValue: { portfolio in
+//          print(portfolio)
+//        }.store(in: &cancellables)
         
 //        self.sdk.marketDataServiceStream.subscribeToCandels(figi: "BBG00ZKY1P71", interval: .oneMinute).sink { result in
 //           print(result)
