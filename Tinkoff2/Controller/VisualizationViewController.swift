@@ -35,6 +35,83 @@ class VisualizationViewController: UIViewController {
     func onModeChange(_ sender: UISegmentedControl) {
         print("selected \(sender.selectedSegmentIndex)")
     }
+    
+
+    
+//  Роботы на "стакане"
+//
+//  Робот отслеживает "стакан". Если лотов в заявках на покупку больше, чем в лотах на продажу в определенное количество раз, то робот покупает инструмент по рыночной цене, в противном случае – продает, сразу выставляя поручение в обратную сторону, но с определенным процентом прибыли.
+    
+    // buyMarketPrice выставляет заявку на покупку акции по рыночной цене.
+    func buyMarketPrice(figi :String) {
+        var req = PostOrderRequest()
+        
+        req.accountID = "номер брокерского счета"
+        req.orderID = UUID().uuidString
+        req.quantity = 1
+        req.direction = OrderDirection.buy
+        req.figi = figi
+        req.orderType = OrderType.market
+        // Не передаем price, так как продаем по рыночной цене
+        
+        self.sdk.sandboxService.postOrder(request: req)
+        // TODO: await result
+    }
+    
+    // buyMarketPrice выставляет заявку на продажу акции с учетом определенного процента прибыли.
+    func sellWithProfit() {
+        
+    }
+    
+    func processOrderbook(orderbook: OrderBook) {
+        // Расчет количества лотов в заявках на покупку и продажу.
+        var countBuy: Int64 = 0
+        for bid in orderbook.bids {
+            countBuy += bid.quantity
+        }
+        
+        var countSell: Int64 = 0
+        for ask in orderbook.asks {
+            countSell += ask.quantity
+        }
+        
+        print("buy = ", countBuy)
+        print("sell = ", countSell)
+        
+        // Перевес в количестве заявок на покупку.
+        if countBuy > countSell {
+            print("more buy, need to buy more!")
+            return
+        }
+        
+        // Перевес в количестве заявок на продажу.
+        if (countSell > countBuy) {
+            print("more sell, need to sell some!")
+            return
+        }
+        
+        // Ничего не делаем, если нет значимого перевеса.
+    }
+    
+    // subscirbeToOrderBook подписывает на получение информации по стакану с глубиной 20.
+    // ответ асинхронно приходит в "case .orderbook" как только состояние стакана изменится.
+    // BBG000BBJQV0 - figi of Nvidea
+    func subscirbeToOrderBook() {
+        self.sdk.marketDataServiceStream.subscribeToOrderBook(figi: "BBG000BBJQV0", depth: 20).sink { result in
+           print(result)
+        } receiveValue: { result in
+           switch result.payload {
+           case .orderbook(let orderbook):
+               self.processOrderbook(orderbook: orderbook)
+           default:
+               print("dai \(result.payload)")
+               break
+           }
+        }.store(in: &cancellables)
+    }
+    
+    // TODO:
+    // may be use OrdersStreamService for visualizer?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,20 +152,37 @@ class VisualizationViewController: UIViewController {
         
         
         print(isConnectedToInternet())
+        subscirbeToOrderBook()
         
-        self.sdk.userService.getAccounts().sink { result in
-            switch result {
-            case .failure(let error):
-                print(error.localizedDescription)
-            case .finished:
-                print(result)
-                print("did finish loading getPortfolio")
-            default:
-                print(result)
-            }
-          } receiveValue: { portfolio in
-            print(portfolio)
-          }.store(in: &cancellables)
+        
+        
+//        self.sdk.userService.getAccounts().sink { result in
+//            switch result {
+//            case .failure(let error):
+//                print(error.localizedDescription)
+//            case .finished:
+//                print(result)
+//                print("did finish loading getPortfolio")
+//            default:
+//                print(result)
+//            }
+//          } receiveValue: { portfolio in
+//            print(portfolio)
+//          }.store(in: &cancellables)
+        
+//        self.sdk.userService.getAccounts().sink { result in
+//            switch result {
+//            case .failure(let error):
+//                print(error.localizedDescription)
+//            case .finished:
+//                print(result)
+//                print("did finish loading getPortfolio")
+//            default:
+//                print(result)
+//            }
+//          } receiveValue: { portfolio in
+//            print(portfolio)
+//          }.store(in: &cancellables)
         
 //        self.sdk.userService.getAccounts().flatMap {
 //            self.sdk.portfolioService.getPortfolio(accountID: $0.accounts.first!.id)
@@ -114,6 +208,21 @@ class VisualizationViewController: UIViewController {
 //               break
 //           }
 //        }.store(in: &cancellables)
+        
+//        self.sdk.marketDataServiceStream.subscribeToOrderBook(figi: "BBG00ZKY1P71", depth: 20).sink { result in
+//           print(result)
+//        } receiveValue: { result in
+//           switch result.payload {
+//           case .trade(let trade):
+//              print(trade.price.asAmount)
+//           default:
+//               print("dai \(result.payload)")
+//               break
+//           }
+//        }.store(in: &cancellables)
+        
+        
+//        self.sdk.marketDataServiceStream.subscribeToOrderBook(figi: "BBG00ZKY1P71", depth: 20).sink(receiveCompletion: <#T##((Subscribers.Completion<RPCError>) -> Void)##((Subscribers.Completion<RPCError>) -> Void)##(Subscribers.Completion<RPCError>) -> Void#>, receiveValue: <#T##((MarketDataResponse) -> Void)##((MarketDataResponse) -> Void)##(MarketDataResponse) -> Void#>)
         
 //        for i in cancellables {
 //            print(i.cancel())
