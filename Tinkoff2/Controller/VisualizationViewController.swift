@@ -27,12 +27,21 @@ class VisualizationViewController: UIViewController {
 
 	func onBotStart() {
 		started = true
-		initSubscribers()
+		initSubcribers()
 	}
 
-	func initSubscribers() {
-		// Should uninitilize everything here and reinit data sources.
+	func onBotFinish() {
+		started = false
+		removeSubcribers()
+	}
+
+	func removeSubcribers() {
 		self.orderSub?.cancel()
+	}
+
+	func initSubcribers() {
+		// Should uninitilize everything here and reinit data sources.
+		removeSubcribers()
 
 		switch GlobalBotConfig.mode {
 		case .Emu:

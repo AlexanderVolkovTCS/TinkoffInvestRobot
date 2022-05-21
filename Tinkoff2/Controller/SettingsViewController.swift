@@ -52,14 +52,20 @@ class SettingsViewController: UIViewController {
 
 	@objc
 	func onBotStatus(_ sender: UISegmentedControl) {
-		// We use split view, so VisualizationVC is 2 levels away, as views are wrapped into UINavigationController
-		let label = self.toolbarItems?[0].customView as? UILabel
-		label?.text = "Bot is running"
-		self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .pause, target: self, action: #selector(onBotStatus(_:)))
+		self.model.isBotRunning = !self.model.isBotRunning
 
-		GlobalBotConfig.account = self.model.activeAccount ?? Account()
-		GlobalBotConfig.mode = currentMode
-		self.vizVC?.onBotStart()
+		let label = self.toolbarItems?[0].customView as? UILabel
+		if self.model.isBotRunning {
+			GlobalBotConfig.account = self.model.activeAccount ?? Account()
+			GlobalBotConfig.mode = currentMode
+			self.vizVC?.onBotStart()
+			label?.text = "Bot is running"
+			self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .pause, target: self, action: #selector(onBotStatus(_:)))
+		} else {
+			self.vizVC?.onBotFinish()
+			label?.text = "Bot is stopped"
+			self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .play, target: self, action: #selector(onBotStatus(_:)))
+		}
 	}
 
 	override func viewDidLoad() {
