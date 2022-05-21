@@ -26,6 +26,7 @@
 		714405262839298F007AE807 /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 714405252839298F007AE807 /* GraphView.swift */; };
 		7144052828393C54007AE807 /* VisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144052728393C54007AE807 /* VisualizerView.swift */; };
 		7144052A283952AE007AE807 /* TagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71440529283952AE007AE807 /* TagsView.swift */; };
+		7144052C28395B67007AE807 /* TradesStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144052B28395B67007AE807 /* TradesStream.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +48,7 @@
 		714405252839298F007AE807 /* GraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
 		7144052728393C54007AE807 /* VisualizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualizerView.swift; sourceTree = "<group>"; };
 		71440529283952AE007AE807 /* TagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsView.swift; sourceTree = "<group>"; };
+		7144052B28395B67007AE807 /* TradesStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TradesStream.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +100,7 @@
 		711DB4F12838243500CF5474 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				7144052B28395B67007AE807 /* TradesStream.swift */,
 				711DB50D28391D1300CF5474 /* PostOrder.swift */,
 				711DB4F92838B43700CF5474 /* Orders.swift */,
 				711DB4FB2838CDAA00CF5474 /* ProfileList.swift */,
@@ -222,6 +225,7 @@
 				711DB4FC2838CDAA00CF5474 /* ProfileList.swift in Sources */,
 				711DB5032838D37F00CF5474 /* BotMode.swift in Sources */,
 				711DB5012838CF2600CF5474 /* Internet.swift in Sources */,
+				7144052C28395B67007AE807 /* TradesStream.swift in Sources */,
 				714405262839298F007AE807 /* GraphView.swift in Sources */,
 				7113C0F72837C3DE004C1910 /* AppDelegate.swift in Sources */,
 				711DB4FA2838B43700CF5474 /* Orders.swift in Sources */,

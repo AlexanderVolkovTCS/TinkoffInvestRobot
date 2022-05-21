@@ -58,7 +58,8 @@ class SettingsViewController: UIViewController {
 		if self.model.isBotRunning {
 			GlobalBotConfig.account = self.model.activeAccount ?? Account()
 			GlobalBotConfig.mode = currentMode
-			self.vizVC?.onBotStart()
+            GlobalBotConfig.figis = self.model.figiData
+            self.vizVC?.onBotStart()
 			label?.text = "Bot is running"
 			self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .pause, target: self, action: #selector(onBotStatus(_:)))
 //            navigationController!.pushViewController(self.vizVC!, animated: true)

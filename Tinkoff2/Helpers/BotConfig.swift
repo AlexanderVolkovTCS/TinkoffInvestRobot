@@ -15,6 +15,7 @@ struct BotConfig {
 		sandbox: DefaultTokenProvider(token: "t.JXmm55rH0MxmzpuuoGJrAvREeKzBy6Vf4vhkHDL1tbbhtHoI6yO83b2d70gHfzBuY1yLk2KNZzlT0B8vYsQIxg")
 	)
 	public var mode: BotMode = .Emu
+    public var figis: [String] = []
 
 	init() { }
 }
