@@ -23,6 +23,8 @@ class VisualizationViewController: UIViewController {
     
     var orderSub : OrderSubscriber? = nil
     
+    var postOrder: PostOrder? = nil
+    
     func onBotStart() {
         started = true
     }
@@ -35,8 +37,13 @@ class VisualizationViewController: UIViewController {
         switch sender.selectedSegmentIndex {
         case 0:
             self.orderSub = EmuOrderSubscriber(figi: "TSLA", callback: processOrderbook)
-        case 1, 2:
+            self.postOrder = EmuPostOrder(figi: "TSLA")
+        case 1:
             self.orderSub = TinkoffOrderSubscriber(figi: "TSLA", callback: processOrderbook)
+            self.postOrder = SandboxPostOrder(figi: "TSLA")
+        case 2:
+            self.orderSub = TinkoffOrderSubscriber(figi: "TSLA", callback: processOrderbook)
+            self.postOrder = TinkoffPostOrder(figi: "TSLA")
         default:
             abort()
         }
@@ -77,36 +84,6 @@ class VisualizationViewController: UIViewController {
 //  Роботы на "стакане"
 //
 //  Робот отслеживает "стакан". Если лотов в заявках на покупку больше, чем в лотах на продажу в определенное количество раз, то робот покупает инструмент по рыночной цене, в противном случае – продает, сразу выставляя поручение в обратную сторону, но с определенным процентом прибыли.
-    
-    // buyMarketPrice выставляет заявку на покупку акции по рыночной цене.
-    func buyMarketPrice(figi :String) {
-        var req = PostOrderRequest()
-        req.accountID = GlobalBotConfig.account.id
-        req.orderID = UUID().uuidString
-        req.quantity = 1
-        req.direction = OrderDirection.buy
-        req.figi = figi
-        req.orderType = OrderType.market
-        // Не передаем price, так как продаем по рыночной цене
-        
-//        self.sdk.sandboxService.postOrder(request: req)
-        // TODO: await result
-    }
-    
-    // sellWithLimit выставляет заявку на продажу акции с учетом лимита.
-    func sellWithLimit(figi :String, price: Quotation) {
-        var req = PostOrderRequest()
-        req.accountID = GlobalBotConfig.account.id
-        req.orderID = UUID().uuidString
-        req.quantity = 1
-        req.direction = OrderDirection.sell
-        req.figi = figi
-        req.orderType = OrderType.limit
-        req.price = price
-        
-//        self.sdk.sandboxService.postOrder(request: req)
-        // TODO: await result
-    }
     
 //    // buyMarketPrice выставляет заявку на продажу акции с учетом определенного процента прибыли.
 //    func sellWithPorfit(figi: String) {
@@ -150,7 +127,7 @@ class VisualizationViewController: UIViewController {
         // Перевес в количестве заявок на покупку.
         if countBuy > countSell {
             print("more buy, need to buy more!")
-//            buyMarketPrice(figi: orderbook.figi)
+            self.postOrder?.buyMarketPrice()
             return
         }
         
@@ -161,7 +138,7 @@ class VisualizationViewController: UIViewController {
             var price = Quotation()
             price.units = orderbook.bids.last!.price.units
             price.nano = orderbook.bids.last!.price.nano
-//            sellWithLimit(figi: orderbook.figi, price: price)
+            self.postOrder?.sellWithLimit(price: price)
             return
         }
         
