@@ -93,6 +93,23 @@ class VisualizationViewController: UIViewController {
         // TODO: await result
     }
     
+    func getAveragePriceOfFigiOnAccount(figi: String, accountID: String) {
+        sdk.portfolioService.getPortfolio(accountID: accountID).sink { result in
+          switch result {
+          case .failure(let error):
+              print(error.localizedDescription)
+          case .finished:
+              print("did finish loading getPortfolio")
+          }
+        } receiveValue: { portfolio in
+            for position in portfolio.positions {
+                print("quantity =", position.quantity)
+                print("current price = ", position.currentPrice)
+                print("current price = ", position.averagePositionPrice)
+            }
+        }.store(in: &cancellables)
+    }
+    
     // buyMarketPrice выставляет заявку на продажу акции с учетом определенного процента прибыли.
     func sellWithProfit() {
         
