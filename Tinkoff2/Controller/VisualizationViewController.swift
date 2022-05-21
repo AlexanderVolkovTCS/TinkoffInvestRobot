@@ -20,6 +20,8 @@ class VisualizationViewController: UIViewController {
 	var started = false
 
 	var cancellables = Set<AnyCancellable>()
+    
+    var tradesStreamSub: TradesStreamSubscriber? = nil
 
 	var orderSub: OrderSubscriber? = nil
 
@@ -36,6 +38,7 @@ class VisualizationViewController: UIViewController {
 	}
 
 	func removeSubcribers() {
+        self.tradesStreamSub?.cancel()
 		self.orderSub?.cancel()
 	}
 
@@ -45,12 +48,15 @@ class VisualizationViewController: UIViewController {
 
 		switch GlobalBotConfig.mode {
 		case .Emu:
+            self.tradesStreamSub = EmuTradesStreamSubscriber(figi: "TSLA", callback: processTrade)
 			self.orderSub = EmuOrderSubscriber(figi: "TSLA", callback: processOrderbook)
-			self.postOrder = EmuPostOrder(figi: "TSLA")
+            self.postOrder = EmuPostOrder(figi: "TSLA", tradesStreamSubsriber: self.tradesStreamSub! as! EmuTradesStreamSubscriber)
 		case .Sandbox:
+            self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "TSLA", callback: processTrade)
 			self.orderSub = TinkoffOrderSubscriber(figi: "TSLA", callback: processOrderbook)
 			self.postOrder = SandboxPostOrder(figi: "TSLA")
 		case .Tinkoff:
+            self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "TSLA", callback: processTrade)
 			self.orderSub = TinkoffOrderSubscriber(figi: "TSLA", callback: processOrderbook)
 			self.postOrder = TinkoffPostOrder(figi: "TSLA")
 		}
@@ -114,7 +120,11 @@ class VisualizationViewController: UIViewController {
 //            }
 //        }.store(in: &cancellables)
 //    }
-
+    
+    func processTrade(trade: Trade) {
+        return
+    }
+    
 	func processOrderbook(orderbook: OrderBookData) {
 		// Расчет количества лотов в заявках на покупку и продажу.
 		var countBuy: Int64 = 0
