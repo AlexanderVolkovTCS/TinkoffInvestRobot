@@ -8,6 +8,7 @@
 import UIKit
 import SwiftUI
 import TinkoffInvestSDK
+import Combine
 import Introspect
 
 class SettingPageModel: ObservableObject {
@@ -17,7 +18,9 @@ class SettingPageModel: ObservableObject {
 	@Published var onModeChange: ((Int) -> ())? = nil
 	@Published var isBotRunning: Bool = false
 
-	@Published var figiData: [String] = []
+	@Published var figiData: [Instrument] = []
+	@Published var sdk: TinkoffInvestSDK? = nil
+	@Published var cancellables = Set<AnyCancellable>()
 
 	init() { }
 }
@@ -93,7 +96,34 @@ struct AccountListView: View {
 struct StockListView: View {
 	@ObservedObject var model: SettingPageModel
 	@State private var figifield: String = ""
+	@State private var instrument: Instrument? = nil
 	@State private var contentWidth: CGFloat = 0
+
+	func onrespfound(response: Instrument) {
+		instrument = response
+	}
+
+	func autocomplete(string: String) {
+		instrument = nil
+		let string = string.uppercased()
+		if string.count == 12 {
+			model.sdk?.instrumentsService.getInstrumentBy(params: InstrumentParameters(idType: .figi, classCode: "", id: string)).sink { _ in
+			} receiveValue: { resp in
+				onrespfound(response: resp.instrument)
+			}.store(in: &model.cancellables)
+		}
+		if string.count < 6 {
+			model.sdk?.instrumentsService.getInstrumentBy(params: InstrumentParameters(idType: .ticker, classCode: "SPBXM", id: string)).sink { _ in
+			} receiveValue: { resp in
+				onrespfound(response: resp.instrument)
+			}.store(in: &model.cancellables)
+
+			model.sdk?.instrumentsService.getInstrumentBy(params: InstrumentParameters(idType: .ticker, classCode: "MOEX", id: string)).sink { _ in
+			} receiveValue: { resp in
+				onrespfound(response: resp.instrument)
+			}.store(in: &model.cancellables)
+		}
+	}
 
 	var body: some View {
 		VStack {
@@ -103,18 +133,33 @@ struct StockListView: View {
 				.padding(EdgeInsets(top: 8, leading: 16, bottom: 0, trailing: 16))
 				.readSize { size in contentWidth = size.width - 16 }
 			TextField(
-				"Введите FIGI",
-                text: $figifield,
+				"Вводите запрос",
+				text: $figifield,
 				onCommit: {
-                    if figifield != "" {
-                        model.figiData.append(figifield)
-                    }
-                    figifield = ""
+					if instrument != nil {
+						model.figiData.append(instrument!)
+						figifield = ""
+						instrument = nil
+					}
 				}
 			)
+				.onChange(of: figifield) {
+				self.autocomplete(string: $0)
+			}
 				.textFieldStyle(.roundedBorder)
 				.disabled(model.isBotRunning)
 				.padding(EdgeInsets(top: 8, leading: 16, bottom: 0, trailing: 16))
+			if instrument != nil {
+				Text("Найдено \(instrument!.name)")
+					.font(.caption)
+					.frame(maxWidth: .infinity, alignment: .leading)
+					.padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+			} else {
+				Text("Ничего не найдено...")
+					.font(.caption)
+					.frame(maxWidth: .infinity, alignment: .leading)
+					.padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+			}
 
 			FlexibleView(
 				availableWidth: contentWidth,
@@ -123,18 +168,18 @@ struct StockListView: View {
 				alignment: .leading
 			) { item in
 				HStack {
-					Text(verbatim: item)
-                        .padding(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 0))
+					Text(verbatim: item.name)
+						.padding(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 0))
 					Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
-                        .padding(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 8))
+						.foregroundColor(.gray)
+						.padding(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 8))
 						.onTapGesture {
-						model.figiData.removeAll { name in
-                            return name == item.codingKey.stringValue
+						model.figiData.removeAll { instrument in
+							return instrument.name == item.name
 						}
 					}
 				}
-                .background(RoundedRectangle(cornerRadius: 8).fill(Color.gray.opacity(0.2)))
+					.background(RoundedRectangle(cornerRadius: 8).fill(Color.gray.opacity(0.2)))
 			}
 				.padding(.horizontal, 16)
 		}

@@ -58,8 +58,8 @@ class SettingsViewController: UIViewController {
 		if self.model.isBotRunning {
 			GlobalBotConfig.account = self.model.activeAccount ?? Account()
 			GlobalBotConfig.mode = currentMode
-            GlobalBotConfig.figis = self.model.figiData
-            self.vizVC?.onBotStart()
+			GlobalBotConfig.figis = self.model.figiData
+			self.vizVC?.onBotStart()
 			label?.text = "Bot is running"
 			self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .pause, target: self, action: #selector(onBotStatus(_:)))
 //            navigationController!.pushViewController(self.vizVC!, animated: true)
@@ -72,6 +72,8 @@ class SettingsViewController: UIViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
+
+		self.model.sdk = GlobalBotConfig.sdk
 
 		view.backgroundColor = .lightGray
 		self.navigationItem.title = "Invest Bot"

@@ -34,6 +34,7 @@ class VisualizationViewController: UIViewController {
 
 	func onBotStart() {
 		started = true
+		self.model.figiData = GlobalBotConfig.figis
 		initSubcribers()
 	}
 
@@ -43,7 +44,7 @@ class VisualizationViewController: UIViewController {
 	}
 
 	func removeSubcribers() {
-        self.tradesStreamSub?.cancel()
+		self.tradesStreamSub?.cancel()
 		self.orderSub?.cancel()
         self.candlesStreamSub?.cancel()
 	}
@@ -54,17 +55,17 @@ class VisualizationViewController: UIViewController {
 
 		switch GlobalBotConfig.mode {
 		case .Emu:
-            self.tradesStreamSub = EmuTradesStreamSubscriber(figi: "TSLA", callback: processTrade)
+			self.tradesStreamSub = EmuTradesStreamSubscriber(figi: "TSLA", callback: processTrade)
 			self.orderSub = EmuOrderSubscriber(figi: "TSLA", callback: processOrderbook)
             self.postOrder = EmuPostOrder(figi: "TSLA", tradesStreamSubsriber: self.tradesStreamSub! as! EmuTradesStreamSubscriber)
             self.candlesStreamSub = EmuCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
 		case .Sandbox:
-            self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "TSLA", callback: processTrade)
+			self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "TSLA", callback: processTrade)
 			self.orderSub = TinkoffOrderSubscriber(figi: "TSLA", callback: processOrderbook)
 			self.postOrder = SandboxPostOrder(figi: "TSLA")
             self.candlesStreamSub = TinkoffCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
 		case .Tinkoff:
-            self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "TSLA", callback: processTrade)
+			self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "TSLA", callback: processTrade)
 			self.orderSub = TinkoffOrderSubscriber(figi: "TSLA", callback: processOrderbook)
 			self.postOrder = TinkoffPostOrder(figi: "TSLA")
             self.candlesStreamSub = TinkoffCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
@@ -98,7 +99,6 @@ class VisualizationViewController: UIViewController {
 //            }
 //        }.store(in: &cancellables)
 //    }
-    
     func processTrade(trade: Trade) {
         return
     }

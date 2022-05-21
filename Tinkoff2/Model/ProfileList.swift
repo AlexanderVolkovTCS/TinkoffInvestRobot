@@ -72,6 +72,7 @@ class TinkoffProfileListLoader: ProfileListLoader {
 	override init(callback: @escaping (AccountList) -> ()) {
 		super.init(callback: callback)
 		GlobalBotConfig.sdk.userService.getAccounts().sink { result in
+			print(result)
 			switch result {
 			case .failure(let error):
 				print(error.localizedDescription)
@@ -79,6 +80,7 @@ class TinkoffProfileListLoader: ProfileListLoader {
 				print("loaded")
 			}
 		} receiveValue: { portfolio in
+			print(portfolio)
 			self.onDataLoaded(profdata: AccountList(accounts: portfolio.accounts))
 		}.store(in: &cancellables)
 	}

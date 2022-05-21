@@ -6,9 +6,12 @@
 //
 
 import SwiftUI
+import TinkoffInvestSDK
 
 class VisualizerPageModel: ObservableObject {
 	@Published var data: [Int]? = nil
+
+	@Published var figiData: [Instrument] = []
 
 	init() { }
 }
@@ -37,24 +40,67 @@ struct ToolView: View {
 	}
 }
 
+struct CardsView: View {
+	@ObservedObject var model: VisualizerPageModel
+
+	@ViewBuilder
+	func waitView() -> some View {
+		VStack {
+			ProgressView()
+				.progressViewStyle(CircularProgressViewStyle(tint: .indigo))
+
+			Text("Fetching image...")
+		}
+	}
+
+	var body: some View {
+		ScrollView(.horizontal) {
+			HStack {
+				ForEach(0..<model.figiData.count, id: \.self) { id in
+					VStack {
+						AsyncImage(url: URL(string: "https://invest-brands.cdn-tinkoff.ru/\(model.figiData[id].isin)x160.png")) { phase in
+							switch phase {
+							case .success(let image):
+								image
+									.resizable()
+									.aspectRatio(contentMode: .fit)
+									.frame(width: 50, height: 50)
+									.clipShape(RoundedRectangle(cornerRadius: 25))
+
+							case .failure(let error):
+								Text(error.localizedDescription)
+
+							case .empty:
+								waitView()
+
+							@unknown default:
+								EmptyView()
+							}
+						}
+
+						Text(model.figiData[id].name)
+					}
+				}
+			}
+		}
+	}
+}
 
 struct VisualizerPageView: View {
 	@ObservedObject var model: VisualizerPageModel
 
 	let columns = [
-        GridItem(.adaptive(minimum: 200))
+		GridItem(.adaptive(minimum: 200))
 	]
 
 	var body: some View {
-		VStack {
-			ScrollView {
-				LazyVGrid(columns: columns) {
-					ForEach(0...9, id: \.self) { id in
-                        GraphViewUI(model: model)
-                            .frame(width: 100, height: 100)
-					}
+		List {
+			Section(header: CardsView(model: model)) {
+				ForEach(1..<40) { index in
+					Text("Row #\(index)")
 				}
 			}
 		}
+			.listStyle(.plain)
 	}
 }

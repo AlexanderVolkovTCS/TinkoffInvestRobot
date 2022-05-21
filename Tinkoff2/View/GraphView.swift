@@ -27,8 +27,6 @@ class GraphView: UIView {
 		let swUIViewHC4 = NSLayoutConstraint(item: chartView, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.height, multiplier: 1, constant: 0)
 		addSubview(chartView)
 		addConstraints([swUIViewHC1, swUIViewHC2, swUIViewHC3, swUIViewHC4])
-        
-        print(bounds)
 
 		chartView.dragEnabled = false
 		chartView.doubleTapToZoomEnabled = false

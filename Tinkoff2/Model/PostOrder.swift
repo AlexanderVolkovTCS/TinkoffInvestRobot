@@ -24,30 +24,30 @@ class PostOrder {
 
 
 class EmuPostOrder: PostOrder {
-    public init(figi: String, tradesStreamSubsriber: EmuTradesStreamSubscriber) {
-        super.init(figi: figi)
-        self.tradesStreamSubsriber = tradesStreamSubsriber
-    }
-    
+	public init(figi: String, tradesStreamSubsriber: EmuTradesStreamSubscriber) {
+		super.init(figi: figi)
+		self.tradesStreamSubsriber = tradesStreamSubsriber
+	}
+
 	public override func buyMarketPrice() {
-        var trade = Trade()
-        trade.figi = self.figi!
-        trade.price = Quotation()
-        trade.quantity = 1
-        trade.direction = TradeDirection.buy
-        self.tradesStreamSubsriber?.dispatchOnCall(trade: trade)
-    }
-    
+		var trade = Trade()
+		trade.figi = self.figi!
+		trade.price = Quotation()
+		trade.quantity = 1
+		trade.direction = TradeDirection.buy
+		self.tradesStreamSubsriber?.dispatchOnCall(trade: trade)
+	}
+
 	public override func sellWithLimit(price: Quotation) {
-        var trade = Trade()
-        trade.figi = self.figi!
-        trade.price = price
-        trade.quantity = 1
-        trade.direction = TradeDirection.sell
-        self.tradesStreamSubsriber?.dispatchOnCall(trade: trade)
-    }
-    
-    var tradesStreamSubsriber: EmuTradesStreamSubscriber?
+		var trade = Trade()
+		trade.figi = self.figi!
+		trade.price = price
+		trade.quantity = 1
+		trade.direction = TradeDirection.sell
+		self.tradesStreamSubsriber?.dispatchOnCall(trade: trade)
+	}
+
+	var tradesStreamSubsriber: EmuTradesStreamSubscriber?
 }
 
 class SandboxPostOrder: PostOrder {
