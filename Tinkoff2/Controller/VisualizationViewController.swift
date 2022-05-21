@@ -22,6 +22,8 @@ class VisualizationViewController: UIViewController {
 
 	var cancellables = Set<AnyCancellable>()
     
+    var candlesStreamSub: CandleStreamSubscriber? = nil
+    
     var tradesStreamSub: TradesStreamSubscriber? = nil
 
 	var orderSub: OrderSubscriber? = nil
@@ -43,6 +45,7 @@ class VisualizationViewController: UIViewController {
 	func removeSubcribers() {
         self.tradesStreamSub?.cancel()
 		self.orderSub?.cancel()
+        self.candlesStreamSub?.cancel()
 	}
 
 	func initSubcribers() {
@@ -54,14 +57,17 @@ class VisualizationViewController: UIViewController {
             self.tradesStreamSub = EmuTradesStreamSubscriber(figi: "TSLA", callback: processTrade)
 			self.orderSub = EmuOrderSubscriber(figi: "TSLA", callback: processOrderbook)
             self.postOrder = EmuPostOrder(figi: "TSLA", tradesStreamSubsriber: self.tradesStreamSub! as! EmuTradesStreamSubscriber)
+            self.candlesStreamSub = EmuCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
 		case .Sandbox:
             self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "TSLA", callback: processTrade)
 			self.orderSub = TinkoffOrderSubscriber(figi: "TSLA", callback: processOrderbook)
 			self.postOrder = SandboxPostOrder(figi: "TSLA")
+            self.candlesStreamSub = TinkoffCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
 		case .Tinkoff:
             self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "TSLA", callback: processTrade)
 			self.orderSub = TinkoffOrderSubscriber(figi: "TSLA", callback: processOrderbook)
 			self.postOrder = TinkoffPostOrder(figi: "TSLA")
+            self.candlesStreamSub = TinkoffCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
 		}
 	}
 
@@ -95,6 +101,10 @@ class VisualizationViewController: UIViewController {
     
     func processTrade(trade: Trade) {
         return
+    }
+    
+    func processCandle(candle: CandleData) {
+        print("received candle = ", candle)
     }
     
 	func processOrderbook(orderbook: OrderBookData) {
