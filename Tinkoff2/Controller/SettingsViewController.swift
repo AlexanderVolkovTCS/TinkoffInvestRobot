@@ -25,7 +25,6 @@ class SettingsViewController: UIViewController {
     
     var vizVC : VisualizationViewController? = nil
     var cancellables = Set<AnyCancellable>()
-    var sdk = TinkoffInvestSDK(tokenProvider: DefaultTokenProvider(token: "t.JXmm55rH0MxmzpuuoGJrAvREeKzBy6Vf4vhkHDL1tbbhtHoI6yO83b2d70gHfzBuY1yLk2KNZzlT0B8vYsQIxg"), sandbox: DefaultTokenProvider(token: "t.JXmm55rH0MxmzpuuoGJrAvREeKzBy6Vf4vhkHDL1tbbhtHoI6yO83b2d70gHfzBuY1yLk2KNZzlT0B8vYsQIxg"))
     
     func onNewProfileListData(data: AccountList) {
         self.accountList = data
@@ -46,9 +45,9 @@ class SettingsViewController: UIViewController {
         case .Emu:
             profileLoader = EmuProfileListLoader(callback: onNewProfileListData)
         case .Sandbox:
-            profileLoader = SandboxProfileListLoader(sdk: self.sdk, callback: onNewProfileListData)
+            profileLoader = SandboxProfileListLoader(callback: onNewProfileListData)
         case .Tinkoff:
-            profileLoader = TinkoffProfileListLoader(sdk: self.sdk, callback: onNewProfileListData)
+            profileLoader = TinkoffProfileListLoader(callback: onNewProfileListData)
         }
 
         self.modeDescriptionView.text = BotMode.descriptionFor(newMode)
@@ -64,7 +63,8 @@ class SettingsViewController: UIViewController {
         label?.text = "Bot is running"
         self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .pause, target: self, action: #selector(onBotStatus(_:)))
         
-        self.vizVC?.onBotStart(BotConfig(account: self.activeAccount))
+        GlobalBotConfig.account = self.activeAccount
+        self.vizVC?.onBotStart()        
     }
 
     override func viewDidLoad() {
@@ -139,23 +139,6 @@ class SettingsViewController: UIViewController {
         let profileViewHC4 = NSLayoutConstraint(item: self.profileView, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: 70)
         view.addSubview(self.profileView)
         view.addConstraints([profileViewHC1, profileViewHC2, profileViewHC3, profileViewHC4])
-        
-        
-        
-//        print(isConnectedToInternet())
-//        self.sdk.userService.getAccounts().sink { result in
-//            switch result {
-//            case .failure(let error):
-//                print(error.localizedDescription)
-//            case .finished:
-//                print(result)
-//                print("did finish loading getPortfolio")
-//            default:
-//                print(result)
-//            }
-//          } receiveValue: { portfolio in
-//            print(portfolio)
-//          }.store(in: &cancellables)
     }
 }
 

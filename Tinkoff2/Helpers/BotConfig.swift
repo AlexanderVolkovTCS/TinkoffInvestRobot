@@ -9,5 +9,13 @@ import Foundation
 import TinkoffInvestSDK
 
 struct BotConfig {
-    public var account: Account
+    public var account = Account()
+    public var sdk = TinkoffInvestSDK(
+        tokenProvider: DefaultTokenProvider(token: ""),
+        sandbox: DefaultTokenProvider(token: "")
+    )
+    
+    init() {}
 }
+
+var GlobalBotConfig = BotConfig()

@@ -17,13 +17,14 @@ class VisualizationViewController: UIViewController {
     
     var candleView : CandleStickChartView? = nil
     
+    var started = false
+    
     var cancellables = Set<AnyCancellable>()
-    var sdk = TinkoffInvestSDK(tokenProvider: DefaultTokenProvider(token: "t.JXmm55rH0MxmzpuuoGJrAvREeKzBy6Vf4vhkHDL1tbbhtHoI6yO83b2d70gHfzBuY1yLk2KNZzlT0B8vYsQIxg"), sandbox: DefaultTokenProvider(token: "t.JXmm55rH0MxmzpuuoGJrAvREeKzBy6Vf4vhkHDL1tbbhtHoI6yO83b2d70gHfzBuY1yLk2KNZzlT0B8vYsQIxg"))
     
     var orderSub : OrderSubscriber? = nil
     
-    func onBotStart(_ info: BotConfig) {
-        print(info.account.id)
+    func onBotStart() {
+        started = true
     }
     
     @objc
@@ -80,8 +81,7 @@ class VisualizationViewController: UIViewController {
     // buyMarketPrice выставляет заявку на покупку акции по рыночной цене.
     func buyMarketPrice(figi :String) {
         var req = PostOrderRequest()
-        
-        req.accountID = "номер брокерского счета"
+        req.accountID = GlobalBotConfig.account.id
         req.orderID = UUID().uuidString
         req.quantity = 1
         req.direction = OrderDirection.buy
@@ -89,31 +89,48 @@ class VisualizationViewController: UIViewController {
         req.orderType = OrderType.market
         // Не передаем price, так как продаем по рыночной цене
         
-        self.sdk.sandboxService.postOrder(request: req)
+//        self.sdk.sandboxService.postOrder(request: req)
         // TODO: await result
     }
     
-    func getAveragePriceOfFigiOnAccount(figi: String, accountID: String) {
-        sdk.portfolioService.getPortfolio(accountID: accountID).sink { result in
-          switch result {
-          case .failure(let error):
-              print(error.localizedDescription)
-          case .finished:
-              print("did finish loading getPortfolio")
-          }
-        } receiveValue: { portfolio in
-            for position in portfolio.positions {
-                print("quantity =", position.quantity)
-                print("current price = ", position.currentPrice)
-                print("current price = ", position.averagePositionPrice)
-            }
-        }.store(in: &cancellables)
+    // sellWithLimit выставляет заявку на продажу акции с учетом лимита.
+    func sellWithLimit(figi :String, price: Quotation) {
+        var req = PostOrderRequest()
+        req.accountID = GlobalBotConfig.account.id
+        req.orderID = UUID().uuidString
+        req.quantity = 1
+        req.direction = OrderDirection.sell
+        req.figi = figi
+        req.orderType = OrderType.limit
+        req.price = price
+        
+//        self.sdk.sandboxService.postOrder(request: req)
+        // TODO: await result
     }
     
-    // buyMarketPrice выставляет заявку на продажу акции с учетом определенного процента прибыли.
-    func sellWithProfit() {
-        
-    }
+//    // buyMarketPrice выставляет заявку на продажу акции с учетом определенного процента прибыли.
+//    func sellWithPorfit(figi: String) {
+//        sdk.portfolioService.getPortfolio(accountID: (self.botConfig?.account.id)!).sink { result in
+//          switch result {
+//          case .failure(let error):
+//              print(error.localizedDescription)
+//          case .finished:
+//              print("did finish loading getPortfolio")
+//          }
+//        } receiveValue: { portfolio in
+//            for position in portfolio.positions {
+//                print("quantity =", position.quantity)
+//                print("current price = ", position.currentPrice)
+//                print("averate price = ", position.averagePositionPrice)
+//
+//                if position.figi == figi {
+//                    // Расчет лучшей возможной цены на продажу.
+//                    var bestPrice = max(position.currentPrice, position.averagePositionPrice * 1.15)
+//                    sell(position.figi, position.a)
+//                }
+//            }
+//        }.store(in: &cancellables)
+//    }
     
     func processOrderbook(orderbook: OrderBookData) {
         // Расчет количества лотов в заявках на покупку и продажу.
@@ -133,12 +150,18 @@ class VisualizationViewController: UIViewController {
         // Перевес в количестве заявок на покупку.
         if countBuy > countSell {
             print("more buy, need to buy more!")
+//            buyMarketPrice(figi: orderbook.figi)
             return
         }
         
         // Перевес в количестве заявок на продажу.
         if (countSell > countBuy) {
             print("more sell, need to sell some!")
+            // Продаем по верхней границе стакана.
+            var price = Quotation()
+            price.units = orderbook.bids.last!.price.units
+            price.nano = orderbook.bids.last!.price.nano
+//            sellWithLimit(figi: orderbook.figi, price: price)
             return
         }
         

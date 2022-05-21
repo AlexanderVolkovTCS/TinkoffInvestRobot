@@ -50,9 +50,9 @@ class SandboxProfileListLoader : ProfileListLoader{
     var cancellables = Set<AnyCancellable>()
     
     // TODO: Call openAccount if no accunts available.
-    init(sdk: TinkoffInvestSDK, callback: @escaping (AccountList)->()) {
+    override init(callback: @escaping (AccountList)->()) {
         super.init(callback: callback)
-        sdk.sandboxService.getAccounts().sink { result in
+        GlobalBotConfig.sdk.sandboxService.getAccounts().sink { result in
         switch result {
             case .failure(let error):
                 print(result)
@@ -69,9 +69,9 @@ class SandboxProfileListLoader : ProfileListLoader{
 class TinkoffProfileListLoader : ProfileListLoader {
     var cancellables = Set<AnyCancellable>()
     
-    init(sdk: TinkoffInvestSDK, callback: @escaping (AccountList)->()) {
+    override init(callback: @escaping (AccountList)->()) {
         super.init(callback: callback)
-        sdk.userService.getAccounts().sink { result in
+        GlobalBotConfig.sdk.userService.getAccounts().sink { result in
         switch result {
             case .failure(let error):
                 print(error.localizedDescription)
