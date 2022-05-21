@@ -12,6 +12,7 @@ import TinkoffInvestSDK
 class SettingsViewController: UIViewController {
     let padding = 16.0
     
+    var vizVC : VisualizationViewController? = nil
     var cancellables = Set<AnyCancellable>()
     var sdk = TinkoffInvestSDK(tokenProvider: DefaultTokenProvider(token: "t."), sandbox: DefaultTokenProvider(token: ""))
     
@@ -27,8 +28,7 @@ class SettingsViewController: UIViewController {
     @objc
     func onModeChange(_ sender: UISegmentedControl) {
         // We use split view, so VisualizationVC is 2 levels away, as views are wrapped into UINavigationController
-        let VisualizationVC = parent?.parent?.children[1].children[0] as! VisualizationViewController
-        VisualizationVC.onModeChange(sender)
+        self.vizVC?.onModeChange(sender)
     }
 
     override func viewDidLoad() {
@@ -38,9 +38,29 @@ class SettingsViewController: UIViewController {
         self.navigationItem.title = "Invest Bot"
         self.navigationController?.navigationBar.prefersLargeTitles = true
         
+//        let header = UIView()
+//        header.backgroundColor = UIColor(red: 231, green: 240, blue: 250)
+//        header.translatesAutoresizingMaskIntoConstraints = false
+//        let headerHC1 = NSLayoutConstraint(item: header, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: 0)
+//        let headerHC2 = NSLayoutConstraint(item: header, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.width, multiplier: 1, constant: 0)
+//        let headerHC3 = NSLayoutConstraint(item: header, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: view.safeAreaInsets.top + 100)
+//        view.addSubview(header)
+//        view.addConstraints([headerHC1, headerHC2, headerHC3])
+//        
+//        let headerLabel = UILabel()
+//        headerLabel.text = "Visualizer"
+//        headerLabel.textColor = .black
+//        headerLabel.translatesAutoresizingMaskIntoConstraints = false
+//        let headerLabelHC1 = NSLayoutConstraint(item: headerLabel, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: header, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: -self.padding)
+//        let headerLabelHC2 = NSLayoutConstraint(item: headerLabel, attribute: NSLayoutConstraint.Attribute.left, relatedBy: NSLayoutConstraint.Relation.equal, toItem: header, attribute: NSLayoutConstraint.Attribute.left, multiplier: 1, constant: view.safeAreaInsets.left + self.padding)
+//        let headerLabelHC3 = NSLayoutConstraint(item: headerLabel, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: header, attribute: NSLayoutConstraint.Attribute.width, multiplier: 1, constant: 0)
+//        header.addSubview(headerLabel)
+//        header.addConstraints([headerLabelHC1, headerLabelHC2, headerLabelHC3])
+        
         let modePicker = UISegmentedControl()
-        modePicker.insertSegment(withTitle: "Sandbox", at: 0, animated: false)
-        modePicker.insertSegment(withTitle: "Real", at: 1, animated: false)
+        modePicker.insertSegment(withTitle: "Эмулятор", at: 0, animated: false)
+        modePicker.insertSegment(withTitle: "Песочница", at: 1, animated: false)
+        modePicker.insertSegment(withTitle: "Тинькофф", at: 2, animated: false)
         modePicker.selectedSegmentIndex = 0
         modePicker.addTarget(self, action: "onModeChange:", for: .valueChanged)
         modePicker.translatesAutoresizingMaskIntoConstraints = false

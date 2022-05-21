@@ -26,6 +26,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let detailController = VisualizationViewController()
             let detailNavigationController = UINavigationController(rootViewController: detailController)
 
+            masterController.vizVC = detailController
+        
             let splitViewController =  UISplitViewController()
             splitViewController.viewControllers = [masterNavigationController, detailNavigationController]
 //          let navigationController = UINavigationController(rootViewController: viewController)

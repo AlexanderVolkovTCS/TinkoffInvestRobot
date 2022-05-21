@@ -10,12 +10,17 @@ import Foundation
 import UIKit
 import Combine
 import TinkoffInvestSDK
+import Charts
 
 class VisualizationViewController: UIViewController {
     let padding = 16.0
     
+    var candleView : CandleStickChartView? = nil
+    
     var cancellables = Set<AnyCancellable>()
     var sdk = TinkoffInvestSDK(tokenProvider: DefaultTokenProvider(token: "t."), sandbox: DefaultTokenProvider(token: ""))
+    
+    var orderSub : OrderSubscriber? = nil
     
     func isConnectedToInternet() -> Bool {
         let hostname = "google.com"
@@ -33,7 +38,47 @@ class VisualizationViewController: UIViewController {
     
     @objc
     func onModeChange(_ sender: UISegmentedControl) {
+        // Should uninitilize everything here and reinit data sources.
+        self.orderSub?.cancel()
+        
+        switch sender.selectedSegmentIndex {
+        case 0:
+            self.orderSub = EmuOrderSubscriber(figi: "TSLA", callback: processOrderbook)
+        case 1, 2:
+            self.orderSub = TinkoffOrderSubscriber(figi: "TSLA", callback: processOrderbook)
+        default:
+            abort()
+        }
         print("selected \(sender.selectedSegmentIndex)")
+    }
+    
+    func setDataCount(_ count: Int, range: UInt32) {
+        let yVals1 = (0..<count).map { (i) -> CandleChartDataEntry in
+            let mult = range + 1
+            let val = Double(arc4random_uniform(40) + mult)
+            let high = Double(arc4random_uniform(9) + 8)
+            let low = Double(arc4random_uniform(9) + 8)
+            let open = Double(arc4random_uniform(6) + 1)
+            let close = Double(arc4random_uniform(6) + 1)
+            let even = i % 2 == 0
+            
+            return CandleChartDataEntry(x: Double(i), shadowH: val + high, shadowL: val - low, open: even ? val + open : val - open, close: even ? val - close : val + close, icon: nil)
+        }
+        
+        let set1 = CandleChartDataSet(entries: yVals1, label: "Data Set")
+        set1.axisDependency = .left
+        set1.setColor(UIColor(white: 80/255, alpha: 1))
+        set1.drawIconsEnabled = false
+        set1.shadowColor = .darkGray
+        set1.shadowWidth = 0.7
+        set1.decreasingColor = UIColor(red: 242, green: 122, blue: 84)
+        set1.decreasingFilled = false
+        set1.increasingColor = UIColor(red: 122, green: 242, blue: 84)
+        set1.increasingFilled = false
+        set1.neutralColor = .blue
+        
+        let data = CandleChartData(dataSet: set1)
+        self.candleView?.data = data
     }
     
 
@@ -63,7 +108,7 @@ class VisualizationViewController: UIViewController {
         
     }
     
-    func processOrderbook(orderbook: OrderBook) {
+    func processOrderbook(orderbook: OrderBookContent) {
         // Расчет количества лотов в заявках на покупку и продажу.
         var countBuy: Int64 = 0
         for bid in orderbook.bids {
@@ -95,20 +140,20 @@ class VisualizationViewController: UIViewController {
     
     // subscirbeToOrderBook подписывает на получение информации по стакану с глубиной 20.
     // ответ асинхронно приходит в "case .orderbook" как только состояние стакана изменится.
-    // BBG000BBJQV0 - figi of Nvidea
-    func subscirbeToOrderBook() {
-        self.sdk.marketDataServiceStream.subscribeToOrderBook(figi: "BBG000BBJQV0", depth: 20).sink { result in
-           print(result)
-        } receiveValue: { result in
-           switch result.payload {
-           case .orderbook(let orderbook):
-               self.processOrderbook(orderbook: orderbook)
-           default:
-               print("dai \(result.payload)")
-               break
-           }
-        }.store(in: &cancellables)
-    }
+    // BBG000BBJQV0 - figi of Nvidia
+//    func subscirbeToOrderBook() {
+//        self.sdk.marketDataServiceStream.subscribeToOrderBook(figi: "BBG000BBJQV0", depth: 20).sink { result in
+//           print(result)
+//        } receiveValue: { result in
+//           switch result.payload {
+//           case .orderbook(let orderbook):
+//               self.processOrderbook(orderbook: orderbook)
+//           default:
+//               print("dai \(result.payload)")
+//               break
+//           }
+//        }.store(in: &cancellables)
+//    }
     
     // TODO:
     // may be use OrdersStreamService for visualizer?
@@ -117,42 +162,41 @@ class VisualizationViewController: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .white
-        
-        let header = UIView()
-        header.backgroundColor = UIColor(red: 231, green: 240, blue: 250)
-        header.translatesAutoresizingMaskIntoConstraints = false
-        let headerHC1 = NSLayoutConstraint(item: header, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: 0)
-        let headerHC2 = NSLayoutConstraint(item: header, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.width, multiplier: 1, constant: 0)
-        let headerHC3 = NSLayoutConstraint(item: header, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: view.safeAreaInsets.top + 100)
-        view.addSubview(header)
-        view.addConstraints([headerHC1, headerHC2, headerHC3])
-        
-        let headerLabel = UILabel()
-        headerLabel.text = "Visualizer"
-        headerLabel.textColor = .black
-        headerLabel.translatesAutoresizingMaskIntoConstraints = false
-        let headerLabelHC1 = NSLayoutConstraint(item: headerLabel, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: header, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: -self.padding)
-        let headerLabelHC2 = NSLayoutConstraint(item: headerLabel, attribute: NSLayoutConstraint.Attribute.left, relatedBy: NSLayoutConstraint.Relation.equal, toItem: header, attribute: NSLayoutConstraint.Attribute.left, multiplier: 1, constant: view.safeAreaInsets.left + self.padding)
-        let headerLabelHC3 = NSLayoutConstraint(item: headerLabel, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: header, attribute: NSLayoutConstraint.Attribute.width, multiplier: 1, constant: 0)
-        header.addSubview(headerLabel)
-        header.addConstraints([headerLabelHC1, headerLabelHC2, headerLabelHC3])
-        
-        let modePicker = UISegmentedControl()
-        modePicker.insertSegment(withTitle: "Sandbox", at: 0, animated: false)
-        modePicker.insertSegment(withTitle: "Real", at: 1, animated: false)
-        modePicker.selectedSegmentIndex = 0
-        modePicker.addTarget(self, action: "onModeChange:", for: .valueChanged)
-        modePicker.translatesAutoresizingMaskIntoConstraints = false
-        let modePickerHC1 = NSLayoutConstraint(item: modePicker, attribute: NSLayoutConstraint.Attribute.left, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.left, multiplier: 1, constant: view.safeAreaInsets.left + self.padding)
-        let modePickerHC2 = NSLayoutConstraint(item: modePicker, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: header, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: self.padding)
-        let modePickerHC3 = NSLayoutConstraint(item: modePicker, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: 256)
-        let modePickerHC4 = NSLayoutConstraint(item: modePicker, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: 30)
-        view.addSubview(modePicker)
-        view.addConstraints([modePickerHC1, modePickerHC2, modePickerHC3, modePickerHC4])
-        
-        
         print(isConnectedToInternet())
-        subscirbeToOrderBook()
+//        subscirbeToOrderBook()
+        
+        self.candleView = CandleStickChartView()
+        self.candleView!.chartDescription?.enabled = false
+        
+        self.candleView!.dragEnabled = true
+        self.candleView!.setScaleEnabled(true)
+        self.candleView!.maxVisibleCount = 200
+        self.candleView!.pinchZoomEnabled = true
+        
+        self.candleView!.legend.horizontalAlignment = .right
+        self.candleView!.legend.verticalAlignment = .top
+        self.candleView!.legend.orientation = .vertical
+        self.candleView!.legend.drawInside = false
+        self.candleView!.legend.font = UIFont(name: "HelveticaNeue-Light", size: 10)!
+        
+        self.candleView!.leftAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 10)!
+        self.candleView!.leftAxis.spaceTop = 0.3
+        self.candleView!.leftAxis.spaceBottom = 0.3
+        self.candleView!.leftAxis.axisMinimum = 0
+        
+        self.candleView!.rightAxis.enabled = false
+        
+        self.candleView!.xAxis.labelPosition = .bottom
+        self.candleView!.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 10)!
+        
+        self.candleView!.translatesAutoresizingMaskIntoConstraints = false
+        let candleViewHC1 = NSLayoutConstraint(item: self.candleView!, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: view.safeAreaInsets.top + self.padding)
+        let candleViewHC2 = NSLayoutConstraint(item: self.candleView!, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.width, multiplier: 1, constant: 0)
+        let candleViewHC3 = NSLayoutConstraint(item: self.candleView!, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.height, multiplier: 0.5, constant: 0)
+        view.addSubview(self.candleView!)
+        view.addConstraints([candleViewHC1, candleViewHC2, candleViewHC3])
+        
+        setDataCount(50, range: 30)
         
         
         

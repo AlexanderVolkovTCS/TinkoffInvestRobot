@@ -15,6 +15,8 @@
 		7113C10F2837D6BF004C1910 /* TinkoffInvestSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 7113C10E2837D6BF004C1910 /* TinkoffInvestSDK */; };
 		7113C1122837D74E004C1910 /* TinkoffInvestSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 7113C1112837D74E004C1910 /* TinkoffInvestSDK */; };
 		711DB4F5283824A700CF5474 /* VisualizationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB4F4283824A700CF5474 /* VisualizationViewController.swift */; };
+		711DB4F82838AD3600CF5474 /* Charts in Frameworks */ = {isa = PBXBuildFile; productRef = 711DB4F72838AD3600CF5474 /* Charts */; };
+		711DB4FA2838B43700CF5474 /* Orders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB4F92838B43700CF5474 /* Orders.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +28,7 @@
 		7113C1022837C3DF004C1910 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7113C1042837C3DF004C1910 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		711DB4F4283824A700CF5474 /* VisualizationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualizationViewController.swift; sourceTree = "<group>"; };
+		711DB4F92838B43700CF5474 /* Orders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Orders.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,6 +37,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7113C1122837D74E004C1910 /* TinkoffInvestSDK in Frameworks */,
+				711DB4F82838AD3600CF5474 /* Charts in Frameworks */,
 				7113C10F2837D6BF004C1910 /* TinkoffInvestSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -75,6 +79,7 @@
 		711DB4F12838243500CF5474 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				711DB4F92838B43700CF5474 /* Orders.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -114,6 +119,7 @@
 			packageProductDependencies = (
 				7113C10E2837D6BF004C1910 /* TinkoffInvestSDK */,
 				7113C1112837D74E004C1910 /* TinkoffInvestSDK */,
+				711DB4F72838AD3600CF5474 /* Charts */,
 			);
 			productName = Tinkoff2;
 			productReference = 7113C0F32837C3DE004C1910 /* Tinkoff2.app */;
@@ -146,6 +152,7 @@
 			packageReferences = (
 				7113C10D2837D6BF004C1910 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */,
 				7113C1102837D74E004C1910 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */,
+				711DB4F62838AD3600CF5474 /* XCRemoteSwiftPackageReference "Charts" */,
 			);
 			productRefGroup = 7113C0F42837C3DE004C1910 /* Products */;
 			projectDirPath = "";
@@ -175,6 +182,7 @@
 			files = (
 				7113C0FB2837C3DE004C1910 /* SettingsViewController.swift in Sources */,
 				7113C0F72837C3DE004C1910 /* AppDelegate.swift in Sources */,
+				711DB4FA2838B43700CF5474 /* Orders.swift in Sources */,
 				7113C0F92837C3DE004C1910 /* SceneDelegate.swift in Sources */,
 				711DB4F5283824A700CF5474 /* VisualizationViewController.swift in Sources */,
 			);
@@ -402,6 +410,14 @@
 				kind = branch;
 			};
 		};
+		711DB4F62838AD3600CF5474 /* XCRemoteSwiftPackageReference "Charts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/danielgindi/Charts.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -414,6 +430,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 7113C1102837D74E004C1910 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */;
 			productName = TinkoffInvestSDK;
+		};
+		711DB4F72838AD3600CF5474 /* Charts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 711DB4F62838AD3600CF5474 /* XCRemoteSwiftPackageReference "Charts" */;
+			productName = Charts;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
