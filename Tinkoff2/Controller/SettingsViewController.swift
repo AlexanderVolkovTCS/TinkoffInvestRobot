@@ -61,7 +61,7 @@ class SettingsViewController: UIViewController {
 			self.vizVC?.onBotStart()
 			label?.text = "Bot is running"
 			self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .pause, target: self, action: #selector(onBotStatus(_:)))
-            navigationController!.pushViewController(self.vizVC!, animated: true)
+//            navigationController!.pushViewController(self.vizVC!, animated: true)
 		} else {
 			self.vizVC?.onBotFinish()
 			label?.text = "Bot is stopped"
@@ -72,7 +72,7 @@ class SettingsViewController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
-		view.backgroundColor = .white
+		view.backgroundColor = .lightGray
 		self.navigationItem.title = "Invest Bot"
 		self.navigationController?.navigationBar.prefersLargeTitles = true
 

@@ -8,6 +8,7 @@
 import Foundation
 
 import UIKit
+import SwiftUI
 import Combine
 import TinkoffInvestSDK
 import Charts
@@ -15,7 +16,7 @@ import Charts
 class VisualizationViewController: UIViewController {
 	let padding = 16.0
 
-	var candleView: CandleStickChartView? = nil
+	var candleView: GraphView? = nil
 
 	var started = false
 
@@ -26,6 +27,8 @@ class VisualizationViewController: UIViewController {
 	var orderSub: OrderSubscriber? = nil
 
 	var postOrder: PostOrder? = nil
+
+	var model = VisualizerPageModel()
 
 	func onBotStart() {
 		started = true
@@ -61,37 +64,6 @@ class VisualizationViewController: UIViewController {
 			self.postOrder = TinkoffPostOrder(figi: "TSLA")
 		}
 	}
-
-	func setDataCount(_ count: Int, range: UInt32) {
-		let yVals1 = (0..<count).map { (i) -> CandleChartDataEntry in
-			let mult = range + 1
-			let val = Double(arc4random_uniform(40) + mult)
-			let high = Double(arc4random_uniform(9) + 8)
-			let low = Double(arc4random_uniform(9) + 8)
-			let open = Double(arc4random_uniform(6) + 1)
-			let close = Double(arc4random_uniform(6) + 1)
-			let even = i % 2 == 0
-
-			return CandleChartDataEntry(x: Double(i), shadowH: val + high, shadowL: val - low, open: even ? val + open : val - open, close: even ? val - close: val + close, icon: nil)
-		}
-
-		let set1 = CandleChartDataSet(entries: yVals1, label: "Data Set")
-		set1.axisDependency = .left
-		set1.setColor(UIColor(white: 80 / 255, alpha: 1))
-		set1.drawIconsEnabled = false
-		set1.shadowColor = .darkGray
-		set1.shadowWidth = 0.7
-		set1.decreasingColor = UIColor(red: 242, green: 122, blue: 84)
-		set1.decreasingFilled = false
-		set1.increasingColor = UIColor(red: 122, green: 242, blue: 84)
-		set1.increasingFilled = false
-		set1.neutralColor = .blue
-
-		let data = CandleChartData(dataSet: set1)
-		self.candleView?.data = data
-	}
-
-
 
 //  Роботы на "стакане"
 //
@@ -136,6 +108,8 @@ class VisualizationViewController: UIViewController {
 		for ask in orderbook.asks {
 			countSell += ask.quantity
 		}
+
+		self.model.data = [Int(countBuy)]
 
 		print("buy = ", countBuy)
 		print("sell = ", countSell)
@@ -185,118 +159,20 @@ class VisualizationViewController: UIViewController {
 		super.viewDidLoad()
 
 		view.backgroundColor = .white
+		self.navigationItem.title = "All"
+		self.navigationController?.navigationBar.prefersLargeTitles = true
 		print(isConnectedToInternet())
 //        subscirbeToOrderBook()
 
-		self.candleView = CandleStickChartView()
-		self.candleView!.chartDescription?.enabled = false
-
-		self.candleView!.dragEnabled = true
-		self.candleView!.setScaleEnabled(true)
-		self.candleView!.maxVisibleCount = 200
-		self.candleView!.pinchZoomEnabled = true
-
-		self.candleView!.legend.horizontalAlignment = .right
-		self.candleView!.legend.verticalAlignment = .top
-		self.candleView!.legend.orientation = .vertical
-		self.candleView!.legend.drawInside = false
-		self.candleView!.legend.font = UIFont(name: "HelveticaNeue-Light", size: 10)!
-
-		self.candleView!.leftAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 10)!
-		self.candleView!.leftAxis.spaceTop = 0.3
-		self.candleView!.leftAxis.spaceBottom = 0.3
-		self.candleView!.leftAxis.axisMinimum = 0
-
-		self.candleView!.rightAxis.enabled = false
-
-		self.candleView!.xAxis.labelPosition = .bottom
-		self.candleView!.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 10)!
-
-		self.candleView!.translatesAutoresizingMaskIntoConstraints = false
-		let candleViewHC1 = NSLayoutConstraint(item: self.candleView!, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: view.safeAreaInsets.top + self.padding)
-		let candleViewHC2 = NSLayoutConstraint(item: self.candleView!, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.width, multiplier: 1, constant: 0)
-		let candleViewHC3 = NSLayoutConstraint(item: self.candleView!, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.height, multiplier: 0.5, constant: 0)
-		view.addSubview(self.candleView!)
-		view.addConstraints([candleViewHC1, candleViewHC2, candleViewHC3])
-
-		setDataCount(50, range: 30)
-
-
-
-//        self.sdk.userService.getAccounts().sink { result in
-//            switch result {
-//            case .failure(let error):
-//                print(error.localizedDescription)
-//            case .finished:
-//                print(result)
-//                print("did finish loading getPortfolio")
-//            default:
-//                print(result)
-//            }
-//          } receiveValue: { portfolio in
-//            print(portfolio)
-//          }.store(in: &cancellables)
-
-//        self.sdk.userService.getAccounts().sink { result in
-//            switch result {
-//            case .failure(let error):
-//                print(error.localizedDescription)
-//            case .finished:
-//                print(result)
-//                print("did finish loading getPortfolio")
-//            default:
-//                print(result)
-//            }
-//          } receiveValue: { portfolio in
-//            print(portfolio)
-//          }.store(in: &cancellables)
-
-//        self.sdk.userService.getAccounts().flatMap {
-//            self.sdk.portfolioService.getPortfolio(accountID: $0.accounts.first!.id)
-//        }.sink { result in
-//          switch result {
-//          case .failure(let error):
-//              print(error.localizedDescription)
-//          case .finished:
-//              print("did finish loading getPortfolio")
-//          }
-//        } receiveValue: { portfolio in
-//          print(portfolio)
-//        }.store(in: &cancellables)
-
-//        self.sdk.marketDataServiceStream.subscribeToCandels(figi: "BBG00ZKY1P71", interval: .oneMinute).sink { result in
-//           print(result)
-//        } receiveValue: { result in
-//           switch result.payload {
-//           case .trade(let trade):
-//              print(trade.price.asAmount)
-//           default:
-//               print("dai \(result.payload)")
-//               break
-//           }
-//        }.store(in: &cancellables)
-
-//        self.sdk.marketDataServiceStream.subscribeToOrderBook(figi: "BBG00ZKY1P71", depth: 20).sink { result in
-//           print(result)
-//        } receiveValue: { result in
-//           switch result.payload {
-//           case .trade(let trade):
-//              print(trade.price.asAmount)
-//           default:
-//               print("dai \(result.payload)")
-//               break
-//           }
-//        }.store(in: &cancellables)
-
-
-//        self.sdk.marketDataServiceStream.subscribeToOrderBook(figi: "BBG00ZKY1P71", depth: 20).sink(receiveCompletion: <#T##((Subscribers.Completion<RPCError>) -> Void)##((Subscribers.Completion<RPCError>) -> Void)##(Subscribers.Completion<RPCError>) -> Void#>, receiveValue: <#T##((MarketDataResponse) -> Void)##((MarketDataResponse) -> Void)##(MarketDataResponse) -> Void#>)
-
-//        for i in cancellables {
-//            print(i.cancel())
-//        }
+		let hostingController = UIHostingController(rootView: VisualizerPageView(model: model))
+		hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+		let swUIViewHC1 = NSLayoutConstraint(item: hostingController.view!, attribute: NSLayoutConstraint.Attribute.left, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.left, multiplier: 1, constant: view.safeAreaInsets.left)
+		let swUIViewHC2 = NSLayoutConstraint(item: hostingController.view!, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: 0)
+		let swUIViewHC3 = NSLayoutConstraint(item: hostingController.view!, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.width, multiplier: 1, constant: 0)
+		let swUIViewHC4 = NSLayoutConstraint(item: hostingController.view!, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.height, multiplier: 1, constant: 0)
+		view.addSubview(hostingController.view)
+		view.addConstraints([swUIViewHC1, swUIViewHC2, swUIViewHC3, swUIViewHC4])
 	}
-
-
 }
 
 
