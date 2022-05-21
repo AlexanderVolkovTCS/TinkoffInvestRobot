@@ -13,30 +13,30 @@ import UIKit
 
 class ProfileListViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource, UITextFieldDelegate {
 
-    var list = ["1", "2", "3"]
+	var list = ["1", "2", "3"]
 
-    public func numberOfComponents(in pickerView: UIPickerView) -> Int{
-        return 1
-    }
+	public func numberOfComponents(in pickerView: UIPickerView) -> Int {
+		return 1
+	}
 
-    public func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int{
+	public func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
 
-        return list.count
-    }
+		return list.count
+	}
 
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+	func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
 
-        self.view.endEditing(true)
-        return list[row]
-    }
+		self.view.endEditing(true)
+		return list[row]
+	}
 
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+	func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
 
 //        self.textBox.text = self.list[row]
 //        self.dropDown.isHidden = true
-    }
+	}
 
-    func textFieldDidBeginEditing(_ textField: UITextField) {
+	func textFieldDidBeginEditing(_ textField: UITextField) {
 
 //        if textField == self.textBox {
 //            self.dropDown.isHidden = false
@@ -44,5 +44,5 @@ class ProfileListViewController: UIViewController, UIPickerViewDelegate, UIPicke
 //
 //            textField.endEditing(true)
 //        }
-    }
+	}
 }

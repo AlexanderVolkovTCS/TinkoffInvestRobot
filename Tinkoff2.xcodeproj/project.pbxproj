@@ -22,6 +22,9 @@
 		711DB5012838CF2600CF5474 /* Internet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB5002838CF2600CF5474 /* Internet.swift */; };
 		711DB5032838D37F00CF5474 /* BotMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB5022838D37F00CF5474 /* BotMode.swift */; };
 		711DB5072838F21B00CF5474 /* BotConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB5062838F21B00CF5474 /* BotConfig.swift */; };
+		711DB5092838F54400CF5474 /* AccountListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB5082838F54400CF5474 /* AccountListView.swift */; };
+		711DB50C28390DE300CF5474 /* Introspect in Frameworks */ = {isa = PBXBuildFile; productRef = 711DB50B28390DE300CF5474 /* Introspect */; };
+		711DB50E28391D1300CF5474 /* PostOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB50D28391D1300CF5474 /* PostOrder.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +42,8 @@
 		711DB5002838CF2600CF5474 /* Internet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Internet.swift; sourceTree = "<group>"; };
 		711DB5022838D37F00CF5474 /* BotMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BotMode.swift; sourceTree = "<group>"; };
 		711DB5062838F21B00CF5474 /* BotConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BotConfig.swift; sourceTree = "<group>"; };
+		711DB5082838F54400CF5474 /* AccountListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountListView.swift; sourceTree = "<group>"; };
+		711DB50D28391D1300CF5474 /* PostOrder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PostOrder.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,6 +52,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7113C1122837D74E004C1910 /* TinkoffInvestSDK in Frameworks */,
+				711DB50C28390DE300CF5474 /* Introspect in Frameworks */,
 				711DB4F82838AD3600CF5474 /* Charts in Frameworks */,
 				7113C10F2837D6BF004C1910 /* TinkoffInvestSDK in Frameworks */,
 			);
@@ -90,6 +96,7 @@
 		711DB4F12838243500CF5474 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				711DB50D28391D1300CF5474 /* PostOrder.swift */,
 				711DB4F92838B43700CF5474 /* Orders.swift */,
 				711DB4FB2838CDAA00CF5474 /* ProfileList.swift */,
 			);
@@ -100,6 +107,7 @@
 			isa = PBXGroup;
 			children = (
 				711DB4FD2838CDE700CF5474 /* ProfileView.swift */,
+				711DB5082838F54400CF5474 /* AccountListView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -143,6 +151,7 @@
 				7113C10E2837D6BF004C1910 /* TinkoffInvestSDK */,
 				7113C1112837D74E004C1910 /* TinkoffInvestSDK */,
 				711DB4F72838AD3600CF5474 /* Charts */,
+				711DB50B28390DE300CF5474 /* Introspect */,
 			);
 			productName = Tinkoff2;
 			productReference = 7113C0F32837C3DE004C1910 /* Tinkoff2.app */;
@@ -176,6 +185,7 @@
 				7113C10D2837D6BF004C1910 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */,
 				7113C1102837D74E004C1910 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */,
 				711DB4F62838AD3600CF5474 /* XCRemoteSwiftPackageReference "Charts" */,
+				711DB50A28390DE300CF5474 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
 			);
 			productRefGroup = 7113C0F42837C3DE004C1910 /* Products */;
 			projectDirPath = "";
@@ -203,6 +213,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				711DB50E28391D1300CF5474 /* PostOrder.swift in Sources */,
 				7113C0FB2837C3DE004C1910 /* SettingsViewController.swift in Sources */,
 				711DB5072838F21B00CF5474 /* BotConfig.swift in Sources */,
 				711DB4FC2838CDAA00CF5474 /* ProfileList.swift in Sources */,
@@ -213,6 +224,7 @@
 				7113C0F92837C3DE004C1910 /* SceneDelegate.swift in Sources */,
 				711DB4FE2838CDE700CF5474 /* ProfileView.swift in Sources */,
 				711DB4F5283824A700CF5474 /* VisualizationViewController.swift in Sources */,
+				711DB5092838F54400CF5474 /* AccountListView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -446,6 +458,14 @@
 				minimumVersion = 3.0.0;
 			};
 		};
+		711DB50A28390DE300CF5474 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/siteline/SwiftUI-Introspect.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.4;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -463,6 +483,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 711DB4F62838AD3600CF5474 /* XCRemoteSwiftPackageReference "Charts" */;
 			productName = Charts;
+		};
+		711DB50B28390DE300CF5474 /* Introspect */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 711DB50A28390DE300CF5474 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
+			productName = Introspect;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
