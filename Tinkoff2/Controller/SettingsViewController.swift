@@ -12,23 +12,59 @@ import TinkoffInvestSDK
 class SettingsViewController: UIViewController {
     let padding = 16.0
     
+    var modeDescriptionView: UITextView = UITextView()
+    var profileListTitleView: UILabel = UILabel()
+    var profileListView: UIPickerView = UIPickerView()
+    
+    var currentMode : BotMode = .Emu;
+    var profileView: UIPickerView = UIPickerView()
+    var profileLoader: ProfileListLoader = ProfileListLoader()
+    var accountList: AccountList = AccountList()
+    
+    var activeAccount: Account = Account()
+    
     var vizVC : VisualizationViewController? = nil
     var cancellables = Set<AnyCancellable>()
-    var sdk = TinkoffInvestSDK(tokenProvider: DefaultTokenProvider(token: "t."), sandbox: DefaultTokenProvider(token: ""))
+    var sdk = TinkoffInvestSDK(tokenProvider: DefaultTokenProvider(token: "t.JXmm55rH0MxmzpuuoGJrAvREeKzBy6Vf4vhkHDL1tbbhtHoI6yO83b2d70gHfzBuY1yLk2KNZzlT0B8vYsQIxg"), sandbox: DefaultTokenProvider(token: "t.JXmm55rH0MxmzpuuoGJrAvREeKzBy6Vf4vhkHDL1tbbhtHoI6yO83b2d70gHfzBuY1yLk2KNZzlT0B8vYsQIxg"))
     
-    func isConnectedToInternet() -> Bool {
-        let hostname = "google.com"
-        let hostinfo = gethostbyname2(hostname, AF_INET6)//AF_INET6
-        if hostinfo != nil {
-            return true // internet available
-          }
-         return false // no internet
+    func onNewProfileListData(data: AccountList) {
+        self.accountList = data
+        self.profileView.reloadAllComponents()
     }
     
     @objc
     func onModeChange(_ sender: UISegmentedControl) {
-        // We use split view, so VisualizationVC is 2 levels away, as views are wrapped into UINavigationController
+        let newMode = BotMode.fromIndex(sender.selectedSegmentIndex)
+        
+        // Leaving if mode has not been changed.
+        if (newMode == currentMode) {
+            return
+        }
+        
+        // Trying to load new profile data
+        switch newMode {
+        case .Emu:
+            profileLoader = EmuProfileListLoader(callback: onNewProfileListData)
+        case .Sandbox:
+            profileLoader = SandboxProfileListLoader(sdk: self.sdk, callback: onNewProfileListData)
+        case .Tinkoff:
+            profileLoader = TinkoffProfileListLoader(sdk: self.sdk, callback: onNewProfileListData)
+        }
+
+        self.modeDescriptionView.text = BotMode.descriptionFor(newMode)
         self.vizVC?.onModeChange(sender)
+        currentMode = newMode
+    }
+    
+    
+    @objc
+    func onBotStatus(_ sender: UISegmentedControl) {
+        // We use split view, so VisualizationVC is 2 levels away, as views are wrapped into UINavigationController
+        let label = self.toolbarItems?[0].customView as? UILabel
+        label?.text = "Bot is running"
+        self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .pause, target: self, action: #selector(onBotStatus(_:)))
+        
+        self.vizVC?.onBotStart(BotConfig(account: self.activeAccount))
     }
 
     override func viewDidLoad() {
@@ -38,31 +74,33 @@ class SettingsViewController: UIViewController {
         self.navigationItem.title = "Invest Bot"
         self.navigationController?.navigationBar.prefersLargeTitles = true
         
-//        let header = UIView()
-//        header.backgroundColor = UIColor(red: 231, green: 240, blue: 250)
-//        header.translatesAutoresizingMaskIntoConstraints = false
-//        let headerHC1 = NSLayoutConstraint(item: header, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: 0)
-//        let headerHC2 = NSLayoutConstraint(item: header, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.width, multiplier: 1, constant: 0)
-//        let headerHC3 = NSLayoutConstraint(item: header, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: view.safeAreaInsets.top + 100)
-//        view.addSubview(header)
-//        view.addConstraints([headerHC1, headerHC2, headerHC3])
-//        
-//        let headerLabel = UILabel()
-//        headerLabel.text = "Visualizer"
-//        headerLabel.textColor = .black
-//        headerLabel.translatesAutoresizingMaskIntoConstraints = false
-//        let headerLabelHC1 = NSLayoutConstraint(item: headerLabel, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: header, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: -self.padding)
-//        let headerLabelHC2 = NSLayoutConstraint(item: headerLabel, attribute: NSLayoutConstraint.Attribute.left, relatedBy: NSLayoutConstraint.Relation.equal, toItem: header, attribute: NSLayoutConstraint.Attribute.left, multiplier: 1, constant: view.safeAreaInsets.left + self.padding)
-//        let headerLabelHC3 = NSLayoutConstraint(item: headerLabel, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: header, attribute: NSLayoutConstraint.Attribute.width, multiplier: 1, constant: 0)
-//        header.addSubview(headerLabel)
-//        header.addConstraints([headerLabelHC1, headerLabelHC2, headerLabelHC3])
+        self.navigationController?.isToolbarHidden = false
+        var items = [UIBarButtonItem]()
+        let label = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 21))
+        label.text = "Bot is stopped"
+        label.center = CGPoint(x: view.frame.midX, y: view.frame.height)
+        label.textAlignment = .left
+        items.append(
+            UIBarButtonItem(customView: label)
+        )
+        items.append(
+            UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        )
+        items.append(
+            UIBarButtonItem(barButtonSystemItem: .play, target: self, action: #selector(onBotStatus(_:)))
+        )
         
+        self.navigationController?.toolbar.barStyle = .default
+        self.navigationController?.toolbar.isTranslucent = true
+        self.navigationController?.toolbar.barTintColor = .red
+        self.toolbarItems = items
+
         let modePicker = UISegmentedControl()
         modePicker.insertSegment(withTitle: "Эмулятор", at: 0, animated: false)
         modePicker.insertSegment(withTitle: "Песочница", at: 1, animated: false)
         modePicker.insertSegment(withTitle: "Тинькофф", at: 2, animated: false)
         modePicker.selectedSegmentIndex = 0
-        modePicker.addTarget(self, action: "onModeChange:", for: .valueChanged)
+        modePicker.addTarget(self, action: #selector(self.onModeChange(_:)), for: .valueChanged)
         modePicker.translatesAutoresizingMaskIntoConstraints = false
         let modePickerHC1 = NSLayoutConstraint(item: modePicker, attribute: NSLayoutConstraint.Attribute.left, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.left, multiplier: 1, constant: view.safeAreaInsets.left + self.padding)
         // TODO: This 128 and get size of navigationItem somehow.
@@ -71,6 +109,37 @@ class SettingsViewController: UIViewController {
         let modePickerHC4 = NSLayoutConstraint(item: modePicker, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: 30)
         view.addSubview(modePicker)
         view.addConstraints([modePickerHC1, modePickerHC2, modePickerHC3, modePickerHC4])
+        
+        self.modeDescriptionView.translatesAutoresizingMaskIntoConstraints = false
+        self.modeDescriptionView.text = ""
+        let modeDescriptionViewHC1 = NSLayoutConstraint(item: self.modeDescriptionView, attribute: NSLayoutConstraint.Attribute.left, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.left, multiplier: 1, constant: view.safeAreaInsets.left + self.padding)
+        let modeDescriptionViewHC2 = NSLayoutConstraint(item: self.modeDescriptionView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: modePicker, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: self.padding)
+        let modeDescriptionViewHC3 = NSLayoutConstraint(item: self.modeDescriptionView, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.width, multiplier: 1, constant: -2 * self.padding)
+        let modeDescriptionViewHC4 = NSLayoutConstraint(item: self.modeDescriptionView, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: 48)
+        view.addSubview(self.modeDescriptionView)
+        view.addConstraints([modeDescriptionViewHC1, modeDescriptionViewHC2, modeDescriptionViewHC3, modeDescriptionViewHC4])
+        
+        self.profileListTitleView.text = "Выберите аккаунт"
+        self.profileListTitleView.translatesAutoresizingMaskIntoConstraints = false
+        self.profileListTitleView.font = .preferredFont(forTextStyle: .title3, compatibleWith: .current)
+        let profileListTitleViewHC1 = NSLayoutConstraint(item: self.profileListTitleView, attribute: NSLayoutConstraint.Attribute.left, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.left, multiplier: 1, constant: view.safeAreaInsets.left + self.padding)
+        let profileListTitleViewHC2 = NSLayoutConstraint(item: self.profileListTitleView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.modeDescriptionView, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: self.padding)
+        let profileListTitleViewHC3 = NSLayoutConstraint(item: self.profileListTitleView, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.width, multiplier: 1, constant: -2 * self.padding)
+//        let profileListTitleViewHC4 = NSLayoutConstraint(item: self.profileListTitleView, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: 70)
+        view.addSubview(self.profileListTitleView)
+        view.addConstraints([profileListTitleViewHC1, profileListTitleViewHC2, profileListTitleViewHC3])
+        
+        self.profileView.delegate = self
+        self.profileView.dataSource = self
+        self.profileView.translatesAutoresizingMaskIntoConstraints = false
+        
+        let profileViewHC1 = NSLayoutConstraint(item: self.profileView, attribute: NSLayoutConstraint.Attribute.left, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.left, multiplier: 1, constant: view.safeAreaInsets.left + self.padding)
+        let profileViewHC2 = NSLayoutConstraint(item: self.profileView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.profileListTitleView, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: 0)
+        let profileViewHC3 = NSLayoutConstraint(item: self.profileView, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.width, multiplier: 1, constant: -2 * self.padding)
+        let profileViewHC4 = NSLayoutConstraint(item: self.profileView, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: 70)
+        view.addSubview(self.profileView)
+        view.addConstraints([profileViewHC1, profileViewHC2, profileViewHC3, profileViewHC4])
+        
         
         
 //        print(isConnectedToInternet())
@@ -88,6 +157,23 @@ class SettingsViewController: UIViewController {
 //            print(portfolio)
 //          }.store(in: &cancellables)
     }
+}
 
-
+extension SettingsViewController: UIPickerViewDataSource, UIPickerViewDelegate {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return accountList.accounts.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return accountList.accounts[row].name
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int)
+    {
+        self.activeAccount = accountList.accounts[row]
+    }
 }

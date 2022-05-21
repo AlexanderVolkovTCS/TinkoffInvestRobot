@@ -18,22 +18,12 @@ class VisualizationViewController: UIViewController {
     var candleView : CandleStickChartView? = nil
     
     var cancellables = Set<AnyCancellable>()
-    var sdk = TinkoffInvestSDK(tokenProvider: DefaultTokenProvider(token: "t."), sandbox: DefaultTokenProvider(token: ""))
+    var sdk = TinkoffInvestSDK(tokenProvider: DefaultTokenProvider(token: "t.JXmm55rH0MxmzpuuoGJrAvREeKzBy6Vf4vhkHDL1tbbhtHoI6yO83b2d70gHfzBuY1yLk2KNZzlT0B8vYsQIxg"), sandbox: DefaultTokenProvider(token: "t.JXmm55rH0MxmzpuuoGJrAvREeKzBy6Vf4vhkHDL1tbbhtHoI6yO83b2d70gHfzBuY1yLk2KNZzlT0B8vYsQIxg"))
     
     var orderSub : OrderSubscriber? = nil
     
-    func isConnectedToInternet() -> Bool {
-        let hostname = "google.com"
-        let hostinfo = gethostbyname2(hostname, AF_INET6)//AF_INET6
-        if hostinfo != nil {
-            return true // internet available
-          }
-         return false // no internet
-    }
-    
-    @objc
-    func buttonClicked(_ sender: AnyObject?) {
-        
+    func onBotStart(_ info: BotConfig) {
+        print(info.account.id)
     }
     
     @objc
@@ -108,7 +98,7 @@ class VisualizationViewController: UIViewController {
         
     }
     
-    func processOrderbook(orderbook: OrderBookContent) {
+    func processOrderbook(orderbook: OrderBookData) {
         // Расчет количества лотов в заявках на покупку и продажу.
         var countBuy: Int64 = 0
         for bid in orderbook.bids {

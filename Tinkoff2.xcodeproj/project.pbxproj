@@ -17,6 +17,11 @@
 		711DB4F5283824A700CF5474 /* VisualizationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB4F4283824A700CF5474 /* VisualizationViewController.swift */; };
 		711DB4F82838AD3600CF5474 /* Charts in Frameworks */ = {isa = PBXBuildFile; productRef = 711DB4F72838AD3600CF5474 /* Charts */; };
 		711DB4FA2838B43700CF5474 /* Orders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB4F92838B43700CF5474 /* Orders.swift */; };
+		711DB4FC2838CDAA00CF5474 /* ProfileList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB4FB2838CDAA00CF5474 /* ProfileList.swift */; };
+		711DB4FE2838CDE700CF5474 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB4FD2838CDE700CF5474 /* ProfileView.swift */; };
+		711DB5012838CF2600CF5474 /* Internet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB5002838CF2600CF5474 /* Internet.swift */; };
+		711DB5032838D37F00CF5474 /* BotMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB5022838D37F00CF5474 /* BotMode.swift */; };
+		711DB5072838F21B00CF5474 /* BotConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB5062838F21B00CF5474 /* BotConfig.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +34,11 @@
 		7113C1042837C3DF004C1910 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		711DB4F4283824A700CF5474 /* VisualizationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualizationViewController.swift; sourceTree = "<group>"; };
 		711DB4F92838B43700CF5474 /* Orders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Orders.swift; sourceTree = "<group>"; };
+		711DB4FB2838CDAA00CF5474 /* ProfileList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileList.swift; sourceTree = "<group>"; };
+		711DB4FD2838CDE700CF5474 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		711DB5002838CF2600CF5474 /* Internet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Internet.swift; sourceTree = "<group>"; };
+		711DB5022838D37F00CF5474 /* BotMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BotMode.swift; sourceTree = "<group>"; };
+		711DB5062838F21B00CF5474 /* BotConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BotConfig.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +74,7 @@
 		7113C0F52837C3DE004C1910 /* Tinkoff2 */ = {
 			isa = PBXGroup;
 			children = (
+				711DB4FF2838CF1900CF5474 /* Helpers */,
 				711DB4F32838244400CF5474 /* Controller */,
 				711DB4F22838243C00CF5474 /* View */,
 				711DB4F12838243500CF5474 /* Model */,
@@ -80,6 +91,7 @@
 			isa = PBXGroup;
 			children = (
 				711DB4F92838B43700CF5474 /* Orders.swift */,
+				711DB4FB2838CDAA00CF5474 /* ProfileList.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -87,6 +99,7 @@
 		711DB4F22838243C00CF5474 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				711DB4FD2838CDE700CF5474 /* ProfileView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -98,6 +111,16 @@
 				711DB4F4283824A700CF5474 /* VisualizationViewController.swift */,
 			);
 			path = Controller;
+			sourceTree = "<group>";
+		};
+		711DB4FF2838CF1900CF5474 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				711DB5002838CF2600CF5474 /* Internet.swift */,
+				711DB5022838D37F00CF5474 /* BotMode.swift */,
+				711DB5062838F21B00CF5474 /* BotConfig.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -181,9 +204,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				7113C0FB2837C3DE004C1910 /* SettingsViewController.swift in Sources */,
+				711DB5072838F21B00CF5474 /* BotConfig.swift in Sources */,
+				711DB4FC2838CDAA00CF5474 /* ProfileList.swift in Sources */,
+				711DB5032838D37F00CF5474 /* BotMode.swift in Sources */,
+				711DB5012838CF2600CF5474 /* Internet.swift in Sources */,
 				7113C0F72837C3DE004C1910 /* AppDelegate.swift in Sources */,
 				711DB4FA2838B43700CF5474 /* Orders.swift in Sources */,
 				7113C0F92837C3DE004C1910 /* SceneDelegate.swift in Sources */,
+				711DB4FE2838CDE700CF5474 /* ProfileView.swift in Sources */,
 				711DB4F5283824A700CF5474 /* VisualizationViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

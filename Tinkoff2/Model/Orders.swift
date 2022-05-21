@@ -1,5 +1,5 @@
 //
-//  EmuOrders.swift
+//  Orders.swift
 //  Tinkoff2
 //
 //  Created by Никита Мелехин on 21.05.2022.
@@ -8,7 +8,7 @@
 import Foundation
 import TinkoffInvestSDK
 
-public struct QuotationContent {
+public struct QuotationData {
     /// целая часть суммы, может быть отрицательным числом
     public var units: Int64 = 0
 
@@ -24,11 +24,11 @@ public struct QuotationContent {
     }
 }
 
-struct OrderContent {
+struct OrderData {
     ///Цена за 1 лот.
-    fileprivate var _price: QuotationContent? = nil
-    public var price: QuotationContent {
-        get {return _price ?? QuotationContent()}
+    fileprivate var _price: QuotationData? = nil
+    public var price: QuotationData {
+        get {return _price ?? QuotationData()}
         set {_price = newValue}
     }
     
@@ -43,12 +43,12 @@ struct OrderContent {
     /// Init from Tinkoff API
     public init(tinkOrder: Order?) {
         self.quantity = tinkOrder?.quantity ?? 0
-        self.price = QuotationContent(tinkQ: tinkOrder?.price ?? nil)
+        self.price = QuotationData(tinkQ: tinkOrder?.price ?? nil)
     }
 }
 
 
-struct OrderBookContent {
+struct OrderBookData {
     public var figi: String = String()
 
     ///Глубина стакана.
@@ -58,10 +58,10 @@ struct OrderBookContent {
     public var isConsistent: Bool = false
 
     ///Массив предложений.
-    public var bids: [OrderContent] = []
+    public var bids: [OrderData] = []
 
     ///Массив спроса.
-    public var asks: [OrderContent] = []
+    public var asks: [OrderData] = []
     
     public init() {}
     
@@ -70,13 +70,13 @@ struct OrderBookContent {
         self.figi = tinkOrderBook?.figi ?? String()
         self.depth = tinkOrderBook?.depth ?? 0
         self.isConsistent = tinkOrderBook?.isConsistent ?? false
-        self.bids = tinkOrderBook?.bids.map{(ord) in OrderContent(tinkOrder: ord)} ?? []
-        self.asks = tinkOrderBook?.asks.map{(ord) in OrderContent(tinkOrder: ord)} ?? []
+        self.bids = tinkOrderBook?.bids.map{(ord) in OrderData(tinkOrder: ord)} ?? []
+        self.asks = tinkOrderBook?.asks.map{(ord) in OrderData(tinkOrder: ord)} ?? []
     }
 }
 
 class OrderSubscriber {
-    public init(figi: String, callback: @escaping (OrderBookContent)->()) {
+    public init(figi: String, callback: @escaping (OrderBookData)->()) {
         self.figi = figi
         self.callback = callback
     }
@@ -85,19 +85,19 @@ class OrderSubscriber {
         
     }
     
-    func oncall(orderbook: OrderBookContent) {
+    func oncall(orderbook: OrderBookData) {
         DispatchQueue.main.async {
             self.callback(orderbook)
         }
     }
     
     var figi : String?
-    var callback : (OrderBookContent)->()?
+    var callback : (OrderBookData)->()?
 }
 
 
 class EmuOrderSubscriber : OrderSubscriber {
-    public override init(figi: String, callback: @escaping (OrderBookContent)->()) {
+    public override init(figi: String, callback: @escaping (OrderBookData)->()) {
         super.init(figi: figi, callback: callback)
         
         // Starting a new thread to emulate recieveing of data
@@ -105,7 +105,7 @@ class EmuOrderSubscriber : OrderSubscriber {
             while (!self.shouldStop) {
                 DispatchQueue.main.async {
                     print("Call")
-                    self.oncall(orderbook: OrderBookContent())
+                    self.oncall(orderbook: OrderBookData())
                 }
                 sleep(1)
             }
@@ -120,7 +120,7 @@ class EmuOrderSubscriber : OrderSubscriber {
 }
 
 class TinkoffOrderSubscriber : OrderSubscriber {
-    public override init(figi: String, callback: @escaping (OrderBookContent)->()) {
+    public override init(figi: String, callback: @escaping (OrderBookData)->()) {
         super.init(figi: figi, callback: callback)
 //        self.sdk.marketDataServiceStream.subscribeToOrderBook(figi: figi, depth: 20).sink { result in
 //           print(result)

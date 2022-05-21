@@ -30,7 +30,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
             let splitViewController =  UISplitViewController()
             splitViewController.viewControllers = [masterNavigationController, detailNavigationController]
-//          let navigationController = UINavigationController(rootViewController: viewController)
 
             window?.rootViewController = splitViewController
             window?.makeKeyAndVisible()
