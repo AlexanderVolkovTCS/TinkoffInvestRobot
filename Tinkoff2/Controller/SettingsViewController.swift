@@ -61,6 +61,7 @@ class SettingsViewController: UIViewController {
 			self.vizVC?.onBotStart()
 			label?.text = "Bot is running"
 			self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .pause, target: self, action: #selector(onBotStatus(_:)))
+            navigationController!.pushViewController(self.vizVC!, animated: true)
 		} else {
 			self.vizVC?.onBotFinish()
 			label?.text = "Bot is stopped"
