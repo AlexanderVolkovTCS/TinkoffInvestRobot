@@ -16,6 +16,8 @@ class PostOrder {
 
 	// buyMarketPrice выставляет заявку на покупку акции по рыночной цене.
 	public func buyMarketPrice() { }
+    // sellMarketPrice выставляет заявку на продажу акции по рыночной цене.
+    public func sellMarketPrice() { }
 	// sellWithLimit выставляет заявку на продажу акции с учетом лимита.
 	public func sellWithLimit(price: Quotation) { }
 
@@ -46,6 +48,15 @@ class EmuPostOrder: PostOrder {
 		trade.direction = TradeDirection.sell
 		self.tradesStreamSubsriber?.dispatchOnCall(trade: trade)
 	}
+    
+    public override func sellMarketPrice() {
+        var trade = Trade()
+        trade.figi = self.figi!
+        trade.price = Quotation()
+        trade.quantity = 1
+        trade.direction = TradeDirection.sell
+        self.tradesStreamSubsriber?.dispatchOnCall(trade: trade)
+    }
 
 	var tradesStreamSubsriber: EmuTradesStreamSubscriber?
 }
