@@ -264,23 +264,22 @@ class RSIStrategyEngine {
             switch GlobalBotConfig.mode {
             case .Emu:
 //                self.tradesStreamSubscribers[figi] = EmuTradesStreamSubscriber(figi: figi, callback: onNewTrade)
-                self.postOrders[figi] = EmuPostOrder(figi: figi)
+                self.postOrders[figi] = EmuPostOrder(figi: figi, onBuy: onBuySuccess, onSell: onSellSuccess)
                 self.candlesFetchers[figi] = EmuCandleFetcher(figi: figi, callback: self.onNewCandle)
 
             case .Sandbox:
 //                self.tradesStreamSubscribers[figi] = TinkoffTradesStreamSubscriber(figi: figi, callback: onNewTrade)
-                self.postOrders[figi] = SandboxPostOrder(figi: figi)
+                self.postOrders[figi] = SandboxPostOrder(figi: figi, onBuy: onBuySuccess, onSell: onSellSuccess)
                 self.candlesFetchers[figi] = EmuCandleFetcher(figi: figi, callback: self.onNewCandle)
 
             case .Tinkoff:
 //                self.tradesStreamSubscribers[figi] = TinkoffTradesStreamSubscriber(figi: figi, callback: onNewTrade)
-                self.postOrders[figi] = TinkoffPostOrder(figi: figi)
+                self.postOrders[figi] = TinkoffPostOrder(figi: figi, onBuy: onBuySuccess, onSell: onSellSuccess)
                 self.candlesFetchers[figi] = EmuCandleFetcher(figi: figi, callback: self.onNewCandle)
             }
         }
 
 		collectHistoricalCandles()
-		collectHistoricalTrades()
 	}
 
 	// Используется один раз для инициализации алгоритма историческими свечами.
@@ -316,17 +315,13 @@ class RSIStrategyEngine {
 		}
 	}
 
-	private func collectHistoricalTrades() {
-
-	}
-
-	private func onHistoricalTrades(historicalTrades: [Trade]) {
-
-	}
-
-    private func onNewTrade(figi: String, trade: Trade) {
-//        if оOrderTrades
-	}
+    private func onBuySuccess(figi: String, amount: Int64) {
+        
+    }
+    
+    private func onSellSuccess(figi: String, amount: Int64) {
+        
+    }
     
     private func onPortfolio(portfolioData: PortfolioData) {
         

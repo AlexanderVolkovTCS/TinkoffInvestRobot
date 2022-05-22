@@ -199,7 +199,7 @@ class VisualizationViewController: UIViewController {
 			var price = Quotation()
 			price.units = orderbook.bids.last!.price.units
 			price.nano = orderbook.bids.last!.price.nano
-			self.postOrder?.sellWithLimit(price: price)
+//			self.postOrder?.sellWithLimit(price: price)
 			return
 		}
 
