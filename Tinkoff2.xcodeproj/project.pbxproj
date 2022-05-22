@@ -22,11 +22,10 @@
 		711DB5092838F54400CF5474 /* AccountListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB5082838F54400CF5474 /* AccountListView.swift */; };
 		711DB50C28390DE300CF5474 /* Introspect in Frameworks */ = {isa = PBXBuildFile; productRef = 711DB50B28390DE300CF5474 /* Introspect */; };
 		711DB50E28391D1300CF5474 /* PostOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB50D28391D1300CF5474 /* PostOrder.swift */; };
-		714405262839298F007AE807 /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 714405252839298F007AE807 /* GraphView.swift */; };
+		714405262839298F007AE807 /* CandleGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 714405252839298F007AE807 /* CandleGraphView.swift */; };
 		7144052828393C54007AE807 /* VisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144052728393C54007AE807 /* VisualizerView.swift */; };
 		7144052A283952AE007AE807 /* TagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71440529283952AE007AE807 /* TagsView.swift */; };
 		7144052C28395B67007AE807 /* TradesStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144052B28395B67007AE807 /* TradesStream.swift */; };
-		714405352839783C007AE807 /* TinkoffInvestSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 714405342839783C007AE807 /* TinkoffInvestSDK */; };
 		7144053728399694007AE807 /* Candles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144053628399694007AE807 /* Candles.swift */; };
 		7144053A283996BE007AE807 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 71440539283996BE007AE807 /* Algorithms */; };
 		7144053C2839FC65007AE807 /* StockInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144053B2839FC65007AE807 /* StockInfo.swift */; };
@@ -34,6 +33,10 @@
 		71440540283A4C5B007AE807 /* Money.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144053F283A4C5B007AE807 /* Money.swift */; };
 		71440545283A4C98007AE807 /* LinkedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71440544283A4C98007AE807 /* LinkedList.swift */; };
 		71440547283A5AC2007AE807 /* Portfolio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71440546283A5AC2007AE807 /* Portfolio.swift */; };
+		7144054A283A96F3007AE807 /* DashboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71440549283A96F3007AE807 /* DashboardViewController.swift */; };
+		7144054E283A9DD2007AE807 /* ConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144054D283A9DD2007AE807 /* ConsoleView.swift */; };
+		71440550283AA690007AE807 /* BarGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144054F283AA690007AE807 /* BarGraphView.swift */; };
+		71440553283AA740007AE807 /* TinkoffInvestSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 71440552283AA740007AE807 /* TinkoffInvestSDK */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,7 +55,7 @@
 		711DB5062838F21B00CF5474 /* BotConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BotConfig.swift; sourceTree = "<group>"; };
 		711DB5082838F54400CF5474 /* AccountListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountListView.swift; sourceTree = "<group>"; };
 		711DB50D28391D1300CF5474 /* PostOrder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PostOrder.swift; sourceTree = "<group>"; };
-		714405252839298F007AE807 /* GraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
+		714405252839298F007AE807 /* CandleGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CandleGraphView.swift; sourceTree = "<group>"; };
 		7144052728393C54007AE807 /* VisualizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualizerView.swift; sourceTree = "<group>"; };
 		71440529283952AE007AE807 /* TagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsView.swift; sourceTree = "<group>"; };
 		7144052B28395B67007AE807 /* TradesStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TradesStream.swift; sourceTree = "<group>"; };
@@ -63,6 +66,9 @@
 		71440544283A4C98007AE807 /* LinkedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkedList.swift; sourceTree = "<group>"; };
 		71440546283A5AC2007AE807 /* Portfolio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Portfolio.swift; sourceTree = "<group>"; };
 		71440548283A82A1007AE807 /* Tinkoff2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Tinkoff2.entitlements; sourceTree = "<group>"; };
+		71440549283A96F3007AE807 /* DashboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewController.swift; sourceTree = "<group>"; };
+		7144054D283A9DD2007AE807 /* ConsoleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleView.swift; sourceTree = "<group>"; };
+		7144054F283AA690007AE807 /* BarGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarGraphView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,7 +79,7 @@
 				7144053A283996BE007AE807 /* Algorithms in Frameworks */,
 				711DB50C28390DE300CF5474 /* Introspect in Frameworks */,
 				711DB4F82838AD3600CF5474 /* Charts in Frameworks */,
-				714405352839783C007AE807 /* TinkoffInvestSDK in Frameworks */,
+				71440553283AA740007AE807 /* TinkoffInvestSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -135,7 +141,9 @@
 				71440529283952AE007AE807 /* TagsView.swift */,
 				711DB5082838F54400CF5474 /* AccountListView.swift */,
 				7144052728393C54007AE807 /* VisualizerView.swift */,
-				714405252839298F007AE807 /* GraphView.swift */,
+				7144054D283A9DD2007AE807 /* ConsoleView.swift */,
+				714405252839298F007AE807 /* CandleGraphView.swift */,
+				7144054F283AA690007AE807 /* BarGraphView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -145,6 +153,7 @@
 			children = (
 				7113C0FA2837C3DE004C1910 /* SettingsViewController.swift */,
 				711DB4F4283824A700CF5474 /* VisualizationViewController.swift */,
+				71440549283A96F3007AE807 /* DashboardViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -187,8 +196,8 @@
 			packageProductDependencies = (
 				711DB4F72838AD3600CF5474 /* Charts */,
 				711DB50B28390DE300CF5474 /* Introspect */,
-				714405342839783C007AE807 /* TinkoffInvestSDK */,
 				71440539283996BE007AE807 /* Algorithms */,
+				71440552283AA740007AE807 /* TinkoffInvestSDK */,
 			);
 			productName = Tinkoff2;
 			productReference = 7113C0F32837C3DE004C1910 /* Tinkoff2.app */;
@@ -221,8 +230,8 @@
 			packageReferences = (
 				711DB4F62838AD3600CF5474 /* XCRemoteSwiftPackageReference "Charts" */,
 				711DB50A28390DE300CF5474 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
-				714405332839783C007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */,
 				71440538283996BE007AE807 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
+				71440551283AA73F007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */,
 			);
 			productRefGroup = 7113C0F42837C3DE004C1910 /* Products */;
 			projectDirPath = "";
@@ -261,14 +270,17 @@
 				711DB4FC2838CDAA00CF5474 /* Profile.swift in Sources */,
 				7144053E283A466A007AE807 /* AlgoConfig.swift in Sources */,
 				711DB5032838D37F00CF5474 /* BotMode.swift in Sources */,
+				7144054E283A9DD2007AE807 /* ConsoleView.swift in Sources */,
 				711DB5012838CF2600CF5474 /* Internet.swift in Sources */,
 				7144052C28395B67007AE807 /* TradesStream.swift in Sources */,
-				714405262839298F007AE807 /* GraphView.swift in Sources */,
+				714405262839298F007AE807 /* CandleGraphView.swift in Sources */,
+				71440550283AA690007AE807 /* BarGraphView.swift in Sources */,
 				7113C0F72837C3DE004C1910 /* AppDelegate.swift in Sources */,
 				71440540283A4C5B007AE807 /* Money.swift in Sources */,
 				711DB4FA2838B43700CF5474 /* Orders.swift in Sources */,
 				7113C0F92837C3DE004C1910 /* SceneDelegate.swift in Sources */,
 				7144052A283952AE007AE807 /* TagsView.swift in Sources */,
+				7144054A283A96F3007AE807 /* DashboardViewController.swift in Sources */,
 				711DB4F5283824A700CF5474 /* VisualizationViewController.swift in Sources */,
 				711DB5092838F54400CF5474 /* AccountListView.swift in Sources */,
 			);
@@ -417,6 +429,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
 				"IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]" = 15.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -447,6 +460,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
 				"IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]" = 15.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -502,20 +516,20 @@
 				minimumVersion = 0.1.4;
 			};
 		};
-		714405332839783C007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/nimelehin/TinkoffInvestSwiftSDK.git";
-			requirement = {
-				kind = revision;
-				revision = 6a2d343932018fbc46bf529720263741875bf406;
-			};
-		};
 		71440538283996BE007AE807 /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-algorithms.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.0.0;
+			};
+		};
+		71440551283AA73F007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/JohnReeze/TinkoffInvestSwiftSDK.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.4.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -531,15 +545,15 @@
 			package = 711DB50A28390DE300CF5474 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
 			productName = Introspect;
 		};
-		714405342839783C007AE807 /* TinkoffInvestSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 714405332839783C007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */;
-			productName = TinkoffInvestSDK;
-		};
 		71440539283996BE007AE807 /* Algorithms */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 71440538283996BE007AE807 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
 			productName = Algorithms;
+		};
+		71440552283AA740007AE807 /* TinkoffInvestSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 71440551283AA73F007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */;
+			productName = TinkoffInvestSDK;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

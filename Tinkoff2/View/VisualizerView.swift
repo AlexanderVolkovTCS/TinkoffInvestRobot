@@ -50,25 +50,33 @@ struct VisualizerPageView: View {
 					VStack {
 						if self.model.activeStock != nil {
 							Spacer(minLength: 16)
-							Text("График")
+							
+                            Text("График")
 								.frame(maxWidth: .infinity, alignment: .leading)
 								.font(.title)
-							Text("Отоброжается по 5мин")
+							
+                            Text("Отображается по 5мин")
 								.frame(maxWidth: .infinity, alignment: .leading)
 								.font(.caption)
-							GraphViewUI(model: model)
-								.frame(maxWidth: .infinity)
-								.frame(minHeight: 400)
+                            
+                            Spacer(minLength: 16)
+                            
+                            VStack {
+                                GraphViewUI(model: model)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(minHeight: 300)
+                            }
+                            
 							Spacer(minLength: 16)
 							InfoView(model: model)
 
 							Spacer(minLength: 32)
-//							TableView(model: model)
-
-							Spacer(minLength: 32)
-							Text("Логи бота")
-								.frame(maxWidth: .infinity, alignment: .leading)
-								.font(.title)
+							TableView(model: model)
+                            
+//							Spacer(minLength: 32)
+//							Text("Логи бота")
+//								.frame(maxWidth: .infinity, alignment: .leading)
+//								.font(.title)
 						} else {
 							EmptyView()
 						}
@@ -83,15 +91,16 @@ struct VisualizerPageView: View {
 struct GraphViewUI: UIViewRepresentable {
 	@ObservedObject var model: VisualizerPageModel
 
-	func makeUIView(context: Context) -> GraphView {
-		GraphView()
+	func makeUIView(context: Context) -> CandleGraphView {
+        CandleGraphView()
 	}
 
-	func updateUIView(_ uiView: GraphView, context: Context) {
+	func updateUIView(_ uiView: CandleGraphView, context: Context) {
 		if self.model.activeStock == nil {
-			return
+            uiView.setChartData(candles: [])
+            return
 		}
-		uiView.setChartData(candles: self.model.activeStock!.candles)
+        uiView.setChartData(candles: self.model.activeStock!.candles)
 	}
 }
 
@@ -132,7 +141,7 @@ struct CardsView: View {
 									image
 										.resizable()
 										.aspectRatio(contentMode: .fit)
-										.frame(width: 50, height: 50)
+										.frame(width: 40, height: 40)
 										.clipShape(RoundedRectangle(cornerRadius: 25))
 
 								case .failure:

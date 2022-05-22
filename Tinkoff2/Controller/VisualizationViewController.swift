@@ -16,8 +16,6 @@ import Charts
 class VisualizationViewController: UIViewController {
 	let padding = 16.0
 
-	var candleView: GraphView? = nil
-
 	var started = false
 
 	var cancellables = Set<AnyCancellable>()
@@ -31,6 +29,8 @@ class VisualizationViewController: UIViewController {
 	var postOrder: PostOrder? = nil
 
 	var portfolioLoader: PortfolioLoader? = nil
+    
+    var consoleVC: DashboardViewController? = nil
 
 	var model = VisualizerPageModel()
 
@@ -226,6 +226,14 @@ class VisualizationViewController: UIViewController {
 	// TODO:
 	// may be use OrdersStreamService for visualizer?
 
+    @objc
+    func jumpToConsole() {
+        if self.consoleVC == nil {
+            return
+        }
+        present(self.consoleVC!, animated: true, completion: nil)
+    }
+    
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
@@ -233,7 +241,9 @@ class VisualizationViewController: UIViewController {
 		self.navigationItem.title = ""
 		self.navigationController?.navigationBar.prefersLargeTitles = true
 		print(isConnectedToInternet())
-
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Console", style: .plain, target: self, action: #selector(jumpToConsole))
+        
 		let hostingController = UIHostingController(rootView: VisualizerPageView(model: model))
 		hostingController.view.translatesAutoresizingMaskIntoConstraints = false
 		let swUIViewHC1 = NSLayoutConstraint(item: hostingController.view!, attribute: NSLayoutConstraint.Attribute.left, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.left, multiplier: 1, constant: view.safeAreaInsets.left)

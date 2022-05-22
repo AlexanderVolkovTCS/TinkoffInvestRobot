@@ -9,7 +9,7 @@ import UIKit
 import Charts
 import TinkoffInvestSDK
 
-class GraphView: UIView {
+class CandleGraphView: UIView {
 	let ITEM_COUNT = 30
 	fileprivate var chartView: CombinedChartView = CombinedChartView()
 
