@@ -14,6 +14,8 @@ struct BotConfig {
 	public var mode: BotMode = .Emu
 	public var figis: [Instrument] = []
 
+	public var algoConfig: AlgoConfig = AlgoConfig()
+
 	init() { }
 }
 

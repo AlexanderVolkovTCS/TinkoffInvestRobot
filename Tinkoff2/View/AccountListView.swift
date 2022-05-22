@@ -21,8 +21,10 @@ class SettingPageModel: ObservableObject {
 	@Published var figiData: [Instrument] = []
 	@Published var sdk: TinkoffInvestSDK? = nil
 	@Published var cancellables = Set<AnyCancellable>()
-    
-    @Published var errorText: String? = nil
+
+	@Published var algoConfig: AlgoConfig = AlgoConfig()
+
+	@Published var errorText: String? = nil
 
 	init() { }
 }
@@ -38,35 +40,88 @@ struct SettingPageView: View {
 				AccountListView(model: model)
 				Spacer(minLength: 16)
 				StockListView(model: model)
-                ErrorView(model: model)
+				Spacer(minLength: 16)
+				BotSetting(model: model)
+				ErrorView(model: model)
 			}
 		}
 	}
 }
 
 struct ErrorView: View {
-    @ObservedObject var model: SettingPageModel
-    
-    var body: some View {
-        if self.model.errorText == nil {
-            EmptyView()
-        } else {
-            Text(self.model.errorText!)
-                .font(.caption)
-                .foregroundColor(.red)
-        }
-    }
+	@ObservedObject var model: SettingPageModel
+
+	var body: some View {
+		if self.model.errorText == nil {
+			EmptyView()
+		} else {
+			Text(self.model.errorText!)
+				.font(.caption)
+				.foregroundColor(.red)
+		}
+	}
+}
+
+struct BotSetting: View {
+	@ObservedObject var model: SettingPageModel
+
+	var body: some View {
+		VStack {
+			Text("Настройки бота")
+				.font(.headline)
+				.frame(maxWidth: .infinity, alignment: .leading)
+				.padding(EdgeInsets(top: 8, leading: 16, bottom: -8, trailing: 16))
+			DescriptionTextView(text: "Настройки алгоритма RSI")
+				.padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+
+			VStack {
+				Text("Период: \(Int(self.model.algoConfig.rsiPeriod))")
+					.frame(maxWidth: .infinity, alignment: .leading)
+					.padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
+				Slider(value: Binding(get: {
+					Double(self.model.algoConfig.rsiPeriod)
+				}, set: { (newVal) in
+						self.model.algoConfig.rsiPeriod = Int(newVal)
+					}), in: 14...32)
+					.disabled(model.isBotRunning)
+			}.padding()
+
+			VStack {
+				Text("Верхняя граница: \(Int(self.model.algoConfig.upperRsiThreshold))")
+					.frame(maxWidth: .infinity, alignment: .leading)
+					.padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
+				Slider(value: Binding(get: {
+					Double(self.model.algoConfig.upperRsiThreshold)
+				}, set: { (newVal) in
+						self.model.algoConfig.upperRsiThreshold = Int(newVal)
+					}), in: 65...85)
+					.disabled(model.isBotRunning)
+			}.padding()
+
+			VStack {
+				Text("Нижняя граница: \(Int(self.model.algoConfig.lowerRsiThreshold))")
+					.frame(maxWidth: .infinity, alignment: .leading)
+					.padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
+				Slider(value: Binding(get: {
+					Double(self.model.algoConfig.lowerRsiThreshold)
+				}, set: { (newVal) in
+						self.model.algoConfig.lowerRsiThreshold = Int(newVal)
+					}), in: 20...40)
+					.disabled(model.isBotRunning)
+			}.padding()
+		}
+	}
 }
 
 struct ModePicker: View {
 	@ObservedObject var model: SettingPageModel
 	@State private var suggestedTopping = 0
-    
-    var descs = [
-        "Режим Эмуляции позволяет запускать бота на исторических данных.",
-        "Режим Песочницы позволяет запускать бота на реальном сервера, но испльзуются виртуальная валюта.",
-        "Режим Тинькофф позволяет запускать бота в реальных условиях.",
-    ]
+
+	var descs = [
+		"Режим Эмуляции позволяет запускать бота на исторических данных.",
+		"Режим Песочницы позволяет запускать бота на реальном сервера, но испльзуются виртуальная валюта.",
+		"Режим Тинькофф позволяет запускать бота в реальных условиях.",
+	]
 
 	var body: some View {
 		VStack {
@@ -77,8 +132,8 @@ struct ModePicker: View {
 			}
 				.onChange(of: suggestedTopping) { tag in model.onModeChange?(tag) }
 				.disabled(model.isBotRunning)
-            DescriptionTextView(text: self.descs[suggestedTopping])
-                .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+			DescriptionTextView(text: self.descs[suggestedTopping])
+				.padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
 		}
 			.padding(16)
 			.pickerStyle(.segmented)
@@ -97,14 +152,14 @@ struct AccountListView: View {
 					.font(.headline)
 					.frame(maxWidth: .infinity, alignment: .leading)
 					.padding(EdgeInsets(top: 8, leading: 16, bottom: 16, trailing: 16))
-                DescriptionTextView(text: "Не удается найти счета. Используйте приложение Тинькофф, чтобы создать новые счета.")
+				DescriptionTextView(text: "Не удается найти счета. Используйте приложение Тинькофф, чтобы создать новые счета.")
 			} else {
 				Text("Счета")
 					.font(.headline)
 					.frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(EdgeInsets(top: 8, leading: 16, bottom: -8, trailing: 16))
-                DescriptionTextView(text: "Выберите один из счетов, который будет использоваться для торговли ботом. Внимание: Бот может использовать все средства на счету.")
-                    .padding(EdgeInsets(top: 8, leading: 16, bottom: -24, trailing: 16))
+					.padding(EdgeInsets(top: 8, leading: 16, bottom: -8, trailing: 16))
+				DescriptionTextView(text: "Выберите один из счетов, который будет использоваться для торговли ботом. Внимание: Бот может использовать все средства на счету.")
+					.padding(EdgeInsets(top: 8, leading: 16, bottom: -24, trailing: 16))
 				List {
 					ForEach(model.accountList.accounts, id: \.self) { item in
 						SelectionCell(account: item, model: self.model)
@@ -122,14 +177,14 @@ struct AccountListView: View {
 }
 
 struct DescriptionTextView: View {
-    var text: String = ""
+	var text: String = ""
 
-    var body: some View {
-        Text(text)
-            .font(.caption2)
-            .foregroundColor(.gray)
-            .frame(maxWidth: .infinity, alignment: .leading)
-    }
+	var body: some View {
+		Text(text)
+			.font(.caption2)
+			.foregroundColor(.gray)
+			.frame(maxWidth: .infinity, alignment: .leading)
+	}
 }
 
 struct StockListView: View {
@@ -145,7 +200,7 @@ struct StockListView: View {
 	func autocomplete(string: String) {
 		instrument = nil
 		let string = string.uppercased()
-         if string.count == 12 {
+		if string.count == 12 {
 			model.sdk?.instrumentsService.getInstrumentBy(params: InstrumentParameters(idType: .figi, classCode: "", id: string)).sink { _ in
 			} receiveValue: { resp in
 				onrespfound(response: resp.instrument)
@@ -169,23 +224,23 @@ struct StockListView: View {
 			Text("Интсрументы")
 				.font(.headline)
 				.frame(maxWidth: .infinity, alignment: .leading)
-                .padding(EdgeInsets(top: 8, leading: 16, bottom: -8, trailing: 16))
-                .readSize { size in contentWidth = size.width - 16 }
-            DescriptionTextView(text: "Выберите акции, которыми сможет торговать Бот.")
-                .padding(EdgeInsets(top: 8, leading: 16, bottom: 0, trailing: 16))
+				.padding(EdgeInsets(top: 8, leading: 16, bottom: -8, trailing: 16))
+				.readSize { size in contentWidth = size.width - 16 }
+			DescriptionTextView(text: "Выберите акции, которыми сможет торговать Бот.")
+				.padding(EdgeInsets(top: 8, leading: 16, bottom: 0, trailing: 16))
 			TextField(
 				"Вводите Тикер или FIGI",
 				text: $figifield,
 				onCommit: {
-                    if instrument != nil && instrument!.apiTradeAvailableFlag {
-                        let idx = model.figiData.firstIndex { Instrument in
-                            Instrument.figi == instrument?.figi
-                        }
-                        
-                        if idx == nil {
-                            model.figiData.append(instrument!)
-                        }
-                        figifield = ""
+					if instrument != nil && instrument!.apiTradeAvailableFlag {
+						let idx = model.figiData.firstIndex { Instrument in
+							Instrument.figi == instrument?.figi
+						}
+
+						if idx == nil {
+							model.figiData.append(instrument!)
+						}
+						figifield = ""
 						instrument = nil
 					}
 				}
@@ -196,12 +251,12 @@ struct StockListView: View {
 				.textFieldStyle(.roundedBorder)
 				.disabled(model.isBotRunning)
 				.padding(EdgeInsets(top: 8, leading: 16, bottom: 0, trailing: 16))
-            if instrument != nil && !(instrument!.apiTradeAvailableFlag) {
-                Text("\(instrument!.name) недоступен для торговли через API")
-                    .font(.caption)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-            } else if instrument != nil {
+			if instrument != nil && !(instrument!.apiTradeAvailableFlag) {
+				Text("\(instrument!.name) недоступен для торговли через API")
+					.font(.caption)
+					.frame(maxWidth: .infinity, alignment: .leading)
+					.padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+			} else if instrument != nil {
 				Text("Найдено \(instrument!.name)")
 					.font(.caption)
 					.frame(maxWidth: .infinity, alignment: .leading)
@@ -211,12 +266,12 @@ struct StockListView: View {
 					.font(.caption)
 					.frame(maxWidth: .infinity, alignment: .leading)
 					.padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-            } else {
-                Text("")
-                    .font(.caption)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-            }
+			} else {
+				Text("")
+					.font(.caption)
+					.frame(maxWidth: .infinity, alignment: .leading)
+					.padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+			}
 
 			FlexibleView(
 				availableWidth: contentWidth,
@@ -230,13 +285,13 @@ struct StockListView: View {
 					Image(systemName: "xmark.circle.fill")
 						.foregroundColor(.gray)
 						.padding(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 8))
-                        .disabled(model.isBotRunning)
-                        .onTapGesture {
-                            if model.isBotRunning {
-                                model.figiData.removeAll { instrument in
-                                    return instrument.name == item.name
-                                }
-                            }
+						.disabled(model.isBotRunning)
+						.onTapGesture {
+						if model.isBotRunning {
+							model.figiData.removeAll { instrument in
+								return instrument.name == item.name
+							}
+						}
 					}
 				}
 					.background(RoundedRectangle(cornerRadius: 8).fill(Color.gray.opacity(0.2)))
@@ -249,12 +304,13 @@ struct StockListView: View {
 struct SelectionCell: View {
 	let account: Account
 	@ObservedObject var model: SettingPageModel
+	@Environment(\.colorScheme) var colorScheme
 
 	var body: some View {
 
 		HStack {
 			Text(account.name)
-				.foregroundColor(model.isBotRunning ? Color.gray : Color.black)
+				.foregroundColor(model.isBotRunning ? Color.gray : (colorScheme == .dark ? Color.white : Color.black))
 				.frame(maxWidth: .infinity, alignment: .leading)
 			if account == model.activeAccount {
 				Image(systemName: "checkmark")
@@ -262,7 +318,7 @@ struct SelectionCell: View {
 			}
 		}
 			.frame(maxWidth: .infinity, alignment: .leading)
-			.listRowBackground(Color(white: 240 / 255))
+			.listRowBackground(colorScheme == .dark ? Color(white: 50 / 255) : Color(white: 240 / 255))
 			.onTapGesture {
 			self.model.activeAccount = account
 		}

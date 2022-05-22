@@ -28,12 +28,14 @@ class SettingsViewController: UIViewController {
 
 	@objc
 	func onModeChange(tag: Int) {
-        let newMode = BotMode.fromIndex(tag)
+		let newMode = BotMode.fromIndex(tag)
 
 		// Leaving if mode has not been changed.
 		if (newMode == currentMode) {
 			return
 		}
+
+		self.model.activeAccount = nil
 
 		// Trying to load new profile data
 		switch newMode {
@@ -52,30 +54,31 @@ class SettingsViewController: UIViewController {
 
 	@objc
 	func onBotStatus(_ sender: UISegmentedControl) {
-        if self.model.figiData.isEmpty {
-            self.model.errorText = "Выберите инструменты"
-            return
-        }
-        if self.model.activeAccount == nil {
-            self.model.errorText = "Выберите счет"
-            return
-        }
-        
-        self.model.errorText = nil
-        self.model.isBotRunning = !self.model.isBotRunning
+		if self.model.figiData.isEmpty {
+			self.model.errorText = "Выберите инструменты"
+			return
+		}
+		if self.model.activeAccount == nil {
+			self.model.errorText = "Выберите счет"
+			return
+		}
+
+		self.model.errorText = nil
+		self.model.isBotRunning = !self.model.isBotRunning
 
 		let label = self.toolbarItems?[0].customView as? UILabel
 		if self.model.isBotRunning {
 			GlobalBotConfig.account = self.model.activeAccount!
 			GlobalBotConfig.mode = currentMode
 			GlobalBotConfig.figis = self.model.figiData
+			GlobalBotConfig.algoConfig = self.model.algoConfig
 			self.vizVC?.onBotStart()
 			label?.text = "Бот работает"
 			self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .pause, target: self, action: #selector(onBotStatus(_:)))
-            
-            if parent?.parent?.children.count == 1 {
-                navigationController!.pushViewController(self.vizVC!, animated: true)
-            }
+
+			if parent?.parent?.children.count == 1 {
+				navigationController!.pushViewController(self.vizVC!, animated: true)
+			}
 		} else {
 			self.vizVC?.onBotFinish()
 			label?.text = "Бот отдыхает"
@@ -91,6 +94,10 @@ class SettingsViewController: UIViewController {
 		view.backgroundColor = .lightGray
 		self.navigationItem.title = "ИнвестоБот"
 		self.navigationController?.navigationBar.prefersLargeTitles = true
+
+		let img = UIImage(systemName: "stop.circle")
+		self.navigationController?.navigationBar.backIndicatorImage = img
+		self.navigationController?.navigationBar.backIndicatorTransitionMaskImage = img
 
 		self.navigationController?.isToolbarHidden = false
 		var items = [UIBarButtonItem]()
@@ -112,9 +119,9 @@ class SettingsViewController: UIViewController {
 		self.navigationController?.toolbar.isTranslucent = true
 		self.toolbarItems = items
 
-        // Initializing Enulating mode.
-        onModeChange(tag: 0)
-        model.onModeChange = self.onModeChange
+		// Initializing Enulating mode.
+		onModeChange(tag: 0)
+		model.onModeChange = self.onModeChange
 
 		let hostingController = UIHostingController(rootView: SettingPageView(model: model))
 		hostingController.view.translatesAutoresizingMaskIntoConstraints = false

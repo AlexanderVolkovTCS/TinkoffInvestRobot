@@ -43,13 +43,13 @@ class GraphView: UIView {
 
 	}
 
-    func setChartData(candles: [CandleData]) {
+	func setChartData(candles: [CandleData]) {
 		let data = CombinedChartData()
 //		data.lineData = generateLineData()
-        data.candleData = generateCandleData(candles: candles)
+		data.candleData = generateCandleData(candles: candles)
 
 		chartView.xAxis.axisMaximum = data.xMax + 1
-        chartView.xAxis.axisMinimum = 0
+		chartView.xAxis.axisMinimum = 0
 
 		chartView.data = data
 	}
@@ -90,22 +90,22 @@ class GraphView: UIView {
 //		return LineChartData(dataSets: [set1, set2, set3])
 //	}
 
-    func generateCandleData(candles: [CandleData]) -> CandleChartData {
-        var entries: [CandleChartDataEntry] = []
-        
-        let start = max(candles.count - 30, 0)
-        let padding = 30 - min(candles.count, 30)
-        for i in start..<candles.count {
-            let candle = candles[i]
-            entries.append(CandleChartDataEntry(x: Double(padding + i), shadowH: candle.high.asDouble(), shadowL: candle.low.asDouble(), open: candle.open.asDouble(), close: candle.close.asDouble()))
-        }
-    
+	func generateCandleData(candles: [CandleData]) -> CandleChartData {
+		var entries: [CandleChartDataEntry] = []
+
+		let start = max(candles.count - 30, 0)
+		let padding = 30 - min(candles.count, 30)
+		for i in start..<candles.count {
+			let candle = candles[i]
+			entries.append(CandleChartDataEntry(x: Double(padding + i), shadowH: candle.high.asDouble(), shadowL: candle.low.asDouble(), open: candle.open.asDouble(), close: candle.close.asDouble()))
+		}
+
 		let set = CandleChartDataSet(entries: entries, label: "Candle DataSet")
 		set.increasingColor = UIColor(rgb: 0xacd1af)
 		set.increasingFilled = true
 		set.decreasingColor = UIColor(rgb: 0xff6961)
 		set.decreasingFilled = true
-		set.shadowColor = UIColor(white: 230/255, alpha: 1.0)
+		set.shadowColor = UIColor(white: 230 / 255, alpha: 1.0)
 		set.drawValuesEnabled = false
 
 		return CandleChartData(dataSet: set)
@@ -113,7 +113,7 @@ class GraphView: UIView {
 }
 
 extension Quotation {
-    func asDouble() -> Double {
-        return Double(self.units) + (Double(self.nano) / 1e9);
-    }
+	func asDouble() -> Double {
+		return Double(self.units) + (Double(self.nano) / 1e9);
+	}
 }

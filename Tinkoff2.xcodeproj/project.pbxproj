@@ -30,6 +30,7 @@
 		7144053728399694007AE807 /* Candles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144053628399694007AE807 /* Candles.swift */; };
 		7144053A283996BE007AE807 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 71440539283996BE007AE807 /* Algorithms */; };
 		7144053C2839FC65007AE807 /* StockInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144053B2839FC65007AE807 /* StockInfo.swift */; };
+		7144053E283A466A007AE807 /* AlgoConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144053D283A466A007AE807 /* AlgoConfig.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,6 +55,7 @@
 		7144052B28395B67007AE807 /* TradesStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TradesStream.swift; sourceTree = "<group>"; };
 		7144053628399694007AE807 /* Candles.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Candles.swift; sourceTree = "<group>"; };
 		7144053B2839FC65007AE807 /* StockInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockInfo.swift; sourceTree = "<group>"; };
+		7144053D283A466A007AE807 /* AlgoConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoConfig.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +114,7 @@
 				711DB4F92838B43700CF5474 /* Orders.swift */,
 				711DB4FB2838CDAA00CF5474 /* ProfileList.swift */,
 				7144053B2839FC65007AE807 /* StockInfo.swift */,
+				7144053D283A466A007AE807 /* AlgoConfig.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -235,6 +238,7 @@
 				7144052828393C54007AE807 /* VisualizerView.swift in Sources */,
 				711DB5072838F21B00CF5474 /* BotConfig.swift in Sources */,
 				711DB4FC2838CDAA00CF5474 /* ProfileList.swift in Sources */,
+				7144053E283A466A007AE807 /* AlgoConfig.swift in Sources */,
 				711DB5032838D37F00CF5474 /* BotMode.swift in Sources */,
 				711DB5012838CF2600CF5474 /* Internet.swift in Sources */,
 				7144052C28395B67007AE807 /* TradesStream.swift in Sources */,

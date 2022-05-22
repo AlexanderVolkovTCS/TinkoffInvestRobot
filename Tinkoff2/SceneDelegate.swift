@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+class SceneDelegate: UIResponder, UIWindowSceneDelegate, UINavigationControllerDelegate {
 
 	var window: UIWindow?
 
@@ -30,6 +30,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 		let splitViewController = UISplitViewController()
 		splitViewController.viewControllers = [masterNavigationController, detailNavigationController]
+		splitViewController.delegate = self
 
 		window?.rootViewController = splitViewController
 		window?.makeKeyAndVisible()
@@ -64,5 +65,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 	}
 
 
+}
+
+extension SceneDelegate: UISplitViewControllerDelegate {
+	func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
+		return true
+	}
+
+	func splitViewController(_ svc: UISplitViewController, topColumnForCollapsingToProposedTopColumn proposedTopColumn: UISplitViewController.Column) -> UISplitViewController.Column {
+		return .primary
+	}
 }
 
