@@ -37,6 +37,7 @@
 		7144054E283A9DD2007AE807 /* ConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144054D283A9DD2007AE807 /* ConsoleView.swift */; };
 		71440550283AA690007AE807 /* BarGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144054F283AA690007AE807 /* BarGraphView.swift */; };
 		71440556283AACE8007AE807 /* TinkoffInvestSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 71440555283AACE8007AE807 /* TinkoffInvestSDK */; };
+		71440559283AB689007AE807 /* CombineWaiting in Frameworks */ = {isa = PBXBuildFile; productRef = 71440558283AB689007AE807 /* CombineWaiting */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -78,6 +79,7 @@
 			files = (
 				71440556283AACE8007AE807 /* TinkoffInvestSDK in Frameworks */,
 				7144053A283996BE007AE807 /* Algorithms in Frameworks */,
+				71440559283AB689007AE807 /* CombineWaiting in Frameworks */,
 				711DB50C28390DE300CF5474 /* Introspect in Frameworks */,
 				711DB4F82838AD3600CF5474 /* Charts in Frameworks */,
 			);
@@ -198,6 +200,7 @@
 				711DB50B28390DE300CF5474 /* Introspect */,
 				71440539283996BE007AE807 /* Algorithms */,
 				71440555283AACE8007AE807 /* TinkoffInvestSDK */,
+				71440558283AB689007AE807 /* CombineWaiting */,
 			);
 			productName = Tinkoff2;
 			productReference = 7113C0F32837C3DE004C1910 /* Tinkoff2.app */;
@@ -232,6 +235,7 @@
 				711DB50A28390DE300CF5474 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
 				71440538283996BE007AE807 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 				71440554283AACE8007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */,
+				71440557283AB689007AE807 /* XCRemoteSwiftPackageReference "CombineWaiting" */,
 			);
 			productRefGroup = 7113C0F42837C3DE004C1910 /* Products */;
 			projectDirPath = "";
@@ -532,6 +536,14 @@
 				revision = 6a2d343932018fbc46bf529720263741875bf406;
 			};
 		};
+		71440557283AB689007AE807 /* XCRemoteSwiftPackageReference "CombineWaiting" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/jameshurst/CombineWaiting.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.2.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -554,6 +566,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 71440554283AACE8007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */;
 			productName = TinkoffInvestSDK;
+		};
+		71440558283AB689007AE807 /* CombineWaiting */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 71440557283AB689007AE807 /* XCRemoteSwiftPackageReference "CombineWaiting" */;
+			productName = CombineWaiting;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

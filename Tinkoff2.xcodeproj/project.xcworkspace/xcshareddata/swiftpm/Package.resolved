@@ -19,6 +19,15 @@
       }
     },
     {
+      "identity" : "combinewaiting",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jameshurst/CombineWaiting.git",
+      "state" : {
+        "revision" : "9da30af211bd8c5fa82e927112cad5b7173c2e1d",
+        "version" : "0.2.0"
+      }
+    },
+    {
       "identity" : "grpc-swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/grpc/grpc-swift.git",

@@ -63,16 +63,16 @@ struct SoldStockStatView: View {
 struct SoldStocksStatGraphViewUI: UIViewRepresentable {
     @ObservedObject var model: VisualizerPageModel
 
-    func makeUIView(context: Context) -> CandleGraphView {
-        CandleGraphView()
+    func makeUIView(context: Context) -> BarGraphView {
+        BarGraphView()
     }
 
-    func updateUIView(_ uiView: CandleGraphView, context: Context) {
+    func updateUIView(_ uiView: BarGraphView, context: Context) {
         if self.model.activeStock == nil {
-            uiView.setChartData(candles: [])
+            uiView.setChartData(bars: [BarDescriptor(value: 20, label: "Sold", color: .blue), BarDescriptor(value: 18, label: "Bought", color: .red)])
             return
         }
-        uiView.setChartData(candles: self.model.activeStock!.candles)
+        uiView.setChartData(bars: [BarDescriptor(value: 20, label: "Sold", color: .blue), BarDescriptor(value: 18, label: "Bought", color: .red)])
     }
 }
 

@@ -9,6 +9,12 @@ import UIKit
 import Charts
 import TinkoffInvestSDK
 
+struct BarDescriptor {
+    public var value: Int = 0
+    public var label: String = ""
+    public var color: UIColor = .cyan
+}
+
 class BarGraphView: UIView {
     let ITEM_COUNT = 30
     fileprivate var chartView: CombinedChartView = CombinedChartView()
@@ -43,10 +49,9 @@ class BarGraphView: UIView {
 
     }
 
-    func setChartData(candles: [CandleData]) {
+    func setChartData(bars: [BarDescriptor]) {
         let data = CombinedChartData()
-//        data.lineData = generateLineData()
-        data.candleData = generateCandleData(candles: candles)
+        data.barData = generateBarData(bars: bars)
 
         chartView.xAxis.axisMaximum = data.xMax + 1
         chartView.xAxis.axisMinimum = 0
@@ -54,60 +59,57 @@ class BarGraphView: UIView {
         chartView.data = data
     }
 
-    func genLine(_ entries: [ChartDataEntry]) -> LineChartDataSet {
-        let lineSet = LineChartDataSet(entries: entries, label: "")
+    func generateBarSet(bar: BarDescriptor, id: Int) -> BarChartDataSet {
+        let entries = [BarChartDataEntry(x: Double(id), y: Double(bar.value))]
+        let set1 = BarChartDataSet(entries: entries, label: bar.label)
+        set1.setColor(bar.color)
+        set1.valueTextColor = bar.color.darker(by: 40) ?? .black
+        set1.valueFont = .systemFont(ofSize: 10)
+        set1.axisDependency = .left
+        
+        return set1
+    }
+        
+    func generateBarData(bars: [BarDescriptor]) -> BarChartData {
+        var sets : [BarChartDataSet] = []
+        for i in 0..<bars.count {
+            sets.append(generateBarSet(bar: bars[i], id: i))
+        }
+        
+        let groupSpace = 0.06
+        let barSpace = 0.02 // x2 dataset
+        let barWidth = 0.45 // x2 dataset
+        // (0.45 + 0.02) * 2 + 0.06 = 1.00 -> interval per "group"
+        
+        let data = BarChartData(dataSets: sets)
+        data.barWidth = barWidth
+        
+        // make this BarData object grouped
+        data.groupBars(fromX: 0, groupSpace: groupSpace, barSpace: barSpace)
+        
+        return data
+    }
+}
 
-        lineSet.setColor(UIColor(rgb: 0x0))
-        lineSet.lineWidth = 2
-        lineSet.setCircleColor(UIColor(rgb: 0x0))
-        lineSet.circleRadius = 1
-        lineSet.circleHoleRadius = 0
-        lineSet.fillColor = UIColor(rgb: 0x0)
-        lineSet.mode = .cubicBezier
-        lineSet.drawValuesEnabled = false
-        lineSet.valueFont = .systemFont(ofSize: 10)
-        lineSet.valueTextColor = UIColor(rgb: 0x0)
+extension UIColor {
 
-        lineSet.axisDependency = .left
-
-        return lineSet
+    func lighter(by percentage: CGFloat = 30.0) -> UIColor? {
+        return self.adjust(by: abs(percentage) )
     }
 
-//    func generateLineData() -> LineChartData {
-//        let set1 = genLine((0..<ITEM_COUNT).map { (i) -> ChartDataEntry in
-//                return ChartDataEntry(x: Double(i) + 1, y: Double(95))
-//            })
-//
-//        let set2 = genLine((0..<ITEM_COUNT).map { (i) -> ChartDataEntry in
-//                return ChartDataEntry(x: Double(i) + 1, y: Double(5))
-//            })
-//
-//        let set3 = genLine((0..<ITEM_COUNT).map { (i) -> ChartDataEntry in
-//                return ChartDataEntry(x: Double(i) + 1, y: 50)
-//            })
-//
-//
-//        return LineChartData(dataSets: [set1, set2, set3])
-//    }
+    func darker(by percentage: CGFloat = 30.0) -> UIColor? {
+        return self.adjust(by: -1 * abs(percentage) )
+    }
 
-    func generateCandleData(candles: [CandleData]) -> CandleChartData {
-        var entries: [CandleChartDataEntry] = []
-
-        let start = max(candles.count - 30, 0)
-        let padding = 30 - min(candles.count, 30)
-        for i in start..<candles.count {
-            let candle = candles[i]
-            entries.append(CandleChartDataEntry(x: Double(padding + i), shadowH: candle.high.asDouble(), shadowL: candle.low.asDouble(), open: candle.open.asDouble(), close: candle.close.asDouble()))
+    func adjust(by percentage: CGFloat = 30.0) -> UIColor? {
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+        if self.getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
+            return UIColor(red: min(red + percentage/100, 1.0),
+                           green: min(green + percentage/100, 1.0),
+                           blue: min(blue + percentage/100, 1.0),
+                           alpha: alpha)
+        } else {
+            return nil
         }
-
-        let set = CandleChartDataSet(entries: entries, label: "Candle DataSet")
-        set.increasingColor = UIColor(rgb: 0xacd1af)
-        set.increasingFilled = true
-        set.decreasingColor = UIColor(rgb: 0xff6961)
-        set.decreasingFilled = true
-        set.shadowColor = UIColor(white: 230 / 255, alpha: 1.0)
-        set.drawValuesEnabled = false
-
-        return CandleChartData(dataSet: set)
     }
 }
