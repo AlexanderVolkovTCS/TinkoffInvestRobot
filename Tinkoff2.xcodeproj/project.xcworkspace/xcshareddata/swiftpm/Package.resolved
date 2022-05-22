@@ -129,10 +129,9 @@
     {
       "identity" : "tinkoffinvestswiftsdk",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/JohnReeze/TinkoffInvestSwiftSDK.git",
+      "location" : "https://github.com/nimelehin/TinkoffInvestSwiftSDK.git",
       "state" : {
-        "revision" : "84bbb2a6374724bf3defec30569ecc5e3f500179",
-        "version" : "0.4.0"
+        "revision" : "6a2d343932018fbc46bf529720263741875bf406"
       }
     }
   ],

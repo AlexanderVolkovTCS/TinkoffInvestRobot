@@ -36,7 +36,7 @@
 		7144054A283A96F3007AE807 /* DashboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71440549283A96F3007AE807 /* DashboardViewController.swift */; };
 		7144054E283A9DD2007AE807 /* ConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144054D283A9DD2007AE807 /* ConsoleView.swift */; };
 		71440550283AA690007AE807 /* BarGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144054F283AA690007AE807 /* BarGraphView.swift */; };
-		71440553283AA740007AE807 /* TinkoffInvestSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 71440552283AA740007AE807 /* TinkoffInvestSDK */; };
+		71440556283AACE8007AE807 /* TinkoffInvestSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 71440555283AACE8007AE807 /* TinkoffInvestSDK */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -76,10 +76,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				71440556283AACE8007AE807 /* TinkoffInvestSDK in Frameworks */,
 				7144053A283996BE007AE807 /* Algorithms in Frameworks */,
 				711DB50C28390DE300CF5474 /* Introspect in Frameworks */,
 				711DB4F82838AD3600CF5474 /* Charts in Frameworks */,
-				71440553283AA740007AE807 /* TinkoffInvestSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -197,7 +197,7 @@
 				711DB4F72838AD3600CF5474 /* Charts */,
 				711DB50B28390DE300CF5474 /* Introspect */,
 				71440539283996BE007AE807 /* Algorithms */,
-				71440552283AA740007AE807 /* TinkoffInvestSDK */,
+				71440555283AACE8007AE807 /* TinkoffInvestSDK */,
 			);
 			productName = Tinkoff2;
 			productReference = 7113C0F32837C3DE004C1910 /* Tinkoff2.app */;
@@ -231,7 +231,7 @@
 				711DB4F62838AD3600CF5474 /* XCRemoteSwiftPackageReference "Charts" */,
 				711DB50A28390DE300CF5474 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
 				71440538283996BE007AE807 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
-				71440551283AA73F007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */,
+				71440554283AACE8007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */,
 			);
 			productRefGroup = 7113C0F42837C3DE004C1910 /* Products */;
 			projectDirPath = "";
@@ -524,12 +524,12 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		71440551283AA73F007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */ = {
+		71440554283AACE8007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/JohnReeze/TinkoffInvestSwiftSDK.git";
+			repositoryURL = "https://github.com/nimelehin/TinkoffInvestSwiftSDK.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.4.0;
+				kind = revision;
+				revision = 6a2d343932018fbc46bf529720263741875bf406;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -550,9 +550,9 @@
 			package = 71440538283996BE007AE807 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
 			productName = Algorithms;
 		};
-		71440552283AA740007AE807 /* TinkoffInvestSDK */ = {
+		71440555283AACE8007AE807 /* TinkoffInvestSDK */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 71440551283AA73F007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */;
+			package = 71440554283AACE8007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */;
 			productName = TinkoffInvestSDK;
 		};
 /* End XCSwiftPackageProductDependency section */
