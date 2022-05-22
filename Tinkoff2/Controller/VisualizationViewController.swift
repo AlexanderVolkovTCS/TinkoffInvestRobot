@@ -20,7 +20,6 @@ class VisualizationViewController: UIViewController {
 
 	var cancellables = Set<AnyCancellable>()
 
-	var candlesStreamSub: CandleStreamSubscriber? = nil
 
 //	var tradesStreamSub: TradesStreamSubscriber? = nil
 
@@ -33,10 +32,23 @@ class VisualizationViewController: UIViewController {
 	var consoleVC: DashboardViewController? = nil
 
 	var model = VisualizerPageModel()
+    
+    var engine: RSIStrategyEngine? = nil
 
 	func onBotStartRequested() {
 		earlySetupModel()
-		earlyLoadAccount()
+        
+        var figis: [String] = []
+        GlobalBotConfig.figis.forEach { figiInstrument in
+            figis.append(figiInstrument.figi)
+        }
+        let uts = GlobalBotConfig.algoConfig.upperRsiThreshold
+        let lts = GlobalBotConfig.algoConfig.lowerRsiThreshold
+        let rsiPeriod = GlobalBotConfig.algoConfig.rsiPeriod
+        let engineConfig = RSIConfig(figis: figis, upperRsiThreshold: uts, lowerRsiThreshold: lts, rsiPeriod: rsiPeriod)
+        self.engine = RSIStrategyEngine(config: engineConfig,
+                                        portfolioUpdateCallback: self.onPortfolioUpdate,
+                                        candlesUpdateCallback: self.onCandlesUpdate)
 	}
 
 	func onBotReadyToStart(portfolio: PortfolioData) {
@@ -58,7 +70,6 @@ class VisualizationViewController: UIViewController {
 	func removeSubcribers() {
 //		self.tradesStreamSub?.cancel()
 		self.orderSub?.cancel()
-		self.candlesStreamSub?.cancel()
 	}
 
 	func earlySetupModel() {
@@ -115,18 +126,6 @@ class VisualizationViewController: UIViewController {
 		self.navigationItem.title = stock.instrument.name
 	}
 
-	func earlyLoadAccount() {
-		print(GlobalBotConfig.figis)
-		switch GlobalBotConfig.mode {
-		case .Emu:
-			self.portfolioLoader = EmuPortfolioLoader(profile: GlobalBotConfig.account, callback: onBotReadyToStart)
-		case .Sandbox:
-			self.portfolioLoader = SandboxPortfolioLoader(profile: GlobalBotConfig.account, callback: onBotReadyToStart)
-		case .Tinkoff:
-			self.portfolioLoader = TinkoffPortfolioLoader(profile: GlobalBotConfig.account, callback: onBotReadyToStart)
-		}
-	}
-
 	func initSubcribers() {
 		// Should uninitilize everything here and reinit data sources.
 		removeSubcribers()
@@ -152,13 +151,29 @@ class VisualizationViewController: UIViewController {
 
 
 	func onPortfolioUpdate(portfolio: PortfolioData) {
+        if (!started) {
+            onBotReadyToStart(portfolio: portfolio)
+            return
+        }
 		self.model.portfolioData = portfolio
 		self.model.isWaitingForAccountData = false
 	}
 
-	func processTrade(trade: Trade) {
-		return
-	}
+//	func processTrade(trade: Trade) {
+//		return
+//	}
+    
+    func onCandlesUpdate(figi: String, candles: LinkedList<CandleData>) {
+        for i in 0..<self.model.stockData.count {
+            if (self.model.stockData[i].instrument.figi == figi) {
+                var newCandles: [CandleData] = []
+                candles.forEach { candle in
+                    newCandles.append(candle)
+                }
+                self.model.stockData[i].candles = newCandles
+            }
+        }
+    }
 
 
 	func processCandle(figi: String, candle: CandleData) {

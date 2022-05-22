@@ -39,115 +39,14 @@ struct CandleData {
     }
 }
 
-class CandleStreamSubscriber {
-    public init(figi: String, callback: @escaping (String, CandleData) -> ()) {
-        self.figi = figi
-        self.callback = callback
-    }
-
-    public func cancel() { }
-
-    func oncall(candle: CandleData) {
-        DispatchQueue.main.async {
-            self.callback(self.figi, candle)
-        }
-    }
-
-    var figi: String = ""
-    var callback: (String, CandleData) -> ()?
-}
-
-class EmuCandleStreamSubscriber: CandleStreamSubscriber {
-    public override init (figi: String, callback: @escaping (String, CandleData) -> ()) {
-        super.init(figi: figi, callback: callback)
-
-        // Preload candles for past dates.
-        var req = GetCandlesRequest()
-        req.figi = self.figi
-        req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .month, value: -1, to: Date())!)
-        req.to = Google_Protobuf_Timestamp(date: Date())
-        req.interval = CandleInterval.day
-
-        print("start")
-
-        GlobalBotConfig.sdk.marketDataService.getCandels(request: req).sink { result in
-            switch result {
-            case .failure(let error):
-                print(error.localizedDescription)
-            case .finished:
-                print("loaded")
-            }
-        } receiveValue: { candles in
-            // Starting a new thread to emulate candels streaming.
-            DispatchQueue.global(qos: .userInitiated).async {
-                for candle in candles.candles {
-                    if self.shouldStop {
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        self.oncall(candle: CandleData(tinkCandle: candle))
-                    }
-                    sleep(1)
-                }
-            }
-        }.store(in: &cancellables)
-
-        print("end")
-    }
-
-    public override func cancel() {
-        self.shouldStop = true
-    }
-
-    var shouldStop = false
-    var cancellables = Set<AnyCancellable>()
-}
-
-class TinkoffCandleStreamSubscriber: CandleStreamSubscriber {
-    public override init (figi: String, callback: @escaping (String, CandleData) -> ()) {
-        super.init(figi: figi, callback: callback)
-
-        var cancellables = Set<AnyCancellable>()
-
-        GlobalBotConfig.sdk.marketDataServiceStream.subscribeToCandels(figi: self.figi, interval: .oneMinute).sink { result in
-            print(result)
-        } receiveValue: { result in
-            switch result.payload {
-            case .candle(let candle):
-                print(candle)
-                self.oncall(candle: CandleData(tinkCandle: candle))
-            default:
-                break
-            }
-        }.store(in: &cancellables)
-    }
-
-    public override func cancel() {
-        super.cancel()
-    }
-}
-
-class CandleCache {
-    public init(figi: String) {
-        self.figi = figi
-        self.collectHistoricalCandles()
-    }
-
-    public func collectHistoricalCandles() {
-
-    }
-
-    var figi: String
-}
-
 class CandleFetcher {
     public init(figi: String, callback: @escaping (String, CandleData) -> ()) {
         self.figi = figi
         self.callback = callback
     }
 
+    public func run() {}
     public func cancel() { }
-
     public func fetchHistoricalData(callback: @escaping (String, [CandleData]) -> ()) { }
 
     func oncall(candle: CandleData) {
@@ -161,9 +60,7 @@ class CandleFetcher {
 }
 
 class EmuCandleFetcher: CandleFetcher {
-    public override init (figi: String, callback: @escaping (String, CandleData) -> ()) {
-        super.init(figi: figi, callback: callback)
-
+    public override func run() {
         // Preload candles for past dates.
         var req = GetCandlesRequest()
         req.figi = self.figi!
@@ -195,14 +92,45 @@ class EmuCandleFetcher: CandleFetcher {
     }
 
     public override func fetchHistoricalData(callback: @escaping (String, [CandleData]) -> ()) {
+        print("FETCH HISTORICAL!!")
         // Preload candles for past dates.
+//        DispatchQueue.global(qos: .userInitiated).async {
+//            let now = Date()
+//            var candles: [CandleData] = []
+//            var i = -3
+//
+//            repeat {
+//                var req = GetCandlesRequest()
+//                req.figi = self.figi!
+//                req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: i, to: now)!)
+//                req.to = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: i + 1, to: now)!)
+//                req.interval = CandleInterval.candleInterval5Min
+//
+//                do {
+//                    print("collect shit")
+//                    let historicalCandles = try GlobalBotConfig.sdk.marketDataService.getCandels(request: req).wait().singleValue()
+//                    for historicalCandle in historicalCandles.candles {
+//                        candles.append(CandleData(tinkCandle: historicalCandle))
+//                    }
+//                } catch {
+//                    break
+//                }
+//                i+=1
+//            } while i <= -1
+//
+//            DispatchQueue.main.async {
+//                callback(self.figi!, candles)
+//            }
+//        }
+        
         var req = GetCandlesRequest()
         req.figi = self.figi!
         req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: -4, to: Date())!)
-        req.to = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!)
+        req.to = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: -3, to: Date())!)
         req.interval = CandleInterval.candleInterval5Min
 
         GlobalBotConfig.sdk.marketDataService.getCandels(request: req).sink { result in
+            print("fail historical ", result)
             switch result {
             case .failure(let error):
                 print(error.localizedDescription)
@@ -211,7 +139,7 @@ class EmuCandleFetcher: CandleFetcher {
             }
         } receiveValue: { candles in
 
-            var dataCandles = candles.candles.map { (candle) in CandleData(tinkCandle: candle) }
+            let dataCandles = candles.candles.map { (candle) in CandleData(tinkCandle: candle) }
             DispatchQueue.main.async {
                 callback(self.figi!, dataCandles)
             }
@@ -232,8 +160,6 @@ struct RSIConfig {
     public var figis: [String]
     public var upperRsiThreshold = 70
     public var lowerRsiThreshold = 30
-    public var takeProfit = 0.15
-    public var stopLoss = 0.05
     public var rsiPeriod = 14
 }
 
@@ -246,10 +172,12 @@ struct RSIOpenedPosition {
 
 class RSIStrategyEngine {
     public init(config: RSIConfig,
-                portfolioUpdateCallback: @escaping (PortfolioData) -> ()
+                portfolioUpdateCallback: @escaping (PortfolioData) -> (),
+                candlesUpdateCallback: @escaping (String, LinkedList<CandleData>) -> ()
     ) {
         self.config = config
         self.portfolioUpdateCallback = portfolioUpdateCallback
+        self.candlesUpdateCallback = candlesUpdateCallback
         
         switch GlobalBotConfig.mode {
         case .Emu:
@@ -291,12 +219,17 @@ class RSIStrategyEngine {
     private func onHistoricalCandles(figi: String, historicalCandles: [CandleData]) {
         let needCandles = min(config!.rsiPeriod, historicalCandles.count)
         let candlesPayload = historicalCandles.suffix(needCandles)
+        
         for candle in candlesPayload {
-            candles[figi]!.append(candle)
+            self.candles[figi, default: LinkedList<CandleData>()].append(candle)
         }
+        
+        self.candlesUpdateCallback(figi, self.candles[figi]!)
+        self.candlesFetchers[figi]!.run()
     }
 
     private func onNewCandle(figi: String, candle: CandleData) {
+        print("new candle!")
         if candles[figi]!.count == self.config!.rsiPeriod {
             candles[figi]!.remove(at: 0)
         }
@@ -417,5 +350,6 @@ class RSIStrategyEngine {
     private var openedPositions: [String : Int64] = [:]
     
     private var portfolioUpdateCallback: (PortfolioData) -> ()?
+    private var candlesUpdateCallback: (String, LinkedList<CandleData>) -> ()
 
 }
