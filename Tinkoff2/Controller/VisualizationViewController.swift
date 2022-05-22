@@ -41,12 +41,12 @@ class VisualizationViewController: UIViewController {
 
 	func onBotReadyToStart(portfolio: PortfolioData) {
 		started = true
-		setupModel(portfolio: portfolio)
+        setupModel(portfolio: portfolio)
 		initSubcribers()
 		self.model.isWaitingForAccountData = false
 	}
-
-	func onBotFinish() {
+    
+    func onBotFinish() {
 		started = false
 		removeSubcribers()
 		self.model.isWaitingForAccountData = false
@@ -146,36 +146,16 @@ class VisualizationViewController: UIViewController {
 		}
 	}
 
-//  Роботы на "стакане"
-//
-//  Робот отслеживает "стакан". Если лотов в заявках на покупку больше, чем в лотах на продажу в определенное количество раз, то робот покупает инструмент по рыночной цене, в противном случае – продает, сразу выставляя поручение в обратную сторону, но с определенным процентом прибыли.
-
-//    // buyMarketPrice выставляет заявку на продажу акции с учетом определенного процента прибыли.
-//    func sellWithPorfit(figi: String) {
-//        sdk.portfolioService.getPortfolio(accountID: (self.botConfig?.account.id)!).sink { result in
-//          switch result {
-//          case .failure(let error):
-//              print(error.localizedDescription)
-//          case .finished:
-//              print("did finish loading getPortfolio")
-//          }
-//        } receiveValue: { portfolio in
-//            for position in portfolio.positions {
-//                print("quantity =", position.quantity)
-//                print("current price = ", position.currentPrice)
-//                print("averate price = ", position.averagePositionPrice)
-//
-//                if position.figi == figi {
-//                    // Расчет лучшей возможной цены на продажу.
-//                    var bestPrice = max(position.currentPrice, position.averagePositionPrice * 1.15)
-//                    sell(position.figi, position.a)
-//                }
-//            }
-//        }.store(in: &cancellables)
-//    }
-	func processTrade(trade: Trade) {
+	
+    func onPortfolioUpdate(portfolio: PortfolioData) {
+        self.model.portfolioData = portfolio
+        self.model.isWaitingForAccountData = false
+    }
+    
+    func processTrade(trade: Trade) {
 		return
 	}
+    
 
 	func processCandle(figi: String, candle: CandleData) {
 		for i in 0..<self.model.stockData.count {

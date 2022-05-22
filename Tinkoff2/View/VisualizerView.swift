@@ -63,7 +63,7 @@ struct VisualizerPageView: View {
 							InfoView(model: model)
 
 							Spacer(minLength: 32)
-							TableView(model: model)
+//							TableView(model: model)
 
 							Spacer(minLength: 32)
 							Text("Логи бота")
@@ -211,11 +211,11 @@ struct InfoView: View {
 				alignment: .center,
 				spacing: 16
 			) {
-				ForEach(0..<model.portfolioData.positions.count, id: \.self) { id in
-					if model.portfolioData.positions[id].figi == model.activeStock!.instrument.figi {
-						InfoCellView(title1: String(model.portfolioData.positions[id].quantityLots.units), title2: "В портфеле", systemImage: "bag.circle")
-					}
-				}
+                if model.portfolioData.positions[model.activeStock!.instrument.figi] != nil {
+                    InfoCellView(title1: String(model.portfolioData.positions[model.activeStock!.instrument.figi]!.quantityLots.units), title2: "В портфеле", systemImage: "bag.circle")
+                }
+                
+                // TODO: Check if text is present.
 				InfoCellView(title1: model.activeStock!.instrument.countryOfRiskName, title2: "Страна", systemImage: "globe.europe.africa")
 				InfoCellView(title1: model.activeStock!.instrument.exchange, title2: "Биржа", systemImage: "tag.circle")
 				InfoCellView(title1: model.activeStock!.instrument.currency.uppercased(), title2: "Валюта", systemImage: "dollarsign.circle")
@@ -248,7 +248,7 @@ struct TableView: View {
 				.frame(maxWidth: .infinity, alignment: .leading)
 				.font(.title)
 
-			LazyVStack(
+			VStack(
 				alignment: .center,
 				spacing: 16
 			) {

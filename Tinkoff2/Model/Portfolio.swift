@@ -11,34 +11,35 @@ import Combine
 
 class PortfolioData {
 	let FigiToCurrency = [
-		"BBG0013HGFT4": "usd",
-		"BBG0013HJJ31": "eur",
+        "usd": "BBG0013HGFT4",
+        "eur": "BBG0013HJJ31",
 	]
-
-	public var positions: [PortfolioPosition] = []
+    
+    public var positions : [String : PortfolioPosition] = [:]
 
 	init () { }
 
 	init(portfolioResp: PortfolioResponse) {
-		self.positions = portfolioResp.positions
+        for i in portfolioResp.positions {
+            positions[i.figi] = i
+        }
 	}
 
 	func getMoneyValue(currency: String) -> MoneyValue? {
-		for i in self.positions {
-			if i.instrumentType == "currency" {
-				if FigiToCurrency.contains(where: { (key: String, value: String) in
-					key == i.figi
-				}) {
-					var mv = MoneyValue()
-					mv.units = i.quantityLots.units
-					mv.nano = i.quantityLots.nano
-					mv.currency = FigiToCurrency[i.figi]!
-					return mv
-				}
-			}
-		}
-
-		return nil
+        let fig = FigiToCurrency[currency]
+        if fig == nil {
+            return nil
+        }
+        
+        if self.positions[fig!] == nil {
+            return nil
+        }
+        
+        var mv = MoneyValue()
+        mv.units = self.positions[fig!]!.quantityLots.units
+        mv.nano = self.positions[fig!]!.quantityLots.nano
+        mv.currency = currency
+        return mv
 	}
 }
 
@@ -74,7 +75,7 @@ class EmuPortfolioLoader: PortfolioLoader {
 		pp.figi = "BBG0013HGFT4" // usd
 		pp.quantityLots.units = 1000
 		pp.quantityLots.nano = 0
-		pdata.positions.append(pp)
+		pdata.positions[pp.figi] = pp
 		self.onDataLoaded(portfolioData: pdata)
 	}
 }
