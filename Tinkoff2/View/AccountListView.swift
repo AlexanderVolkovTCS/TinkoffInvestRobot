@@ -106,7 +106,7 @@ struct StockListView: View {
 	func autocomplete(string: String) {
 		instrument = nil
 		let string = string.uppercased()
-		if string.count == 12 {
+         if string.count == 12 {
 			model.sdk?.instrumentsService.getInstrumentBy(params: InstrumentParameters(idType: .figi, classCode: "", id: string)).sink { _ in
 			} receiveValue: { resp in
 				onrespfound(response: resp.instrument)
@@ -133,10 +133,10 @@ struct StockListView: View {
 				.padding(EdgeInsets(top: 8, leading: 16, bottom: 0, trailing: 16))
 				.readSize { size in contentWidth = size.width - 16 }
 			TextField(
-				"Вводите запрос",
+				"Вводите Тикер или FIGI",
 				text: $figifield,
 				onCommit: {
-					if instrument != nil {
+                    if instrument != nil && instrument!.apiTradeAvailableFlag {
 						model.figiData.append(instrument!)
 						figifield = ""
 						instrument = nil
@@ -149,17 +149,27 @@ struct StockListView: View {
 				.textFieldStyle(.roundedBorder)
 				.disabled(model.isBotRunning)
 				.padding(EdgeInsets(top: 8, leading: 16, bottom: 0, trailing: 16))
-			if instrument != nil {
+            if instrument != nil && !(instrument!.apiTradeAvailableFlag) {
+                Text("\(instrument!.name) недоступен для торговли через API")
+                    .font(.caption)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+            } else if instrument != nil {
 				Text("Найдено \(instrument!.name)")
 					.font(.caption)
 					.frame(maxWidth: .infinity, alignment: .leading)
 					.padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-			} else {
+			} else if figifield != "" {
 				Text("Ничего не найдено...")
 					.font(.caption)
 					.frame(maxWidth: .infinity, alignment: .leading)
 					.padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-			}
+            } else {
+                Text("")
+                    .font(.caption)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+            }
 
 			FlexibleView(
 				availableWidth: contentWidth,

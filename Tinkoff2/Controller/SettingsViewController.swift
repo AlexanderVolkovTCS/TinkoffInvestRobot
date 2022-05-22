@@ -52,7 +52,11 @@ class SettingsViewController: UIViewController {
 
 	@objc
 	func onBotStatus(_ sender: UISegmentedControl) {
-		self.model.isBotRunning = !self.model.isBotRunning
+        if self.model.figiData.isEmpty {
+            return
+        }
+        
+        self.model.isBotRunning = !self.model.isBotRunning
 
 		let label = self.toolbarItems?[0].customView as? UILabel
 		if self.model.isBotRunning {
@@ -60,12 +64,15 @@ class SettingsViewController: UIViewController {
 			GlobalBotConfig.mode = currentMode
 			GlobalBotConfig.figis = self.model.figiData
 			self.vizVC?.onBotStart()
-			label?.text = "Bot is running"
+			label?.text = "Бот работает"
 			self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .pause, target: self, action: #selector(onBotStatus(_:)))
-//            navigationController!.pushViewController(self.vizVC!, animated: true)
+            
+            if parent?.parent?.children.count == 1 {
+                navigationController!.pushViewController(self.vizVC!, animated: true)
+            }
 		} else {
 			self.vizVC?.onBotFinish()
-			label?.text = "Bot is stopped"
+			label?.text = "Бот отдыхает"
 			self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .play, target: self, action: #selector(onBotStatus(_:)))
 		}
 	}
@@ -82,7 +89,7 @@ class SettingsViewController: UIViewController {
 		self.navigationController?.isToolbarHidden = false
 		var items = [UIBarButtonItem]()
 		let label = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 21))
-		label.text = "Bot is stopped"
+		label.text = "Бот отдыхает"
 		label.center = CGPoint(x: view.frame.midX, y: view.frame.height)
 		label.textAlignment = .left
 		items.append(

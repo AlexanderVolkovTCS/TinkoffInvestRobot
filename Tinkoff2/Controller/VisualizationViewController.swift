@@ -34,7 +34,7 @@ class VisualizationViewController: UIViewController {
 
 	func onBotStart() {
 		started = true
-		self.model.figiData = GlobalBotConfig.figis
+        setupModel()
 		initSubcribers()
 	}
 
@@ -48,6 +48,52 @@ class VisualizationViewController: UIViewController {
 		self.orderSub?.cancel()
         self.candlesStreamSub?.cancel()
 	}
+    
+    func setupModel() {
+        // If Stock is not requestes to be tracked any more, removing it.
+        var removeIds: [Int] = []
+        for i in 0..<self.model.stockData.count {
+            var found = false
+            for instrument in GlobalBotConfig.figis {
+                if self.model.stockData[i].instrument!.figi == instrument.figi {
+                    found = true
+                }
+            }
+            
+            if !found {
+                removeIds.append(i)
+            }
+        }
+        
+        // Remove from the back to not break ids.
+        for id in removeIds.reversed() {
+            self.model.stockData.remove(at: id)
+        }
+        
+        // Adding new Stocks to track.
+        for instrument in GlobalBotConfig.figis {
+            var found = false
+            for stock in self.model.stockData {
+                if stock.instrument!.figi == instrument.figi {
+                    found = true
+                }
+            }
+            
+            if !found {
+                self.model.stockData.append(StockInfo(instrument: instrument, candles: []))
+            }
+        }
+        
+        self.model.onStockChange = self.onStockChange
+        if !self.model.stockData.isEmpty {
+            onStockChange(stock: self.model.stockData[0])
+        }
+    }
+    
+    func onStockChange(stock: StockInfo) {
+        self.model.activeStock = stock
+        self.navigationItem.title = stock.instrument?.name
+    }
 
 	func initSubcribers() {
 		// Should uninitilize everything here and reinit data sources.
@@ -55,19 +101,19 @@ class VisualizationViewController: UIViewController {
 
 		switch GlobalBotConfig.mode {
 		case .Emu:
-			self.tradesStreamSub = EmuTradesStreamSubscriber(figi: "TSLA", callback: processTrade)
-			self.orderSub = EmuOrderSubscriber(figi: "TSLA", callback: processOrderbook)
-            self.postOrder = EmuPostOrder(figi: "TSLA", tradesStreamSubsriber: self.tradesStreamSub! as! EmuTradesStreamSubscriber)
+			self.tradesStreamSub = EmuTradesStreamSubscriber(figi: "BBG000BBJQV0", callback: processTrade)
+			self.orderSub = EmuOrderSubscriber(figi: "BBG000BBJQV0", callback: processOrderbook)
+            self.postOrder = EmuPostOrder(figi: "BBG000BBJQV0", tradesStreamSubsriber: self.tradesStreamSub! as! EmuTradesStreamSubscriber)
             self.candlesStreamSub = EmuCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
 		case .Sandbox:
-			self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "TSLA", callback: processTrade)
-			self.orderSub = TinkoffOrderSubscriber(figi: "TSLA", callback: processOrderbook)
-			self.postOrder = SandboxPostOrder(figi: "TSLA")
+			self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "BBG000BBJQV0", callback: processTrade)
+			self.orderSub = TinkoffOrderSubscriber(figi: "BBG000BBJQV0", callback: processOrderbook)
+			self.postOrder = SandboxPostOrder(figi: "BBG000BBJQV0")
             self.candlesStreamSub = TinkoffCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
 		case .Tinkoff:
-			self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "TSLA", callback: processTrade)
-			self.orderSub = TinkoffOrderSubscriber(figi: "TSLA", callback: processOrderbook)
-			self.postOrder = TinkoffPostOrder(figi: "TSLA")
+			self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "BBG000BBJQV0", callback: processTrade)
+			self.orderSub = TinkoffOrderSubscriber(figi: "BBG000BBJQV0", callback: processOrderbook)
+			self.postOrder = TinkoffPostOrder(figi: "BBG000BBJQV0")
             self.candlesStreamSub = TinkoffCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
 		}
 	}
@@ -103,8 +149,15 @@ class VisualizationViewController: UIViewController {
         return
     }
     
-    func processCandle(candle: CandleData) {
-        print("received candle = ", candle)
+    func processCandle(figi: String, candle: CandleData) {
+        for i in 0..<self.model.stockData.count {
+            if (self.model.stockData[i].instrument!.figi == figi) {
+                self.model.stockData[i].candles.append(candle)
+                if self.model.stockData[i].candles.count > 100 {
+                    self.model.stockData[i].candles.remove(at: 0)
+                }
+            }
+        }
     }
     
 	func processOrderbook(orderbook: OrderBookData) {
@@ -169,10 +222,9 @@ class VisualizationViewController: UIViewController {
 		super.viewDidLoad()
 
 		view.backgroundColor = .white
-		self.navigationItem.title = "All"
+		self.navigationItem.title = ""
 		self.navigationController?.navigationBar.prefersLargeTitles = true
 		print(isConnectedToInternet())
-//        subscirbeToOrderBook()
 
 		let hostingController = UIHostingController(rootView: VisualizerPageView(model: model))
 		hostingController.view.translatesAutoresizingMaskIntoConstraints = false

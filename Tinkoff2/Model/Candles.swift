@@ -16,6 +16,7 @@ struct CandleData {
     public var low: Quotation
     public var close: Quotation
     public var volume: Int64
+    public var time: Int64
     
     /// Init from Tinkoff API
     public init(tinkCandle: HistoricCandle) {
@@ -24,6 +25,7 @@ struct CandleData {
         self.low = tinkCandle.low
         self.close = tinkCandle.close
         self.volume = tinkCandle.volume
+        self.time = tinkCandle.time.seconds
     }
     
     public init(tinkCandle: Candle) {
@@ -32,11 +34,12 @@ struct CandleData {
         self.low = tinkCandle.low
         self.close = tinkCandle.close
         self.volume = tinkCandle.volume
+        self.time = tinkCandle.time.seconds
     }
 }
 
 class CandleStreamSubscriber {
-    public init(figi: String, callback: @escaping (CandleData) -> ()) {
+    public init(figi: String, callback: @escaping (String, CandleData) -> ()) {
         self.figi = figi
         self.callback = callback
     }
@@ -45,21 +48,21 @@ class CandleStreamSubscriber {
 
     func oncall(candle: CandleData) {
         DispatchQueue.main.async {
-            self.callback(candle)
+            self.callback(self.figi, candle)
         }
     }
 
-    var figi: String?
-    var callback: (CandleData) -> ()?
+    var figi: String = ""
+    var callback: (String, CandleData) -> ()?
 }
 
 class EmuCandleStreamSubscriber: CandleStreamSubscriber {
-    public override init (figi: String, callback: @escaping (CandleData) -> ()) {
+    public override init (figi: String, callback: @escaping (String, CandleData) -> ()) {
         super.init(figi: figi, callback: callback)
 
         // Preload candles for past dates.
         var req = GetCandlesRequest()
-        req.figi = self.figi!
+        req.figi = self.figi
         req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .month, value: -1, to: Date())!)
         req.to = Google_Protobuf_Timestamp(date: Date())
         req.interval = CandleInterval.day
@@ -96,12 +99,12 @@ class EmuCandleStreamSubscriber: CandleStreamSubscriber {
 }
 
 class TinkoffCandleStreamSubscriber: CandleStreamSubscriber {
-    public override init (figi: String, callback: @escaping (CandleData) -> ()) {
+    public override init (figi: String, callback: @escaping (String, CandleData) -> ()) {
         super.init(figi: figi, callback: callback)
         
         var cancellables = Set<AnyCancellable>()
 
-        GlobalBotConfig.sdk.marketDataServiceStream.subscribeToCandels(figi: self.figi!, interval: .oneMinute).sink { result in
+        GlobalBotConfig.sdk.marketDataServiceStream.subscribeToCandels(figi: self.figi, interval: .oneMinute).sink { result in
            print(result)
         } receiveValue: { result in
            switch result.payload {
