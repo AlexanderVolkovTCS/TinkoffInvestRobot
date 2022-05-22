@@ -23,7 +23,8 @@ class SettingsViewController: UIViewController {
 	var cancellables = Set<AnyCancellable>()
 
 	func onNewProfileListData(data: AccountList) {
-		model.accountList = data
+		self.model.accountList = data
+		self.model.isAccountsLoading = false
 	}
 
 	@objc
@@ -35,6 +36,7 @@ class SettingsViewController: UIViewController {
 			return
 		}
 
+		self.model.isAccountsLoading = true
 		self.model.activeAccount = nil
 
 		// Trying to load new profile data
@@ -72,7 +74,7 @@ class SettingsViewController: UIViewController {
 			GlobalBotConfig.mode = currentMode
 			GlobalBotConfig.figis = self.model.figiData
 			GlobalBotConfig.algoConfig = self.model.algoConfig
-			self.vizVC?.onBotStart()
+			self.vizVC?.onBotStartRequested()
 			label?.text = "Бот работает"
 			self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .pause, target: self, action: #selector(onBotStatus(_:)))
 

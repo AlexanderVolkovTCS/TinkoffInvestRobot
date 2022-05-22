@@ -30,17 +30,26 @@ class VisualizationViewController: UIViewController {
 
 	var postOrder: PostOrder? = nil
 
+	var portfolioLoader: PortfolioLoader? = nil
+
 	var model = VisualizerPageModel()
 
-	func onBotStart() {
+	func onBotStartRequested() {
+		earlySetupModel()
+		earlyLoadAccount()
+	}
+
+	func onBotReadyToStart(portfolio: PortfolioData) {
 		started = true
-		setupModel()
+		setupModel(portfolio: portfolio)
 		initSubcribers()
+		self.model.isWaitingForAccountData = false
 	}
 
 	func onBotFinish() {
 		started = false
 		removeSubcribers()
+		self.model.isWaitingForAccountData = false
 	}
 
 	func removeSubcribers() {
@@ -49,13 +58,20 @@ class VisualizationViewController: UIViewController {
 		self.candlesStreamSub?.cancel()
 	}
 
-	func setupModel() {
+	func earlySetupModel() {
+		// Set up a loading state.
+		self.model.isWaitingForAccountData = true
+	}
+
+	func setupModel(portfolio: PortfolioData) {
+		self.model.portfolioData = portfolio
+
 		// If Stock is not requestes to be tracked any more, removing it.
 		var removeIds: [Int] = []
 		for i in 0..<self.model.stockData.count {
 			var found = false
 			for instrument in GlobalBotConfig.figis {
-				if self.model.stockData[i].instrument!.figi == instrument.figi {
+				if self.model.stockData[i].instrument.figi == instrument.figi {
 					found = true
 				}
 			}
@@ -74,7 +90,7 @@ class VisualizationViewController: UIViewController {
 		for instrument in GlobalBotConfig.figis {
 			var found = false
 			for stock in self.model.stockData {
-				if stock.instrument!.figi == instrument.figi {
+				if stock.instrument.figi == instrument.figi {
 					found = true
 				}
 			}
@@ -92,7 +108,19 @@ class VisualizationViewController: UIViewController {
 
 	func onStockChange(stock: StockInfo) {
 		self.model.activeStock = stock
-		self.navigationItem.title = stock.instrument?.name
+		self.navigationItem.title = stock.instrument.name
+	}
+
+	func earlyLoadAccount() {
+		print(GlobalBotConfig.figis)
+		switch GlobalBotConfig.mode {
+		case .Emu:
+			self.portfolioLoader = EmuPortfolioLoader(profile: GlobalBotConfig.account, callback: onBotReadyToStart)
+		case .Sandbox:
+			self.portfolioLoader = SandboxPortfolioLoader(profile: GlobalBotConfig.account, callback: onBotReadyToStart)
+		case .Tinkoff:
+			self.portfolioLoader = TinkoffPortfolioLoader(profile: GlobalBotConfig.account, callback: onBotReadyToStart)
+		}
 	}
 
 	func initSubcribers() {
@@ -151,7 +179,7 @@ class VisualizationViewController: UIViewController {
 
 	func processCandle(figi: String, candle: CandleData) {
 		for i in 0..<self.model.stockData.count {
-			if (self.model.stockData[i].instrument!.figi == figi) {
+			if (self.model.stockData[i].instrument.figi == figi) {
 				self.model.stockData[i].candles.append(candle)
 				if self.model.stockData[i].candles.count > 100 {
 					self.model.stockData[i].candles.remove(at: 0)

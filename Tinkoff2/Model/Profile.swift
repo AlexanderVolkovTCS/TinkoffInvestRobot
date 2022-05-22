@@ -42,6 +42,7 @@ class EmuProfileListLoader: ProfileListLoader {
 		var acc1 = Account()
 		acc1.name = "Демо"
 		acc1.id = "1"
+		acc1.accessLevel = .accountAccessLevelFullAccess
 		self.onDataLoaded(profdata: AccountList(accounts: [acc1]))
 	}
 }
@@ -49,10 +50,13 @@ class EmuProfileListLoader: ProfileListLoader {
 class SandboxProfileListLoader: ProfileListLoader {
 	var cancellables = Set<AnyCancellable>()
 
-	// TODO: Call openAccount if no accunts available.
 	override init(callback: @escaping (AccountList) -> ()) {
 		super.init(callback: callback)
-		GlobalBotConfig.sdk.sandboxService.getAccounts().sink { result in
+		loadAccs()
+	}
+
+	func creatAcc() {
+		GlobalBotConfig.sdk.sandboxService.openAccount().sink { result in
 			switch result {
 			case .failure(let error):
 				print(result)
@@ -60,8 +64,46 @@ class SandboxProfileListLoader: ProfileListLoader {
 			case .finished:
 				print(result)
 			}
+		} receiveValue: { acc in
+			self.payIn(id: acc.accountID)
+		}.store(in: &cancellables)
+	}
+
+	func payIn(id: String) {
+		var mv = MoneyValue()
+		mv.currency = "usd"
+		mv.units = 1000
+		mv.nano = 0
+		GlobalBotConfig.sdk.sandboxService.payIn(accountID: id, amount: mv).sink { result in
+			switch result {
+			case .failure(let error):
+				print(error.localizedDescription)
+			case .finished:
+				print(result)
+			}
 		} receiveValue: { portfolio in
-			print(portfolio)
+			self.loadAccs()
+		}.store(in: &cancellables)
+	}
+
+	func loadAccs() {
+		GlobalBotConfig.sdk.sandboxService.getAccounts().sink { result in
+			switch result {
+			case .failure(let error):
+				print(error.localizedDescription)
+			case .finished:
+				print(result)
+			}
+		} receiveValue: { accresp in
+			if accresp.accounts.count == 0 {
+				self.creatAcc()
+			} else {
+				var cpaccresp = accresp
+				for i in 0..<cpaccresp.accounts.count {
+					cpaccresp.accounts[i].name = "Sandbox\(i)"
+				}
+				self.onDataLoaded(profdata: AccountList(accounts: cpaccresp.accounts))
+			}
 		}.store(in: &cancellables)
 	}
 }
@@ -79,9 +121,8 @@ class TinkoffProfileListLoader: ProfileListLoader {
 			case .finished:
 				print("loaded")
 			}
-		} receiveValue: { portfolio in
-			print(portfolio)
-			self.onDataLoaded(profdata: AccountList(accounts: portfolio.accounts))
+		} receiveValue: { accresp in
+			self.onDataLoaded(profdata: AccountList(accounts: accresp.accounts))
 		}.store(in: &cancellables)
 	}
 }

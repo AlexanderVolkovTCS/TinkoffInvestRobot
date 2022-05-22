@@ -58,49 +58,49 @@ class CandleStreamSubscriber {
 }
 
 class EmuCandleStreamSubscriber: CandleStreamSubscriber {
-    public override init (figi: String, callback: @escaping (String, CandleData) -> ()) {
-        super.init(figi: figi, callback: callback)
+	public override init (figi: String, callback: @escaping (String, CandleData) -> ()) {
+		super.init(figi: figi, callback: callback)
 
-        // Preload candles for past dates.
-        var req = GetCandlesRequest()
-        req.figi = self.figi
-        req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .month, value: -1, to: Date())!)
-        req.to = Google_Protobuf_Timestamp(date: Date())
-        req.interval = CandleInterval.day
-        
-        print("start")
-        
-        GlobalBotConfig.sdk.marketDataService.getCandels(request: req).sink { result in
-            switch result {
-            case .failure(let error):
-                print(error.localizedDescription)
-            case .finished:
-                print("loaded")
-            }
-        } receiveValue: { candles in
-            // Starting a new thread to emulate candels streaming.
-            DispatchQueue.global(qos: .userInitiated).async {
-                for candle in candles.candles {
-                    if self.shouldStop {
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        self.oncall(candle: CandleData(tinkCandle: candle))
-                    }
-                    sleep(1)
-                }
-            }
-        }.store(in: &cancellables)
-        
-        print("end")
-    }
+		// Preload candles for past dates.
+		var req = GetCandlesRequest()
+		req.figi = self.figi
+		req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .month, value: -1, to: Date())!)
+		req.to = Google_Protobuf_Timestamp(date: Date())
+		req.interval = CandleInterval.day
 
-    public override func cancel() {
-        self.shouldStop = true
-    }
+		print("start")
 
-    var shouldStop = false
-    var cancellables = Set<AnyCancellable>()
+		GlobalBotConfig.sdk.marketDataService.getCandels(request: req).sink { result in
+			switch result {
+			case .failure(let error):
+				print(error.localizedDescription)
+			case .finished:
+				print("loaded")
+			}
+		} receiveValue: { candles in
+			// Starting a new thread to emulate candels streaming.
+			DispatchQueue.global(qos: .userInitiated).async {
+				for candle in candles.candles {
+					if self.shouldStop {
+						return
+					}
+					DispatchQueue.main.async {
+						self.oncall(candle: CandleData(tinkCandle: candle))
+					}
+					sleep(1)
+				}
+			}
+		}.store(in: &cancellables)
+
+		print("end")
+	}
+
+	public override func cancel() {
+		self.shouldStop = true
+	}
+
+	var shouldStop = false
+	var cancellables = Set<AnyCancellable>()
 }
 
 class TinkoffCandleStreamSubscriber: CandleStreamSubscriber {
@@ -128,267 +128,267 @@ class TinkoffCandleStreamSubscriber: CandleStreamSubscriber {
 }
 
 class CandleCache {
-    public init(figi: String) {
-        self.figi = figi
-        self.collectHistoricalCandles()
-    }
-    
-    public func collectHistoricalCandles() {
-        
-    }
-    
-    var figi: String
+	public init(figi: String) {
+		self.figi = figi
+		self.collectHistoricalCandles()
+	}
+
+	public func collectHistoricalCandles() {
+
+	}
+
+	var figi: String
 }
 
 class CandleFetcher {
-    public init(figi: String, callback: @escaping (CandleData) -> ()) {
-        self.figi = figi
-        self.callback = callback
-    }
-    
-    public func cancel() { }
-    
-    public func fetchHistoricalData(callback: @escaping ([CandleData]) -> ()) {}
+	public init(figi: String, callback: @escaping (CandleData) -> ()) {
+		self.figi = figi
+		self.callback = callback
+	}
 
-    func oncall(candle: CandleData) {
-        DispatchQueue.main.async {
-            self.callback(candle)
-        }
-    }
+	public func cancel() { }
 
-    var figi: String?
-    var callback: (CandleData) -> ()?
+	public func fetchHistoricalData(callback: @escaping ([CandleData]) -> ()) { }
+
+	func oncall(candle: CandleData) {
+		DispatchQueue.main.async {
+			self.callback(candle)
+		}
+	}
+
+	var figi: String?
+	var callback: (CandleData) -> ()?
 }
 
 class EmuCandleFetcher: CandleFetcher {
-    public override init (figi: String, callback: @escaping (CandleData) -> ()) {
-        super.init(figi: figi, callback: callback)
+	public override init (figi: String, callback: @escaping (CandleData) -> ()) {
+		super.init(figi: figi, callback: callback)
 
-        // Preload candles for past dates.
-        var req = GetCandlesRequest()
-        req.figi = self.figi!
-        req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .month, value: -1, to: Date())!)
-        req.to = Google_Protobuf_Timestamp(date: Date())
-        req.interval = CandleInterval.day
-        
-        GlobalBotConfig.sdk.marketDataService.getCandels(request: req).sink { result in
-            switch result {
-            case .failure(let error):
-                print(error.localizedDescription)
-            case .finished:
-                print("loaded")
-            }
-        } receiveValue: { candles in
-            // Starting a new thread to emulate candels streaming.
-            DispatchQueue.global(qos: .userInitiated).async {
-                for candle in candles.candles {
-                    if self.shouldStop {
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        self.oncall(candle: CandleData(tinkCandle: candle))
-                    }
-                    sleep(1)
-                }
-            }
-        }.store(in: &cancellables)
-    }
-    
-    public override func fetchHistoricalData(callback: @escaping ([CandleData]) -> ()) {
-        // Preload candles for past dates.
-        var req = GetCandlesRequest()
-        req.figi = self.figi!
-        req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: -4, to: Date())!)
-        req.to = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!)
-        req.interval = CandleInterval.candleInterval5Min
-        
-        GlobalBotConfig.sdk.marketDataService.getCandels(request: req).sink { result in
-            switch result {
-            case .failure(let error):
-                print(error.localizedDescription)
-            case .finished:
-                print("loaded")
-            }
-        } receiveValue: { candles in
-            
-            var dataCandles = candles.candles.map { (candle) in CandleData(tinkCandle: candle) }
-            callback(dataCandles)
-            
-        }.store(in: &cancellables)
-    }
+		// Preload candles for past dates.
+		var req = GetCandlesRequest()
+		req.figi = self.figi!
+		req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .month, value: -1, to: Date())!)
+		req.to = Google_Protobuf_Timestamp(date: Date())
+		req.interval = CandleInterval.day
 
-    public override func cancel() {
-        self.shouldStop = true
-    }
+		GlobalBotConfig.sdk.marketDataService.getCandels(request: req).sink { result in
+			switch result {
+			case .failure(let error):
+				print(error.localizedDescription)
+			case .finished:
+				print("loaded")
+			}
+		} receiveValue: { candles in
+			// Starting a new thread to emulate candels streaming.
+			DispatchQueue.global(qos: .userInitiated).async {
+				for candle in candles.candles {
+					if self.shouldStop {
+						return
+					}
+					DispatchQueue.main.async {
+						self.oncall(candle: CandleData(tinkCandle: candle))
+					}
+					sleep(1)
+				}
+			}
+		}.store(in: &cancellables)
+	}
 
-    var shouldStop = false
-    var cancellables = Set<AnyCancellable>()
+	public override func fetchHistoricalData(callback: @escaping ([CandleData]) -> ()) {
+		// Preload candles for past dates.
+		var req = GetCandlesRequest()
+		req.figi = self.figi!
+		req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: -4, to: Date())!)
+		req.to = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!)
+		req.interval = CandleInterval.candleInterval5Min
+
+		GlobalBotConfig.sdk.marketDataService.getCandels(request: req).sink { result in
+			switch result {
+			case .failure(let error):
+				print(error.localizedDescription)
+			case .finished:
+				print("loaded")
+			}
+		} receiveValue: { candles in
+
+			var dataCandles = candles.candles.map { (candle) in CandleData(tinkCandle: candle) }
+			callback(dataCandles)
+
+		}.store(in: &cancellables)
+	}
+
+	public override func cancel() {
+		self.shouldStop = true
+	}
+
+	var shouldStop = false
+	var cancellables = Set<AnyCancellable>()
 }
 
 
 struct RSIConfig {
-    public var figi: String
-    public var upperRsiThreshold = 70
-    public var lowerRsiThreshold = 30
-    public var takeProfit = 0.15
-    public var stopLoss = 0.05
-    public var rsiPeriod = 14
+	public var figi: String
+	public var upperRsiThreshold = 70
+	public var lowerRsiThreshold = 30
+	public var takeProfit = 0.15
+	public var stopLoss = 0.05
+	public var rsiPeriod = 14
 }
 
 struct RSIOpenedPosition {
-    public var openPrice: Float64
-    init(openPrice: Float64) {
-        self.openPrice = openPrice
-    }
+	public var openPrice: Float64
+	init(openPrice: Float64) {
+		self.openPrice = openPrice
+	}
 }
 
 class RSIStrategyEngine {
-    public init(config: RSIConfig) {
-        self.config = config
-        
-        switch GlobalBotConfig.mode {
-        case .Emu:
-            self.tradesStreamSub = EmuTradesStreamSubscriber(figi: self.config!.figi, callback: onNewTrade)
-            self.postOrder = EmuPostOrder(figi: self.config!.figi, tradesStreamSubsriber: self.tradesStreamSub! as! EmuTradesStreamSubscriber)
-            self.candlesFetcher = EmuCandleFetcher(figi: self.config!.figi, callback: self.onNewCandle)
-            
-        case .Sandbox:
-            self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: self.config!.figi, callback: onNewTrade)
-            self.postOrder = SandboxPostOrder(figi: self.config!.figi)
-            self.candlesFetcher = EmuCandleFetcher(figi: self.config!.figi, callback: self.onNewCandle)
-            
-        case .Tinkoff:
-            self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: self.config!.figi, callback: onNewTrade)
-            self.postOrder = TinkoffPostOrder(figi: self.config!.figi)
-            self.candlesFetcher = EmuCandleFetcher(figi: self.config!.figi, callback: self.onNewCandle)
-        }
-        
-        collectHistoricalCandles()
-        collectHistoricalTrades()
-    }
-    
-    // Используется один раз для инициализации алгоритма историческими свечами.
-    // 3 дня 5 минутных свечей
-    public func collectHistoricalCandles() {
-        self.candlesFetcher?.fetchHistoricalData(callback: onHistoricalCandles)
-    }
-    
-    // Используется один раз в качестве коллбека при удачном сборе исторических свечей.
-    private func onHistoricalCandles(historicalCandles: [CandleData]) {
-        let needCandles = min(config!.rsiPeriod, historicalCandles.count)
-        let candlesPayload = historicalCandles.suffix(needCandles)
-        for candle in candlesPayload {
-            candles.append(candle)
-        }
-    }
-    
-    private func onNewCandle(candle: CandleData) {
-        if candles.count == self.config!.rsiPeriod {
-            candles.remove(at: 0)
-        }
-        candles.append(candle)
-        
-        let rsi = calculateRSI()
-        // Открываем лонг, если RSI меньше нижней границы
-        if rsi < Float64(config!.lowerRsiThreshold) {
-            openLong()
-        // Закрываем лонг, если RSI больше верхней границы
-        } else if rsi > Float64(config!.upperRsiThreshold) {
-            closeLong()
-        }
-    }
-    
-    private func collectHistoricalTrades() {
-        
-    }
-    
-    private func onHistoricalTrades(historicalTrades: [Trade]) {
-        
-    }
-    
-    private func onNewTrade(trade: Trade) {
-        
-    }
-    
-    private func calculateRSI() -> Float64 {
-        if (candles.count < 2) {
-            return 0
-        }
-        
-        var totalGain : Float64 = 0
-        var gainAmount = 0
-        var totalLoss : Float64 = 0
-        var lossAmount = 0
-        
-        var candleClosePrice: Float64 = 0
-        var prevCandleClosePrice: Float64 = 0
-        
-        candles.forEach { candle in
-            if prevCandleClosePrice == 0 {
-                prevCandleClosePrice = cast_money(quotation: candle.close)
-                return
-            }
-            
-            prevCandleClosePrice = candleClosePrice
-            candleClosePrice = cast_money(quotation: candle.close)
-            let change = candleClosePrice - prevCandleClosePrice
-            
-            if (change == 0) {
-                return
-            }
-            if change > 0 {
-                totalGain += change
-                gainAmount += 1
-            } else {
-                totalLoss += change
-                lossAmount += 1
-            }
-        }
-        
-        if gainAmount == 0 {
-            gainAmount = 1
-        }
-        
-        if lossAmount == 0 {
-            lossAmount = 1
-        }
-        
-        var avgGain = totalGain / Float64(gainAmount)
-        if (avgGain == 0) {
-            avgGain = 1
-        }
-        var avgLoss = totalLoss / Float64(lossAmount)
-        if (avgLoss == 0) {
-            avgLoss = 1
-        }
-        
-        var rs = avgGain / avgLoss
-        var rsi = 100 - (1 + rs)
-        
-        return rsi
-    }
-    
-    private func openLong() {
-        postOrder!.buyMarketPrice()
-    }
-    
-    private func closeLong() {
-        var needClose = openedPositionsNum
-        while (needClose > 0) {
-            postOrder!.sellMarketPrice()
-            needClose -= 1
-        }
-    }
-    
-    
-    private var config: RSIConfig? = nil
-    private var candlesStreamSub: CandleStreamSubscriber? = nil
-    private var tradesStreamSub: TradesStreamSubscriber? = nil
-    private var orderSub: OrderSubscriber? = nil
-    private var postOrder: PostOrder? = nil
-    private var candlesFetcher: CandleFetcher? = nil
-    
-    var candles = LinkedList<CandleData>()
-    var openedPositionsNum = 0
-    var openedPositions = LinkedList<RSIOpenedPosition>()
+	public init(config: RSIConfig) {
+		self.config = config
+
+		switch GlobalBotConfig.mode {
+		case .Emu:
+			self.tradesStreamSub = EmuTradesStreamSubscriber(figi: self.config!.figi, callback: onNewTrade)
+			self.postOrder = EmuPostOrder(figi: self.config!.figi, tradesStreamSubsriber: self.tradesStreamSub! as! EmuTradesStreamSubscriber)
+			self.candlesFetcher = EmuCandleFetcher(figi: self.config!.figi, callback: self.onNewCandle)
+
+		case .Sandbox:
+			self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: self.config!.figi, callback: onNewTrade)
+			self.postOrder = SandboxPostOrder(figi: self.config!.figi)
+			self.candlesFetcher = EmuCandleFetcher(figi: self.config!.figi, callback: self.onNewCandle)
+
+		case .Tinkoff:
+			self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: self.config!.figi, callback: onNewTrade)
+			self.postOrder = TinkoffPostOrder(figi: self.config!.figi)
+			self.candlesFetcher = EmuCandleFetcher(figi: self.config!.figi, callback: self.onNewCandle)
+		}
+
+		collectHistoricalCandles()
+		collectHistoricalTrades()
+	}
+
+	// Используется один раз для инициализации алгоритма историческими свечами.
+	// 3 дня 5 минутных свечей
+	public func collectHistoricalCandles() {
+		self.candlesFetcher?.fetchHistoricalData(callback: onHistoricalCandles)
+	}
+
+	// Используется один раз в качестве коллбека при удачном сборе исторических свечей.
+	private func onHistoricalCandles(historicalCandles: [CandleData]) {
+		let needCandles = min(config!.rsiPeriod, historicalCandles.count)
+		let candlesPayload = historicalCandles.suffix(needCandles)
+		for candle in candlesPayload {
+			candles.append(candle)
+		}
+	}
+
+	private func onNewCandle(candle: CandleData) {
+		if candles.count == self.config!.rsiPeriod {
+			candles.remove(at: 0)
+		}
+		candles.append(candle)
+
+		let rsi = calculateRSI()
+		// Открываем лонг, если RSI меньше нижней границы
+		if rsi < Float64(config!.lowerRsiThreshold) {
+			openLong()
+			// Закрываем лонг, если RSI больше верхней границы
+		} else if rsi > Float64(config!.upperRsiThreshold) {
+			closeLong()
+		}
+	}
+
+	private func collectHistoricalTrades() {
+
+	}
+
+	private func onHistoricalTrades(historicalTrades: [Trade]) {
+
+	}
+
+	private func onNewTrade(trade: Trade) {
+
+	}
+
+	private func calculateRSI() -> Float64 {
+		if (candles.count < 2) {
+			return 0
+		}
+
+		var totalGain: Float64 = 0
+		var gainAmount = 0
+		var totalLoss: Float64 = 0
+		var lossAmount = 0
+
+		var candleClosePrice: Float64 = 0
+		var prevCandleClosePrice: Float64 = 0
+
+		candles.forEach { candle in
+			if prevCandleClosePrice == 0 {
+				prevCandleClosePrice = cast_money(quotation: candle.close)
+				return
+			}
+
+			prevCandleClosePrice = candleClosePrice
+			candleClosePrice = cast_money(quotation: candle.close)
+			let change = candleClosePrice - prevCandleClosePrice
+
+			if (change == 0) {
+				return
+			}
+			if change > 0 {
+				totalGain += change
+				gainAmount += 1
+			} else {
+				totalLoss += change
+				lossAmount += 1
+			}
+		}
+
+		if gainAmount == 0 {
+			gainAmount = 1
+		}
+
+		if lossAmount == 0 {
+			lossAmount = 1
+		}
+
+		var avgGain = totalGain / Float64(gainAmount)
+		if (avgGain == 0) {
+			avgGain = 1
+		}
+		var avgLoss = totalLoss / Float64(lossAmount)
+		if (avgLoss == 0) {
+			avgLoss = 1
+		}
+
+		var rs = avgGain / avgLoss
+		var rsi = 100 - (1 + rs)
+
+		return rsi
+	}
+
+	private func openLong() {
+		postOrder!.buyMarketPrice()
+	}
+
+	private func closeLong() {
+		var needClose = openedPositionsNum
+		while (needClose > 0) {
+			postOrder!.sellMarketPrice()
+			needClose -= 1
+		}
+	}
+
+
+	private var config: RSIConfig? = nil
+	private var candlesStreamSub: CandleStreamSubscriber? = nil
+	private var tradesStreamSub: TradesStreamSubscriber? = nil
+	private var orderSub: OrderSubscriber? = nil
+	private var postOrder: PostOrder? = nil
+	private var candlesFetcher: CandleFetcher? = nil
+
+	var candles = LinkedList<CandleData>()
+	var openedPositionsNum = 0
+	var openedPositions = LinkedList<RSIOpenedPosition>()
 }

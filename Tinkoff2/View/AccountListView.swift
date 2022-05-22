@@ -13,6 +13,7 @@ import Introspect
 
 class SettingPageModel: ObservableObject {
 	@Published var accountList: AccountList = AccountList()
+	@Published var isAccountsLoading: Bool = false
 	@Published var activeAccount: Account? = nil
 
 	@Published var onModeChange: ((Int) -> ())? = nil
@@ -140,6 +141,37 @@ struct ModePicker: View {
 	}
 }
 
+
+struct AccountCell: View {
+	let account: Account
+	@ObservedObject var model: SettingPageModel
+	@Environment(\.colorScheme) var colorScheme
+
+	var body: some View {
+
+		HStack {
+			Text(account.name)
+				.foregroundColor(model.isBotRunning ? Color.gray : (colorScheme == .dark ? Color.white : Color.black))
+				.frame(maxWidth: .infinity, alignment: .leading)
+			if account == model.activeAccount {
+				Image(systemName: "checkmark")
+					.foregroundColor(.accentColor)
+			}
+			if account.accessLevel != .accountAccessLevelFullAccess {
+				Image(systemName: "lock")
+					.foregroundColor(.gray)
+			}
+		}
+			.frame(maxWidth: .infinity, alignment: .leading)
+			.listRowBackground(colorScheme == .dark ? Color(white: 50 / 255) : Color(white: 240 / 255))
+			.onTapGesture {
+//                if (account.accessLevel == .accountAccessLevelFullAccess) {
+			self.model.activeAccount = account
+//                }
+		}
+	}
+}
+
 struct AccountListView: View {
 	@ObservedObject var model: SettingPageModel
 
@@ -147,7 +179,13 @@ struct AccountListView: View {
 
 	var body: some View {
 		VStack {
-			if model.accountList.accounts.count == 0 {
+			if model.isAccountsLoading {
+				Text("Загрузка счетов")
+					.font(.headline)
+					.frame(maxWidth: .infinity, alignment: .leading)
+					.padding(EdgeInsets(top: 8, leading: 16, bottom: 16, trailing: 16))
+				ProgressView()
+			} else if model.accountList.accounts.count == 0 {
 				Text("Нет счетов")
 					.font(.headline)
 					.frame(maxWidth: .infinity, alignment: .leading)
@@ -162,7 +200,7 @@ struct AccountListView: View {
 					.padding(EdgeInsets(top: 8, leading: 16, bottom: -24, trailing: 16))
 				List {
 					ForEach(model.accountList.accounts, id: \.self) { item in
-						SelectionCell(account: item, model: self.model)
+						AccountCell(account: item, model: self.model)
 					}
 				}
 					.disabled(model.isBotRunning)
@@ -203,19 +241,18 @@ struct StockListView: View {
 		if string.count == 12 {
 			model.sdk?.instrumentsService.getInstrumentBy(params: InstrumentParameters(idType: .figi, classCode: "", id: string)).sink { _ in
 			} receiveValue: { resp in
+				print("instr", resp.instrument)
 				onrespfound(response: resp.instrument)
 			}.store(in: &model.cancellables)
 		}
 		if string.count < 6 {
-			model.sdk?.instrumentsService.getInstrumentBy(params: InstrumentParameters(idType: .ticker, classCode: "SPBXM", id: string)).sink { _ in
-			} receiveValue: { resp in
-				onrespfound(response: resp.instrument)
-			}.store(in: &model.cancellables)
-
-			model.sdk?.instrumentsService.getInstrumentBy(params: InstrumentParameters(idType: .ticker, classCode: "MOEX", id: string)).sink { _ in
-			} receiveValue: { resp in
-				onrespfound(response: resp.instrument)
-			}.store(in: &model.cancellables)
+			let classes = ["SPBXM", "TQBR", "TQTF"]
+			for klass in classes {
+				model.sdk?.instrumentsService.getInstrumentBy(params: InstrumentParameters(idType: .ticker, classCode: klass, id: string)).sink { _ in
+				} receiveValue: { resp in
+					onrespfound(response: resp.instrument)
+				}.store(in: &model.cancellables)
+			}
 		}
 	}
 
@@ -245,6 +282,7 @@ struct StockListView: View {
 					}
 				}
 			)
+				.disableAutocorrection(true)
 				.onChange(of: figifield) {
 				self.autocomplete(string: $0)
 			}
@@ -281,13 +319,14 @@ struct StockListView: View {
 			) { item in
 				HStack {
 					Text(verbatim: item.name)
+						.disabled(model.isBotRunning)
 						.padding(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 0))
 					Image(systemName: "xmark.circle.fill")
-						.foregroundColor(.gray)
+						.foregroundColor(model.isBotRunning ? Color(white: 70 / 255, opacity: 0.3) : .gray)
 						.padding(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 8))
 						.disabled(model.isBotRunning)
 						.onTapGesture {
-						if model.isBotRunning {
+						if !model.isBotRunning {
 							model.figiData.removeAll { instrument in
 								return instrument.name == item.name
 							}
@@ -297,30 +336,6 @@ struct StockListView: View {
 					.background(RoundedRectangle(cornerRadius: 8).fill(Color.gray.opacity(0.2)))
 			}
 				.padding(.horizontal, 16)
-		}
-	}
-}
-
-struct SelectionCell: View {
-	let account: Account
-	@ObservedObject var model: SettingPageModel
-	@Environment(\.colorScheme) var colorScheme
-
-	var body: some View {
-
-		HStack {
-			Text(account.name)
-				.foregroundColor(model.isBotRunning ? Color.gray : (colorScheme == .dark ? Color.white : Color.black))
-				.frame(maxWidth: .infinity, alignment: .leading)
-			if account == model.activeAccount {
-				Image(systemName: "checkmark")
-					.foregroundColor(.accentColor)
-			}
-		}
-			.frame(maxWidth: .infinity, alignment: .leading)
-			.listRowBackground(colorScheme == .dark ? Color(white: 50 / 255) : Color(white: 240 / 255))
-			.onTapGesture {
-			self.model.activeAccount = account
 		}
 	}
 }

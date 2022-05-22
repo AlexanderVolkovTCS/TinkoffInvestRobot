@@ -12,12 +12,73 @@ class VisualizerPageModel: ObservableObject {
 	@Published var data: [Int]? = nil
 
 	@Published var stockData: [StockInfo] = []
-	@Published var activeStock: StockInfo = StockInfo()
+	@Published var activeStock: StockInfo? = nil
 	@Published var onStockChange: ((StockInfo) -> ())? = nil
+
+	@Published var portfolioData: PortfolioData = PortfolioData()
+
+	@Published var isWaitingForAccountData: Bool = false
 
 	init() { }
 }
 
+struct VisualizerPageView: View {
+	@ObservedObject var model: VisualizerPageModel
+
+	let columns = [
+		GridItem(.adaptive(minimum: 200))
+	]
+
+	var body: some View {
+		if self.model.isWaitingForAccountData {
+			VStack {
+				ProgressView()
+					.padding()
+				Text("Запускаем Бота")
+			}
+		} else if self.model.stockData.count == 0 {
+			VStack {
+				Image(systemName: "hand.draw")
+					.font(.system(size: 60))
+					.foregroundColor(.gray)
+					.padding()
+				Text("Проведите от левого края, чтобы открыть меню натройки бота")
+			}
+		} else {
+			List {
+				Section(header: CardsView(model: model)) {
+					VStack {
+						if self.model.activeStock != nil {
+							Spacer(minLength: 16)
+							Text("График")
+								.frame(maxWidth: .infinity, alignment: .leading)
+								.font(.title)
+							Text("Отоброжается по 5мин")
+								.frame(maxWidth: .infinity, alignment: .leading)
+								.font(.caption)
+							GraphViewUI(model: model)
+								.frame(maxWidth: .infinity)
+								.frame(minHeight: 400)
+							Spacer(minLength: 16)
+							InfoView(model: model)
+
+							Spacer(minLength: 32)
+							TableView(model: model)
+
+							Spacer(minLength: 32)
+							Text("Логи бота")
+								.frame(maxWidth: .infinity, alignment: .leading)
+								.font(.title)
+						} else {
+							EmptyView()
+						}
+					}
+				}
+			}
+				.listStyle(.plain)
+		}
+	}
+}
 
 struct GraphViewUI: UIViewRepresentable {
 	@ObservedObject var model: VisualizerPageModel
@@ -27,7 +88,10 @@ struct GraphViewUI: UIViewRepresentable {
 	}
 
 	func updateUIView(_ uiView: GraphView, context: Context) {
-		uiView.setChartData(candles: self.model.activeStock.candles)
+		if self.model.activeStock == nil {
+			return
+		}
+		uiView.setChartData(candles: self.model.activeStock!.candles)
 	}
 }
 
@@ -51,12 +115,19 @@ struct CardsView: View {
 				ForEach(0..<model.stockData.count, id: \.self) { id in
 					ZStack {
 						RoundedRectangle(cornerRadius: 16)
-							.fill(self.model.activeStock.instrument == model.stockData[id].instrument ? (colorScheme == .light ? Color(white: 40 / 255, opacity: 0.1) : Color(white: 180 / 255, opacity: 0.1)) : Color(white: 40 / 255, opacity: 0.0))
+							.fill(self.model.activeStock!.instrument == model.stockData[id].instrument ? (colorScheme == .light ? Color(white: 40 / 255, opacity: 0.1) : Color(white: 180 / 255, opacity: 0.1)) : Color(white: 40 / 255, opacity: 0.0))
 							.frame(maxWidth: .infinity)
 							.frame(maxHeight: .infinity)
 						VStack {
-							AsyncImage(url: URL(string: "https://invest-brands.cdn-tinkoff.ru/\(model.stockData[id].instrument!.isin)x160.png")) { phase in
-								switch phase {
+							AsyncImage(url: URL(string: model.stockData[id].instrument.instrumentType == "share" ?
+								"https://invest-brands.cdn-tinkoff.ru/\(model.stockData[id].instrument.isin)x160.png"
+								: model.stockData[id].instrument.instrumentType == "etf" ?
+								"https://invest-brands.cdn-tinkoff.ru/\(model.stockData[id].instrument.ticker)x160.png"
+								: model.stockData[id].instrument.instrumentType == "currency" ?
+								"https://invest-brands.cdn-tinkoff.ru/\(model.stockData[id].instrument.ticker.prefix(3))x160.png"
+								: "https://invest-brands.cdn-tinkoff.ru/\(model.stockData[id].instrument.isin)x160.png"
+								)) { phase in
+                                switch phase {
 								case .success(let image):
 									image
 										.resizable()
@@ -65,7 +136,7 @@ struct CardsView: View {
 										.clipShape(RoundedRectangle(cornerRadius: 25))
 
 								case .failure:
-									EmptyView()
+                                    EmptyView()
 
 								case .empty:
 									waitView()
@@ -75,7 +146,7 @@ struct CardsView: View {
 								}
 							}
 
-							Text(model.stockData[id].instrument!.name)
+							Text(model.stockData[id].instrument.name)
 						}
 							.padding()
 					}
@@ -84,56 +155,6 @@ struct CardsView: View {
 					}
 				}
 			}
-		}
-	}
-}
-
-struct VisualizerPageView: View {
-	@ObservedObject var model: VisualizerPageModel
-
-	let columns = [
-		GridItem(.adaptive(minimum: 200))
-	]
-
-	var body: some View {
-		if self.model.stockData.count == 0 {
-			VStack {
-				Image(systemName: "hand.draw")
-					.font(.system(size: 60))
-					.foregroundColor(.gray)
-					.padding()
-				Text("Проведите от левого края, чтобы открыть меню натройки бота")
-			}
-		} else {
-			List {
-				Section(header: CardsView(model: model)) {
-					VStack {
-						Spacer(minLength: 16)
-						Text("График")
-							.frame(maxWidth: .infinity, alignment: .leading)
-							.font(.title)
-						Text("Отоброжается по 5мин")
-							.frame(maxWidth: .infinity, alignment: .leading)
-							.font(.caption)
-						GraphViewUI(model: model)
-							.frame(maxWidth: .infinity)
-							.frame(minHeight: 400)
-						Spacer(minLength: 16)
-						InfoView(model: model)
-
-						Spacer(minLength: 32)
-						Text("История сделок")
-							.frame(maxWidth: .infinity, alignment: .leading)
-							.font(.title)
-
-						Spacer(minLength: 32)
-						Text("Логи бота")
-							.frame(maxWidth: .infinity, alignment: .leading)
-							.font(.title)
-					}
-				}
-			}
-				.listStyle(.plain)
 		}
 	}
 }
@@ -190,12 +211,49 @@ struct InfoView: View {
 				alignment: .center,
 				spacing: 16
 			) {
-				InfoCellView(title1: self.model.activeStock.instrument?.countryOfRiskName, title2: "Страна", systemImage: "globe.europe.africa")
-				InfoCellView(title1: self.model.activeStock.instrument?.exchange, title2: "Биржа", systemImage: "tag.circle")
-				InfoCellView(title1: self.model.activeStock.instrument?.currency.uppercased(), title2: "Валюта", systemImage: "dollarsign.circle")
-				InfoCellView(title1: self.model.activeStock.instrument?.ticker, title2: "Тикер", systemImage: "ticket")
-				InfoCellView(title1: self.model.activeStock.instrument?.classCode, title2: "Класс", systemImage: "123.rectangle")
-				InfoCellView(title1: self.model.activeStock.instrument?.isin, title2: "ISIN", systemImage: "number.circle")
+				ForEach(0..<model.portfolioData.positions.count, id: \.self) { id in
+					if model.portfolioData.positions[id].figi == model.activeStock!.instrument.figi {
+						InfoCellView(title1: String(model.portfolioData.positions[id].quantityLots.units), title2: "В портфеле", systemImage: "bag.circle")
+					}
+				}
+				InfoCellView(title1: model.activeStock!.instrument.countryOfRiskName, title2: "Страна", systemImage: "globe.europe.africa")
+				InfoCellView(title1: model.activeStock!.instrument.exchange, title2: "Биржа", systemImage: "tag.circle")
+				InfoCellView(title1: model.activeStock!.instrument.currency.uppercased(), title2: "Валюта", systemImage: "dollarsign.circle")
+				InfoCellView(title1: model.activeStock!.instrument.ticker, title2: "Тикер", systemImage: "ticket")
+				InfoCellView(title1: model.activeStock!.instrument.classCode, title2: "Класс", systemImage: "123.rectangle")
+				InfoCellView(title1: model.activeStock!.instrument.isin, title2: "ISIN", systemImage: "number.circle")
+			}
+		}
+	}
+}
+
+struct TableCellView: View {
+	public var title1: String? = nil
+
+	var body: some View {
+		HStack {
+			Text("Buy | sell")
+			Image(systemName: "checkmark.circle")
+				.foregroundColor(.green)
+		}
+	}
+}
+
+struct TableView: View {
+	@ObservedObject var model: VisualizerPageModel
+
+	var body: some View {
+		VStack {
+			Text("История сделок")
+				.frame(maxWidth: .infinity, alignment: .leading)
+				.font(.title)
+
+			LazyVStack(
+				alignment: .center,
+				spacing: 16
+			) {
+				TableCellView(title1: "dai")
+
 			}
 		}
 	}
