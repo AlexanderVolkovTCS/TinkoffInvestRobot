@@ -263,17 +263,14 @@ class RSIStrategyEngine {
         for figi in self.config!.figis {
             switch GlobalBotConfig.mode {
             case .Emu:
-//                self.tradesStreamSubscribers[figi] = EmuTradesStreamSubscriber(figi: figi, callback: onNewTrade)
-                self.postOrders[figi] = EmuPostOrder(figi: figi, onBuy: onBuySuccess, onSell: onSellSuccess)
+                self.postOrders[figi] = EmuPostOrder(figi: figi, onBuy: onBuySuccess, onSell: onSellSuccess, emuPortfolioLoader: self.portfolioLoader as! EmuPortfolioLoader)
                 self.candlesFetchers[figi] = EmuCandleFetcher(figi: figi, callback: self.onNewCandle)
 
             case .Sandbox:
-//                self.tradesStreamSubscribers[figi] = TinkoffTradesStreamSubscriber(figi: figi, callback: onNewTrade)
                 self.postOrders[figi] = SandboxPostOrder(figi: figi, onBuy: onBuySuccess, onSell: onSellSuccess)
                 self.candlesFetchers[figi] = EmuCandleFetcher(figi: figi, callback: self.onNewCandle)
 
             case .Tinkoff:
-//                self.tradesStreamSubscribers[figi] = TinkoffTradesStreamSubscriber(figi: figi, callback: onNewTrade)
                 self.postOrders[figi] = TinkoffPostOrder(figi: figi, onBuy: onBuySuccess, onSell: onSellSuccess)
                 self.candlesFetchers[figi] = EmuCandleFetcher(figi: figi, callback: self.onNewCandle)
             }
@@ -316,11 +313,13 @@ class RSIStrategyEngine {
     }
 
     private func onBuySuccess(figi: String, amount: Int64) {
-        
+        openedPositions[figi]! += amount
+        self.portfolioLoader!.syncPortfolioWithTink()
     }
     
     private func onSellSuccess(figi: String, amount: Int64) {
-        
+        openedPositions[figi]! -= amount
+        self.portfolioLoader!.syncPortfolioWithTink()
     }
     
     private func onPortfolio(portfolioData: PortfolioData) {
@@ -393,6 +392,7 @@ class RSIStrategyEngine {
     }
 
     private func openLong(figi: String) {
+        // TOOD: quickly check via cached partfolio if there's enough money to buy.
         self.postOrders[figi]!.buyMarketPrice()
     }
 

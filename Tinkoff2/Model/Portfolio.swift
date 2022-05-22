@@ -51,8 +51,16 @@ class PortfolioLoader {
 		self.profile = profile
 		self.callback = callback
 	}
+    
+    func syncPortfolioWithTink() {}
+    
+    func getPortfolioCached() -> PortfolioData {
+        return self.portfolioDataCached
+    }
 
 	func onDataLoaded(portfolioData: PortfolioData) {
+        portfolioDataCached = portfolioData
+        
 		if self.callback == nil {
 			return
 		}
@@ -62,6 +70,7 @@ class PortfolioLoader {
 		}
 	}
 
+    var portfolioDataCached = PortfolioData()
 	var profile: Account = Account()
 	var callback: ((PortfolioData) -> ())? = nil
 }
@@ -70,14 +79,19 @@ class PortfolioLoader {
 class EmuPortfolioLoader: PortfolioLoader {
 	override init(profile: Account, callback: @escaping (PortfolioData) -> ()) {
 		super.init(profile: profile, callback: callback)
-		let pdata = PortfolioData()
+        
 		var pp = PortfolioPosition()
 		pp.figi = "BBG0013HGFT4" // usd
 		pp.quantityLots.units = 1000
 		pp.quantityLots.nano = 0
-		pdata.positions[pp.figi] = pp
-		self.onDataLoaded(portfolioData: pdata)
+        self.portfolioDataCached.positions[pp.figi] = pp
+        
+        syncPortfolioWithTink()
 	}
+    
+    public override func syncPortfolioWithTink() {
+        self.onDataLoaded(portfolioData: self.portfolioDataCached)
+    }
 }
 
 class SandboxPortfolioLoader: PortfolioLoader {
@@ -85,17 +99,21 @@ class SandboxPortfolioLoader: PortfolioLoader {
 
 	override init(profile: Account, callback: @escaping (PortfolioData) -> ()) {
 		super.init(profile: profile, callback: callback)
-		GlobalBotConfig.sdk.sandboxService.getPortfolio(accountID: profile.id).sink { result in
-			switch result {
-			case .failure(let error):
-				print(error.localizedDescription)
-			case .finished:
-				print("loaded")
-			}
-		} receiveValue: { portfolio in
-			self.onDataLoaded(portfolioData: PortfolioData(portfolioResp: portfolio))
-		}.store(in: &cancellables)
+		syncPortfolioWithTink()
 	}
+    
+    public override func syncPortfolioWithTink() {
+        GlobalBotConfig.sdk.sandboxService.getPortfolio(accountID: profile.id).sink { result in
+            switch result {
+            case .failure(let error):
+                print(error.localizedDescription)
+            case .finished:
+                print("loaded")
+            }
+        } receiveValue: { portfolio in
+            self.onDataLoaded(portfolioData: PortfolioData(portfolioResp: portfolio))
+        }.store(in: &cancellables)
+    }
 }
 
 class TinkoffPortfolioLoader: PortfolioLoader {
@@ -103,15 +121,19 @@ class TinkoffPortfolioLoader: PortfolioLoader {
 
 	override init(profile: Account, callback: @escaping (PortfolioData) -> ()) {
 		super.init(profile: profile, callback: callback)
-		GlobalBotConfig.sdk.portfolioService.getPortfolio(accountID: profile.id).sink { result in
-			switch result {
-			case .failure(let error):
-				print(error.localizedDescription)
-			case .finished:
-				print("loaded")
-			}
-		} receiveValue: { portfolio in
-			self.onDataLoaded(portfolioData: PortfolioData(portfolioResp: portfolio))
-		}.store(in: &cancellables)
+        syncPortfolioWithTink()
 	}
+    
+    public override func syncPortfolioWithTink() {
+        GlobalBotConfig.sdk.portfolioService.getPortfolio(accountID: profile.id).sink { result in
+            switch result {
+            case .failure(let error):
+                print(error.localizedDescription)
+            case .finished:
+                print("loaded")
+            }
+        } receiveValue: { portfolio in
+            self.onDataLoaded(portfolioData: PortfolioData(portfolioResp: portfolio))
+        }.store(in: &cancellables)
+    }
 }

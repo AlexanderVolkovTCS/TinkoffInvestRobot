@@ -44,23 +44,32 @@ class PostOrder {
 
 
 class EmuPostOrder: PostOrder {
+    public init(figi: String,
+                onBuy: @escaping (String, Int64) -> (),
+                onSell: @escaping (String, Int64) -> (),
+                emuPortfolioLoader: EmuPortfolioLoader
+    ) {
+        super.init(figi: figi, onBuy: onBuy, onSell: onSell)
+        self.emuPortfolioLoader = emuPortfolioLoader
+    }
+    
     public override func buyMarketPrice() {
-		var trade = Trade()
-		trade.figi = self.figi!
-		trade.price = Quotation()
-		trade.quantity = 1
-		trade.direction = TradeDirection.buy
+        // Emulate porfolio
+        let portfolio = self.emuPortfolioLoader!.getPortfolioCached()
+        portfolio.positions[self.figi!]!.quantity.units += 1
+
         self.dispatchOnBuy(amount: 1)
 	}
 
 	public override func sellMarketPrice() {
-		var trade = Trade()
-		trade.figi = self.figi!
-		trade.price = Quotation()
-		trade.quantity = 1
-		trade.direction = TradeDirection.sell
+        // Emulate porfolio
+        let portfolio = self.emuPortfolioLoader!.getPortfolioCached()
+        portfolio.positions[self.figi!]!.quantity.units -= 1
+
         self.dispatchOnSell(amount: 1)
 	}
+    
+    var emuPortfolioLoader: EmuPortfolioLoader?
 }
 
 class SandboxPostOrder: PostOrder {
