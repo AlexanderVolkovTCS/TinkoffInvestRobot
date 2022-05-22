@@ -141,27 +141,27 @@ class CandleCache {
 }
 
 class CandleFetcher {
-	public init(figi: String, callback: @escaping (CandleData) -> ()) {
+	public init(figi: String, callback: @escaping (String, CandleData) -> ()) {
 		self.figi = figi
 		self.callback = callback
 	}
 
 	public func cancel() { }
 
-	public func fetchHistoricalData(callback: @escaping ([CandleData]) -> ()) { }
+	public func fetchHistoricalData(callback: @escaping (String, [CandleData]) -> ()) { }
 
 	func oncall(candle: CandleData) {
 		DispatchQueue.main.async {
-			self.callback(candle)
+            self.callback(self.figi!, candle)
 		}
 	}
 
 	var figi: String?
-	var callback: (CandleData) -> ()?
+	var callback: (String, CandleData) -> ()?
 }
 
 class EmuCandleFetcher: CandleFetcher {
-	public override init (figi: String, callback: @escaping (CandleData) -> ()) {
+	public override init (figi: String, callback: @escaping (String, CandleData) -> ()) {
 		super.init(figi: figi, callback: callback)
 
 		// Preload candles for past dates.
@@ -194,7 +194,7 @@ class EmuCandleFetcher: CandleFetcher {
 		}.store(in: &cancellables)
 	}
 
-	public override func fetchHistoricalData(callback: @escaping ([CandleData]) -> ()) {
+	public override func fetchHistoricalData(callback: @escaping (String, [CandleData]) -> ()) {
 		// Preload candles for past dates.
 		var req = GetCandlesRequest()
 		req.figi = self.figi!
@@ -212,7 +212,9 @@ class EmuCandleFetcher: CandleFetcher {
 		} receiveValue: { candles in
 
 			var dataCandles = candles.candles.map { (candle) in CandleData(tinkCandle: candle) }
-			callback(dataCandles)
+            DispatchQueue.main.async {
+                callback(self.figi!, dataCandles)
+            }
 
 		}.store(in: &cancellables)
 	}
@@ -227,7 +229,7 @@ class EmuCandleFetcher: CandleFetcher {
 
 
 struct RSIConfig {
-	public var figi: String
+	public var figis: [String]
 	public var upperRsiThreshold = 70
 	public var lowerRsiThreshold = 30
 	public var takeProfit = 0.15
@@ -243,25 +245,39 @@ struct RSIOpenedPosition {
 }
 
 class RSIStrategyEngine {
-	public init(config: RSIConfig) {
+	public init(config: RSIConfig,
+                portfolioUpdateCallback: @escaping (PortfolioData) -> ()
+    ) {
 		self.config = config
+        self.portfolioUpdateCallback = portfolioUpdateCallback
+        
+        switch GlobalBotConfig.mode {
+        case .Emu:
+            self.portfolioLoader = EmuPortfolioLoader(profile: GlobalBotConfig.account, callback: self.onPortfolio)
+        case .Sandbox:
+            self.portfolioLoader = SandboxPortfolioLoader(profile: GlobalBotConfig.account, callback: self.onPortfolio)
+        case .Tinkoff:
+            self.portfolioLoader = TinkoffPortfolioLoader(profile: GlobalBotConfig.account, callback: self.onPortfolio)
+        }
+        
+        for figi in self.config!.figis {
+            switch GlobalBotConfig.mode {
+            case .Emu:
+//                self.tradesStreamSubscribers[figi] = EmuTradesStreamSubscriber(figi: figi, callback: onNewTrade)
+                self.postOrders[figi] = EmuPostOrder(figi: figi)
+                self.candlesFetchers[figi] = EmuCandleFetcher(figi: figi, callback: self.onNewCandle)
 
-		switch GlobalBotConfig.mode {
-		case .Emu:
-			self.tradesStreamSub = EmuTradesStreamSubscriber(figi: self.config!.figi, callback: onNewTrade)
-			self.postOrder = EmuPostOrder(figi: self.config!.figi, tradesStreamSubsriber: self.tradesStreamSub! as! EmuTradesStreamSubscriber)
-			self.candlesFetcher = EmuCandleFetcher(figi: self.config!.figi, callback: self.onNewCandle)
+            case .Sandbox:
+//                self.tradesStreamSubscribers[figi] = TinkoffTradesStreamSubscriber(figi: figi, callback: onNewTrade)
+                self.postOrders[figi] = SandboxPostOrder(figi: figi)
+                self.candlesFetchers[figi] = EmuCandleFetcher(figi: figi, callback: self.onNewCandle)
 
-		case .Sandbox:
-			self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: self.config!.figi, callback: onNewTrade)
-			self.postOrder = SandboxPostOrder(figi: self.config!.figi)
-			self.candlesFetcher = EmuCandleFetcher(figi: self.config!.figi, callback: self.onNewCandle)
-
-		case .Tinkoff:
-			self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: self.config!.figi, callback: onNewTrade)
-			self.postOrder = TinkoffPostOrder(figi: self.config!.figi)
-			self.candlesFetcher = EmuCandleFetcher(figi: self.config!.figi, callback: self.onNewCandle)
-		}
+            case .Tinkoff:
+//                self.tradesStreamSubscribers[figi] = TinkoffTradesStreamSubscriber(figi: figi, callback: onNewTrade)
+                self.postOrders[figi] = TinkoffPostOrder(figi: figi)
+                self.candlesFetchers[figi] = EmuCandleFetcher(figi: figi, callback: self.onNewCandle)
+            }
+        }
 
 		collectHistoricalCandles()
 		collectHistoricalTrades()
@@ -270,31 +286,33 @@ class RSIStrategyEngine {
 	// Используется один раз для инициализации алгоритма историческими свечами.
 	// 3 дня 5 минутных свечей
 	public func collectHistoricalCandles() {
-		self.candlesFetcher?.fetchHistoricalData(callback: onHistoricalCandles)
+        for candlesFetcher in self.candlesFetchers {
+            candlesFetcher.value.fetchHistoricalData(callback: onHistoricalCandles)
+        }
 	}
 
 	// Используется один раз в качестве коллбека при удачном сборе исторических свечей.
-	private func onHistoricalCandles(historicalCandles: [CandleData]) {
+    private func onHistoricalCandles(figi: String, historicalCandles: [CandleData]) {
 		let needCandles = min(config!.rsiPeriod, historicalCandles.count)
 		let candlesPayload = historicalCandles.suffix(needCandles)
 		for candle in candlesPayload {
-			candles.append(candle)
+            candles[figi]!.append(candle)
 		}
 	}
 
-	private func onNewCandle(candle: CandleData) {
-		if candles.count == self.config!.rsiPeriod {
-			candles.remove(at: 0)
+    private func onNewCandle(figi: String, candle: CandleData) {
+		if candles[figi]!.count == self.config!.rsiPeriod {
+			candles[figi]!.remove(at: 0)
 		}
-		candles.append(candle)
+		candles[figi]!.append(candle)
 
-		let rsi = calculateRSI()
+		let rsi = calculateRSI(figi: figi)
 		// Открываем лонг, если RSI меньше нижней границы
 		if rsi < Float64(config!.lowerRsiThreshold) {
-			openLong()
+            openLong(figi: figi)
 			// Закрываем лонг, если RSI больше верхней границы
 		} else if rsi > Float64(config!.upperRsiThreshold) {
-			closeLong()
+            closeLong(figi: figi)
 		}
 	}
 
@@ -306,11 +324,22 @@ class RSIStrategyEngine {
 
 	}
 
-	private func onNewTrade(trade: Trade) {
-
+    private func onNewTrade(figi: String, trade: Trade) {
+//        if оOrderTrades
 	}
+    
+    private func onPortfolio(portfolioData: PortfolioData) {
+        
+        for figi in self.config!.figis {
+            if let position = portfolioData.positions[figi] {
+                openedPositions[figi]! += position.quantity.units
+            }
+        }
+        
+        self.portfolioUpdateCallback(portfolioData)
+    }
 
-	private func calculateRSI() -> Float64 {
+    private func calculateRSI(figi: String) -> Float64 {
 		if (candles.count < 2) {
 			return 0
 		}
@@ -323,7 +352,7 @@ class RSIStrategyEngine {
 		var candleClosePrice: Float64 = 0
 		var prevCandleClosePrice: Float64 = 0
 
-		candles.forEach { candle in
+		candles[figi]!.forEach { candle in
 			if prevCandleClosePrice == 0 {
 				prevCandleClosePrice = cast_money(quotation: candle.close)
 				return
@@ -368,27 +397,30 @@ class RSIStrategyEngine {
 		return rsi
 	}
 
-	private func openLong() {
-		postOrder!.buyMarketPrice()
+    private func openLong(figi: String) {
+        self.postOrders[figi]!.buyMarketPrice()
 	}
 
-	private func closeLong() {
-		var needClose = openedPositionsNum
+    private func closeLong(figi: String) {
+		var needClose = openedPositions[figi]!
 		while (needClose > 0) {
-			postOrder!.sellMarketPrice()
+            self.postOrders[figi]!.sellMarketPrice()
 			needClose -= 1
 		}
 	}
 
 
 	private var config: RSIConfig? = nil
-	private var candlesStreamSub: CandleStreamSubscriber? = nil
-	private var tradesStreamSub: TradesStreamSubscriber? = nil
-	private var orderSub: OrderSubscriber? = nil
-	private var postOrder: PostOrder? = nil
-	private var candlesFetcher: CandleFetcher? = nil
+    
+    private var portfolioLoader: PortfolioLoader? = nil
+    
+//	private var tradesStreamSubscribers: [String : TradesStreamSubscriber] = [:]
+    private var postOrders: [String : PostOrder] = [:]
+	private var candlesFetchers: [String : CandleFetcher] = [:]
+    
+    private var candles: [String : LinkedList<CandleData>] = [:]
+    private var openedPositions: [String : Int64] = [:]
+    
+    private var portfolioUpdateCallback: (PortfolioData) -> ()?
 
-	var candles = LinkedList<CandleData>()
-	var openedPositionsNum = 0
-	var openedPositions = LinkedList<RSIOpenedPosition>()
 }

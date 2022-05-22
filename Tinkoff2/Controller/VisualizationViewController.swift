@@ -22,7 +22,7 @@ class VisualizationViewController: UIViewController {
 
 	var candlesStreamSub: CandleStreamSubscriber? = nil
 
-	var tradesStreamSub: TradesStreamSubscriber? = nil
+//	var tradesStreamSub: TradesStreamSubscriber? = nil
 
 	var orderSub: OrderSubscriber? = nil
 
@@ -53,7 +53,7 @@ class VisualizationViewController: UIViewController {
 	}
 
 	func removeSubcribers() {
-		self.tradesStreamSub?.cancel()
+//		self.tradesStreamSub?.cancel()
 		self.orderSub?.cancel()
 		self.candlesStreamSub?.cancel()
 	}
@@ -127,23 +127,23 @@ class VisualizationViewController: UIViewController {
 		// Should uninitilize everything here and reinit data sources.
 		removeSubcribers()
 
-		switch GlobalBotConfig.mode {
-		case .Emu:
-			self.tradesStreamSub = EmuTradesStreamSubscriber(figi: "BBG000BBJQV0", callback: processTrade)
-			self.orderSub = EmuOrderSubscriber(figi: "BBG000BBJQV0", callback: processOrderbook)
-			self.postOrder = EmuPostOrder(figi: "BBG000BBJQV0", tradesStreamSubsriber: self.tradesStreamSub! as! EmuTradesStreamSubscriber)
-			self.candlesStreamSub = EmuCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
-		case .Sandbox:
-			self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "BBG000BBJQV0", callback: processTrade)
-			self.orderSub = TinkoffOrderSubscriber(figi: "BBG000BBJQV0", callback: processOrderbook)
-			self.postOrder = SandboxPostOrder(figi: "BBG000BBJQV0")
-			self.candlesStreamSub = TinkoffCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
-		case .Tinkoff:
-			self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "BBG000BBJQV0", callback: processTrade)
-			self.orderSub = TinkoffOrderSubscriber(figi: "BBG000BBJQV0", callback: processOrderbook)
-			self.postOrder = TinkoffPostOrder(figi: "BBG000BBJQV0")
-			self.candlesStreamSub = TinkoffCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
-		}
+//		switch GlobalBotConfig.mode {
+//		case .Emu:
+////			self.tradesStreamSub = EmuTradesStreamSubscriber(figi: "BBG000BBJQV0", callback: processTrade)
+//			self.orderSub = EmuOrderSubscriber(figi: "BBG000BBJQV0", callback: processOrderbook)
+//			self.postOrder = EmuPostOrder(figi: "BBG000BBJQV0", tradesStreamSubsriber: self.tradesStreamSub! as! EmuTradesStreamSubscriber)
+//			self.candlesStreamSub = EmuCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
+//		case .Sandbox:
+//			self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "BBG000BBJQV0", callback: processTrade)
+//			self.orderSub = TinkoffOrderSubscriber(figi: "BBG000BBJQV0", callback: processOrderbook)
+//			self.postOrder = SandboxPostOrder(figi: "BBG000BBJQV0")
+//			self.candlesStreamSub = TinkoffCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
+//		case .Tinkoff:
+//			self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "BBG000BBJQV0", callback: processTrade)
+//			self.orderSub = TinkoffOrderSubscriber(figi: "BBG000BBJQV0", callback: processOrderbook)
+//			self.postOrder = TinkoffPostOrder(figi: "BBG000BBJQV0")
+//			self.candlesStreamSub = TinkoffCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
+//		}
 	}
 
 	

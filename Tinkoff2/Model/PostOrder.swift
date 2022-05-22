@@ -26,9 +26,9 @@ class PostOrder {
 
 
 class EmuPostOrder: PostOrder {
-	public init(figi: String, tradesStreamSubsriber: EmuTradesStreamSubscriber) {
+	public override init(figi: String) {
 		super.init(figi: figi)
-		self.tradesStreamSubsriber = tradesStreamSubsriber
+//		self.tradesStreamSubsriber = tradesStreamSubsriber
 	}
 
 	public override func buyMarketPrice() {
@@ -37,7 +37,7 @@ class EmuPostOrder: PostOrder {
 		trade.price = Quotation()
 		trade.quantity = 1
 		trade.direction = TradeDirection.buy
-		self.tradesStreamSubsriber?.dispatchOnCall(trade: trade)
+//		self.tradesStreamSubsriber?.dispatchOnCall(trade: trade)
 	}
 
 	public override func sellWithLimit(price: Quotation) {
@@ -46,7 +46,7 @@ class EmuPostOrder: PostOrder {
 		trade.price = price
 		trade.quantity = 1
 		trade.direction = TradeDirection.sell
-		self.tradesStreamSubsriber?.dispatchOnCall(trade: trade)
+//		self.tradesStreamSubsriber?.dispatchOnCall(trade: trade)
 	}
 
 	public override func sellMarketPrice() {
@@ -55,10 +55,10 @@ class EmuPostOrder: PostOrder {
 		trade.price = Quotation()
 		trade.quantity = 1
 		trade.direction = TradeDirection.sell
-		self.tradesStreamSubsriber?.dispatchOnCall(trade: trade)
+//		self.tradesStreamSubsriber?.dispatchOnCall(trade: trade)
 	}
 
-	var tradesStreamSubsriber: EmuTradesStreamSubscriber?
+//	var tradesStreamSubsriber: EmuTradesStreamSubscriber?
 }
 
 class SandboxPostOrder: PostOrder {
