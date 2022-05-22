@@ -16,7 +16,7 @@ class SettingsViewController: UIViewController {
 	var modeDescriptionView: UITextView = UITextView()
 	var profileLoader: ProfileListLoader = ProfileListLoader()
 
-	var currentMode: BotMode = .Emu;
+	var currentMode: BotMode = .Tinkoff;
 	var model = SettingPageModel()
 
 	var vizVC: VisualizationViewController? = nil
@@ -28,7 +28,7 @@ class SettingsViewController: UIViewController {
 
 	@objc
 	func onModeChange(tag: Int) {
-		let newMode = BotMode.fromIndex(tag)
+        let newMode = BotMode.fromIndex(tag)
 
 		// Leaving if mode has not been changed.
 		if (newMode == currentMode) {
@@ -53,14 +53,20 @@ class SettingsViewController: UIViewController {
 	@objc
 	func onBotStatus(_ sender: UISegmentedControl) {
         if self.model.figiData.isEmpty {
+            self.model.errorText = "Выберите инструменты"
+            return
+        }
+        if self.model.activeAccount == nil {
+            self.model.errorText = "Выберите счет"
             return
         }
         
+        self.model.errorText = nil
         self.model.isBotRunning = !self.model.isBotRunning
 
 		let label = self.toolbarItems?[0].customView as? UILabel
 		if self.model.isBotRunning {
-			GlobalBotConfig.account = self.model.activeAccount ?? Account()
+			GlobalBotConfig.account = self.model.activeAccount!
 			GlobalBotConfig.mode = currentMode
 			GlobalBotConfig.figis = self.model.figiData
 			self.vizVC?.onBotStart()
@@ -83,7 +89,7 @@ class SettingsViewController: UIViewController {
 		self.model.sdk = GlobalBotConfig.sdk
 
 		view.backgroundColor = .lightGray
-		self.navigationItem.title = "Invest Bot"
+		self.navigationItem.title = "ИнвестоБот"
 		self.navigationController?.navigationBar.prefersLargeTitles = true
 
 		self.navigationController?.isToolbarHidden = false
@@ -106,7 +112,9 @@ class SettingsViewController: UIViewController {
 		self.navigationController?.toolbar.isTranslucent = true
 		self.toolbarItems = items
 
-		model.onModeChange = self.onModeChange
+        // Initializing Enulating mode.
+        onModeChange(tag: 0)
+        model.onModeChange = self.onModeChange
 
 		let hostingController = UIHostingController(rootView: SettingPageView(model: model))
 		hostingController.view.translatesAutoresizingMaskIntoConstraints = false

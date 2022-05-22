@@ -21,6 +21,8 @@ class SettingPageModel: ObservableObject {
 	@Published var figiData: [Instrument] = []
 	@Published var sdk: TinkoffInvestSDK? = nil
 	@Published var cancellables = Set<AnyCancellable>()
+    
+    @Published var errorText: String? = nil
 
 	init() { }
 }
@@ -36,14 +38,35 @@ struct SettingPageView: View {
 				AccountListView(model: model)
 				Spacer(minLength: 16)
 				StockListView(model: model)
+                ErrorView(model: model)
 			}
 		}
 	}
 }
 
+struct ErrorView: View {
+    @ObservedObject var model: SettingPageModel
+    
+    var body: some View {
+        if self.model.errorText == nil {
+            EmptyView()
+        } else {
+            Text(self.model.errorText!)
+                .font(.caption)
+                .foregroundColor(.red)
+        }
+    }
+}
+
 struct ModePicker: View {
 	@ObservedObject var model: SettingPageModel
 	@State private var suggestedTopping = 0
+    
+    var descs = [
+        "Режим Эмуляции позволяет запускать бота на исторических данных.",
+        "Режим Песочницы позволяет запускать бота на реальном сервера, но испльзуются виртуальная валюта.",
+        "Режим Тинькофф позволяет запускать бота в реальных условиях.",
+    ]
 
 	var body: some View {
 		VStack {
@@ -54,6 +77,8 @@ struct ModePicker: View {
 			}
 				.onChange(of: suggestedTopping) { tag in model.onModeChange?(tag) }
 				.disabled(model.isBotRunning)
+            DescriptionTextView(text: self.descs[suggestedTopping])
+                .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
 		}
 			.padding(16)
 			.pickerStyle(.segmented)
@@ -72,11 +97,14 @@ struct AccountListView: View {
 					.font(.headline)
 					.frame(maxWidth: .infinity, alignment: .leading)
 					.padding(EdgeInsets(top: 8, leading: 16, bottom: 16, trailing: 16))
+                DescriptionTextView(text: "Не удается найти счета. Используйте приложение Тинькофф, чтобы создать новые счета.")
 			} else {
 				Text("Счета")
 					.font(.headline)
 					.frame(maxWidth: .infinity, alignment: .leading)
-					.padding(EdgeInsets(top: 8, leading: 16, bottom: -24, trailing: 16))
+                    .padding(EdgeInsets(top: 8, leading: 16, bottom: -8, trailing: 16))
+                DescriptionTextView(text: "Выберите один из счетов, который будет использоваться для торговли ботом. Внимание: Бот может использовать все средства на счету.")
+                    .padding(EdgeInsets(top: 8, leading: 16, bottom: -24, trailing: 16))
 				List {
 					ForEach(model.accountList.accounts, id: \.self) { item in
 						SelectionCell(account: item, model: self.model)
@@ -91,6 +119,17 @@ struct AccountListView: View {
 			}
 		}
 	}
+}
+
+struct DescriptionTextView: View {
+    var text: String = ""
+
+    var body: some View {
+        Text(text)
+            .font(.caption2)
+            .foregroundColor(.gray)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
 }
 
 struct StockListView: View {
@@ -127,18 +166,26 @@ struct StockListView: View {
 
 	var body: some View {
 		VStack {
-			Text("Акции")
+			Text("Интсрументы")
 				.font(.headline)
 				.frame(maxWidth: .infinity, alignment: .leading)
-				.padding(EdgeInsets(top: 8, leading: 16, bottom: 0, trailing: 16))
-				.readSize { size in contentWidth = size.width - 16 }
+                .padding(EdgeInsets(top: 8, leading: 16, bottom: -8, trailing: 16))
+                .readSize { size in contentWidth = size.width - 16 }
+            DescriptionTextView(text: "Выберите акции, которыми сможет торговать Бот.")
+                .padding(EdgeInsets(top: 8, leading: 16, bottom: 0, trailing: 16))
 			TextField(
 				"Вводите Тикер или FIGI",
 				text: $figifield,
 				onCommit: {
                     if instrument != nil && instrument!.apiTradeAvailableFlag {
-						model.figiData.append(instrument!)
-						figifield = ""
+                        let idx = model.figiData.firstIndex { Instrument in
+                            Instrument.figi == instrument?.figi
+                        }
+                        
+                        if idx == nil {
+                            model.figiData.append(instrument!)
+                        }
+                        figifield = ""
 						instrument = nil
 					}
 				}
@@ -183,10 +230,13 @@ struct StockListView: View {
 					Image(systemName: "xmark.circle.fill")
 						.foregroundColor(.gray)
 						.padding(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 8))
-						.onTapGesture {
-						model.figiData.removeAll { instrument in
-							return instrument.name == item.name
-						}
+                        .disabled(model.isBotRunning)
+                        .onTapGesture {
+                            if model.isBotRunning {
+                                model.figiData.removeAll { instrument in
+                                    return instrument.name == item.name
+                                }
+                            }
 					}
 				}
 					.background(RoundedRectangle(cornerRadius: 8).fill(Color.gray.opacity(0.2)))
