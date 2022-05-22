@@ -19,6 +19,8 @@ class VisualizerPageModel: ObservableObject {
 
 	@Published var isWaitingForAccountData: Bool = false
 
+	@Published var logger: MacaLog = MacaLog()
+
 	init() { }
 }
 
@@ -50,29 +52,29 @@ struct VisualizerPageView: View {
 					VStack {
 						if self.model.activeStock != nil {
 							Spacer(minLength: 16)
-							
-                            Text("График")
+
+							Text("График")
 								.frame(maxWidth: .infinity, alignment: .leading)
 								.font(.title)
-							
-                            Text("Отображается по 5мин")
+
+							Text("Отображается по 5мин")
 								.frame(maxWidth: .infinity, alignment: .leading)
 								.font(.caption)
-                            
-                            Spacer(minLength: 16)
-                            
-                            VStack {
-                                GraphViewUI(model: model)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(minHeight: 300)
-                            }
-                            
+
+							Spacer(minLength: 16)
+
+							VStack {
+								GraphViewUI(model: model)
+									.frame(maxWidth: .infinity)
+									.frame(minHeight: 300)
+							}
+
 							Spacer(minLength: 16)
 							InfoView(model: model)
 
 							Spacer(minLength: 32)
 							TableView(model: model)
-                            
+
 //							Spacer(minLength: 32)
 //							Text("Логи бота")
 //								.frame(maxWidth: .infinity, alignment: .leading)
@@ -92,15 +94,15 @@ struct GraphViewUI: UIViewRepresentable {
 	@ObservedObject var model: VisualizerPageModel
 
 	func makeUIView(context: Context) -> CandleGraphView {
-        CandleGraphView()
+		CandleGraphView()
 	}
 
 	func updateUIView(_ uiView: CandleGraphView, context: Context) {
 		if self.model.activeStock == nil {
-            uiView.setChartData(candles: [])
-            return
+			uiView.setChartData(candles: [])
+			return
 		}
-        uiView.setChartData(candles: self.model.activeStock!.candles)
+		uiView.setChartData(candles: self.model.activeStock!.candles)
 	}
 }
 
@@ -136,7 +138,7 @@ struct CardsView: View {
 								"https://invest-brands.cdn-tinkoff.ru/\(model.stockData[id].instrument.ticker.prefix(3))x160.png"
 								: "https://invest-brands.cdn-tinkoff.ru/\(model.stockData[id].instrument.isin)x160.png"
 								)) { phase in
-                                switch phase {
+								switch phase {
 								case .success(let image):
 									image
 										.resizable()
@@ -145,7 +147,7 @@ struct CardsView: View {
 										.clipShape(RoundedRectangle(cornerRadius: 25))
 
 								case .failure:
-                                    EmptyView()
+									EmptyView()
 
 								case .empty:
 									waitView()
@@ -220,11 +222,11 @@ struct InfoView: View {
 				alignment: .center,
 				spacing: 16
 			) {
-                if model.portfolioData.positions[model.activeStock!.instrument.figi] != nil {
-                    InfoCellView(title1: String(model.portfolioData.positions[model.activeStock!.instrument.figi]!.quantityLots.units), title2: "В портфеле", systemImage: "bag.circle")
-                }
-                
-                // TODO: Check if text is present.
+				if model.portfolioData.positions[model.activeStock!.instrument.figi] != nil {
+					InfoCellView(title1: String(model.portfolioData.positions[model.activeStock!.instrument.figi]!.quantityLots.units), title2: "В портфеле", systemImage: "bag.circle")
+				}
+
+				// TODO: Check if text is present.
 				InfoCellView(title1: model.activeStock!.instrument.countryOfRiskName, title2: "Страна", systemImage: "globe.europe.africa")
 				InfoCellView(title1: model.activeStock!.instrument.exchange, title2: "Биржа", systemImage: "tag.circle")
 				InfoCellView(title1: model.activeStock!.instrument.currency.uppercased(), title2: "Валюта", systemImage: "dollarsign.circle")

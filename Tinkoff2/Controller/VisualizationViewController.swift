@@ -29,8 +29,8 @@ class VisualizationViewController: UIViewController {
 	var postOrder: PostOrder? = nil
 
 	var portfolioLoader: PortfolioLoader? = nil
-    
-    var consoleVC: DashboardViewController? = nil
+
+	var consoleVC: DashboardViewController? = nil
 
 	var model = VisualizerPageModel()
 
@@ -41,15 +41,18 @@ class VisualizationViewController: UIViewController {
 
 	func onBotReadyToStart(portfolio: PortfolioData) {
 		started = true
-        setupModel(portfolio: portfolio)
+		setupModel(portfolio: portfolio)
 		initSubcribers()
 		self.model.isWaitingForAccountData = false
+		navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Консоль", style: .plain, target: self, action: #selector(jumpToConsole))
+		GlobalBotConfig.logger.info("Starting Bot")
 	}
-    
-    func onBotFinish() {
+
+	func onBotFinish() {
 		started = false
 		removeSubcribers()
 		self.model.isWaitingForAccountData = false
+		GlobalBotConfig.logger.info("Stopping Bot")
 	}
 
 	func removeSubcribers() {
@@ -64,6 +67,7 @@ class VisualizationViewController: UIViewController {
 	}
 
 	func setupModel(portfolio: PortfolioData) {
+		self.model.logger = GlobalBotConfig.logger
 		self.model.portfolioData = portfolio
 
 		// If Stock is not requestes to be tracked any more, removing it.
@@ -146,16 +150,16 @@ class VisualizationViewController: UIViewController {
 //		}
 	}
 
-	
-    func onPortfolioUpdate(portfolio: PortfolioData) {
-        self.model.portfolioData = portfolio
-        self.model.isWaitingForAccountData = false
-    }
-    
-    func processTrade(trade: Trade) {
+
+	func onPortfolioUpdate(portfolio: PortfolioData) {
+		self.model.portfolioData = portfolio
+		self.model.isWaitingForAccountData = false
+	}
+
+	func processTrade(trade: Trade) {
 		return
 	}
-    
+
 
 	func processCandle(figi: String, candle: CandleData) {
 		for i in 0..<self.model.stockData.count {
@@ -226,14 +230,14 @@ class VisualizationViewController: UIViewController {
 	// TODO:
 	// may be use OrdersStreamService for visualizer?
 
-    @objc
-    func jumpToConsole() {
-        if self.consoleVC == nil {
-            return
-        }
-        present(self.consoleVC!, animated: true, completion: nil)
-    }
-    
+	@objc
+	func jumpToConsole() {
+		if self.consoleVC == nil {
+			return
+		}
+		present(self.consoleVC!, animated: true, completion: nil)
+	}
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
@@ -241,9 +245,7 @@ class VisualizationViewController: UIViewController {
 		self.navigationItem.title = ""
 		self.navigationController?.navigationBar.prefersLargeTitles = true
 		print(isConnectedToInternet())
-        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Console", style: .plain, target: self, action: #selector(jumpToConsole))
-        
+
 		let hostingController = UIHostingController(rootView: VisualizerPageView(model: model))
 		hostingController.view.translatesAutoresizingMaskIntoConstraints = false
 		let swUIViewHC1 = NSLayoutConstraint(item: hostingController.view!, attribute: NSLayoutConstraint.Attribute.left, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.left, multiplier: 1, constant: view.safeAreaInsets.left)

@@ -39,8 +39,7 @@ class CandleGraphView: UIView {
 		chartView.legend.enabled = false
 		chartView.rightAxis.enabled = true
 		chartView.leftAxis.enabled = false
-		chartView.xAxis.enabled = true
-
+		chartView.xAxis.enabled = false
 	}
 
 	func setChartData(candles: [CandleData]) {

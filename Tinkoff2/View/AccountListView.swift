@@ -258,7 +258,7 @@ struct StockListView: View {
 
 	var body: some View {
 		VStack {
-			Text("Интсрументы")
+			Text("Инструменты")
 				.font(.headline)
 				.frame(maxWidth: .infinity, alignment: .leading)
 				.padding(EdgeInsets(top: 8, leading: 16, bottom: -8, trailing: 16))
@@ -319,7 +319,8 @@ struct StockListView: View {
 			) { item in
 				HStack {
 					Text(verbatim: item.name)
-						.disabled(model.isBotRunning)
+                        .opacity(model.isBotRunning ? 0.3 : 1.0)
+                        .disabled(model.isBotRunning)
 						.padding(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 0))
 					Image(systemName: "xmark.circle.fill")
 						.foregroundColor(model.isBotRunning ? Color(white: 70 / 255, opacity: 0.3) : .gray)

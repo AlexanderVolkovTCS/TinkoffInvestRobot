@@ -15,6 +15,7 @@ struct BotConfig {
 	public var figis: [Instrument] = []
 
 	public var algoConfig: AlgoConfig = AlgoConfig()
+	public var logger: MacaLog = MacaLog()
 
 	init() { }
 }

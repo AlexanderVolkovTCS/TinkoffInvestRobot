@@ -152,7 +152,7 @@ class CandleFetcher {
 
 	func oncall(candle: CandleData) {
 		DispatchQueue.main.async {
-            self.callback(self.figi!, candle)
+			self.callback(self.figi!, candle)
 		}
 	}
 
@@ -212,9 +212,9 @@ class EmuCandleFetcher: CandleFetcher {
 		} receiveValue: { candles in
 
 			var dataCandles = candles.candles.map { (candle) in CandleData(tinkCandle: candle) }
-            DispatchQueue.main.async {
-                callback(self.figi!, dataCandles)
-            }
+			DispatchQueue.main.async {
+				callback(self.figi!, dataCandles)
+			}
 
 		}.store(in: &cancellables)
 	}
@@ -246,33 +246,33 @@ struct RSIOpenedPosition {
 
 class RSIStrategyEngine {
 	public init(config: RSIConfig,
-                portfolioUpdateCallback: @escaping (PortfolioData) -> ()
-    ) {
+		portfolioUpdateCallback: @escaping (PortfolioData) -> ()
+	) {
 		self.config = config
-        self.portfolioUpdateCallback = portfolioUpdateCallback
-        
-        switch GlobalBotConfig.mode {
-        case .Emu:
-            self.portfolioLoader = EmuPortfolioLoader(profile: GlobalBotConfig.account, callback: self.onPortfolio)
-        case .Sandbox:
-            self.portfolioLoader = SandboxPortfolioLoader(profile: GlobalBotConfig.account, callback: self.onPortfolio)
-        case .Tinkoff:
-            self.portfolioLoader = TinkoffPortfolioLoader(profile: GlobalBotConfig.account, callback: self.onPortfolio)
-        }
-        
-        for figi in self.config!.figis {
-            switch GlobalBotConfig.mode {
-            case .Emu:
+		self.portfolioUpdateCallback = portfolioUpdateCallback
+
+		switch GlobalBotConfig.mode {
+		case .Emu:
+			self.portfolioLoader = EmuPortfolioLoader(profile: GlobalBotConfig.account, callback: self.onPortfolio)
+		case .Sandbox:
+			self.portfolioLoader = SandboxPortfolioLoader(profile: GlobalBotConfig.account, callback: self.onPortfolio)
+		case .Tinkoff:
+			self.portfolioLoader = TinkoffPortfolioLoader(profile: GlobalBotConfig.account, callback: self.onPortfolio)
+		}
+
+		for figi in self.config!.figis {
+			switch GlobalBotConfig.mode {
+			case .Emu:
 //                self.tradesStreamSubscribers[figi] = EmuTradesStreamSubscriber(figi: figi, callback: onNewTrade)
                 self.postOrders[figi] = EmuPostOrder(figi: figi, onBuy: onBuySuccess, onSell: onSellSuccess)
                 self.candlesFetchers[figi] = EmuCandleFetcher(figi: figi, callback: self.onNewCandle)
 
-            case .Sandbox:
+			case .Sandbox:
 //                self.tradesStreamSubscribers[figi] = TinkoffTradesStreamSubscriber(figi: figi, callback: onNewTrade)
                 self.postOrders[figi] = SandboxPostOrder(figi: figi, onBuy: onBuySuccess, onSell: onSellSuccess)
                 self.candlesFetchers[figi] = EmuCandleFetcher(figi: figi, callback: self.onNewCandle)
 
-            case .Tinkoff:
+			case .Tinkoff:
 //                self.tradesStreamSubscribers[figi] = TinkoffTradesStreamSubscriber(figi: figi, callback: onNewTrade)
                 self.postOrders[figi] = TinkoffPostOrder(figi: figi, onBuy: onBuySuccess, onSell: onSellSuccess)
                 self.candlesFetchers[figi] = EmuCandleFetcher(figi: figi, callback: self.onNewCandle)
@@ -285,21 +285,21 @@ class RSIStrategyEngine {
 	// Используется один раз для инициализации алгоритма историческими свечами.
 	// 3 дня 5 минутных свечей
 	public func collectHistoricalCandles() {
-        for candlesFetcher in self.candlesFetchers {
-            candlesFetcher.value.fetchHistoricalData(callback: onHistoricalCandles)
-        }
-	}
-
-	// Используется один раз в качестве коллбека при удачном сборе исторических свечей.
-    private func onHistoricalCandles(figi: String, historicalCandles: [CandleData]) {
-		let needCandles = min(config!.rsiPeriod, historicalCandles.count)
-		let candlesPayload = historicalCandles.suffix(needCandles)
-		for candle in candlesPayload {
-            candles[figi]!.append(candle)
+		for candlesFetcher in self.candlesFetchers {
+			candlesFetcher.value.fetchHistoricalData(callback: onHistoricalCandles)
 		}
 	}
 
-    private func onNewCandle(figi: String, candle: CandleData) {
+	// Используется один раз в качестве коллбека при удачном сборе исторических свечей.
+	private func onHistoricalCandles(figi: String, historicalCandles: [CandleData]) {
+		let needCandles = min(config!.rsiPeriod, historicalCandles.count)
+		let candlesPayload = historicalCandles.suffix(needCandles)
+		for candle in candlesPayload {
+			candles[figi]!.append(candle)
+		}
+	}
+
+	private func onNewCandle(figi: String, candle: CandleData) {
 		if candles[figi]!.count == self.config!.rsiPeriod {
 			candles[figi]!.remove(at: 0)
 		}
@@ -308,10 +308,10 @@ class RSIStrategyEngine {
 		let rsi = calculateRSI(figi: figi)
 		// Открываем лонг, если RSI меньше нижней границы
 		if rsi < Float64(config!.lowerRsiThreshold) {
-            openLong(figi: figi)
+			openLong(figi: figi)
 			// Закрываем лонг, если RSI больше верхней границы
 		} else if rsi > Float64(config!.upperRsiThreshold) {
-            closeLong(figi: figi)
+			closeLong(figi: figi)
 		}
 	}
 
@@ -392,30 +392,30 @@ class RSIStrategyEngine {
 		return rsi
 	}
 
-    private func openLong(figi: String) {
-        self.postOrders[figi]!.buyMarketPrice()
+	private func openLong(figi: String) {
+		self.postOrders[figi]!.buyMarketPrice()
 	}
 
-    private func closeLong(figi: String) {
+	private func closeLong(figi: String) {
 		var needClose = openedPositions[figi]!
 		while (needClose > 0) {
-            self.postOrders[figi]!.sellMarketPrice()
+			self.postOrders[figi]!.sellMarketPrice()
 			needClose -= 1
 		}
 	}
 
 
 	private var config: RSIConfig? = nil
-    
-    private var portfolioLoader: PortfolioLoader? = nil
-    
+
+	private var portfolioLoader: PortfolioLoader? = nil
+
 //	private var tradesStreamSubscribers: [String : TradesStreamSubscriber] = [:]
-    private var postOrders: [String : PostOrder] = [:]
-	private var candlesFetchers: [String : CandleFetcher] = [:]
-    
-    private var candles: [String : LinkedList<CandleData>] = [:]
-    private var openedPositions: [String : Int64] = [:]
-    
-    private var portfolioUpdateCallback: (PortfolioData) -> ()?
+	private var postOrders: [String: PostOrder] = [:]
+	private var candlesFetchers: [String: CandleFetcher] = [:]
+
+	private var candles: [String: LinkedList<CandleData>] = [:]
+	private var openedPositions: [String: Int64] = [:]
+
+	private var portfolioUpdateCallback: (PortfolioData) -> ()?
 
 }

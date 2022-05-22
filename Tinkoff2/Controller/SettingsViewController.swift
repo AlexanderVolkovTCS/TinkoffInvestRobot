@@ -14,12 +14,15 @@ class SettingsViewController: UIViewController {
 	let padding = 16.0
 
 	var modeDescriptionView: UITextView = UITextView()
+
 	var profileLoader: ProfileListLoader = ProfileListLoader()
 
 	var currentMode: BotMode = .Tinkoff;
+
 	var model = SettingPageModel()
 
 	var vizVC: VisualizationViewController? = nil
+
 	var cancellables = Set<AnyCancellable>()
 
 	func onNewProfileListData(data: AccountList) {

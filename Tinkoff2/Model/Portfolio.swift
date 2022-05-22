@@ -11,35 +11,35 @@ import Combine
 
 class PortfolioData {
 	let FigiToCurrency = [
-        "usd": "BBG0013HGFT4",
-        "eur": "BBG0013HJJ31",
+		"usd": "BBG0013HGFT4",
+		"eur": "BBG0013HJJ31",
 	]
-    
-    public var positions : [String : PortfolioPosition] = [:]
+
+	public var positions: [String: PortfolioPosition] = [:]
 
 	init () { }
 
 	init(portfolioResp: PortfolioResponse) {
-        for i in portfolioResp.positions {
-            positions[i.figi] = i
-        }
+		for i in portfolioResp.positions {
+			positions[i.figi] = i
+		}
 	}
 
 	func getMoneyValue(currency: String) -> MoneyValue? {
-        let fig = FigiToCurrency[currency]
-        if fig == nil {
-            return nil
-        }
-        
-        if self.positions[fig!] == nil {
-            return nil
-        }
-        
-        var mv = MoneyValue()
-        mv.units = self.positions[fig!]!.quantityLots.units
-        mv.nano = self.positions[fig!]!.quantityLots.nano
-        mv.currency = currency
-        return mv
+		let fig = FigiToCurrency[currency]
+		if fig == nil {
+			return nil
+		}
+
+		if self.positions[fig!] == nil {
+			return nil
+		}
+
+		var mv = MoneyValue()
+		mv.units = self.positions[fig!]!.quantityLots.units
+		mv.nano = self.positions[fig!]!.quantityLots.nano
+		mv.currency = currency
+		return mv
 	}
 }
 
