@@ -40,7 +40,7 @@ class SettingsViewController: UIViewController {
         }
 
         self.navigationController?.isToolbarHidden = false
-        GlobalBotConfig.sdk = TinkoffInvestSDK(appName: "GoldenBrazier", tokenProvider: DefaultTokenProvider(token: token!), sandbox: DefaultTokenProvider(token: "t.dw-CNkS6ho4oaAu0vo2f-dgJVgWuZr9rK2WMug3eWvL6sApv1EcClQunrpZK4GW5znkbmwosS6LElihUN4udyA"))
+        GlobalBotConfig.sdk = TinkoffInvestSDK(appName: "GoldenBrazier", tokenProvider: DefaultTokenProvider(token: token!), sandbox: DefaultTokenProvider(token: token!))
         self.model.isWaitingForStocks = true
         onModeChange(tag: 0)
         loadAllStocks()

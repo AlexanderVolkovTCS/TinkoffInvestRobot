@@ -137,13 +137,13 @@ class TinkoffCandleFetcher: CandleFetcher {
     }
     
     public override func run() {
-        let id = Date().timeIntervalSince1970
         GlobalBotConfig.sdk.marketDataServiceStream.subscribeToCandels(figi: self.figi!, interval: SubscriptionInterval.oneMinute).sink { result in
             } receiveValue: { result in
                 switch result.payload {
                     case .candle(let candle):
-                        print("got \(id) \(self.figi!) \(candle.high.asDouble())", id)
-                        self.oncall(candle: CandleData(tinkCandle: candle))
+                        if candle.figi == self.figi! {
+                            self.oncall(candle: CandleData(tinkCandle: candle))
+                        }
                     default:
                         break
                     }
