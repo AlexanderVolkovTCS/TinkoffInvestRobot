@@ -130,7 +130,7 @@ class SettingsViewController: UIViewController {
                 instr.isin = i.isin
                 instr.ticker = i.ticker
                 instr.classCode = i.classCode
-                instr.isin = i.isin
+                instr.isin = "noisin"
                 instr.figi = i.figi
                 instr.instrumentType = "currency"
                 instr.apiTradeAvailableFlag = true

@@ -155,6 +155,7 @@ class VisualizationViewController: UIViewController {
                 candles.forEach { candle in
                     newCandles.append(candle)
                 }
+                print("figi \(figi)", newCandles.last)
                 
                 self.model.stockData[i].candles = newCandles
                 
@@ -171,15 +172,21 @@ class VisualizationViewController: UIViewController {
     func processOrderRequest(figi: String, order: OrderInfo) {
         for i in 0..<self.model.stockData.count {
             if (self.model.stockData[i].instrument.figi == figi) {
-                self.model.stockData[i].operations.append(order)
+                self.model.stockData[i].operations.insert(order, at: 0)
+                if self.model.stockData[i].operations.count > 10 {
+                    self.model.stockData[i].operations.popLast()
+                }
+            
+                let std = self.model.stockData[i]
+                self.model.stockData.remove(at: i)
+                self.model.stockData.insert(std, at: 0)
                 
                 // Re-setting activeStock to initiate redrawing of swiftUI
-                if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[i].instrument.figi {
-                    self.model.activeStock = self.model.stockData[i]
+                if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[0].instrument.figi {
+                    self.model.activeStock = self.model.stockData[0]
                 } else {
-                    self.model.stockData[i].hasUpdates = true
+                    self.model.stockData[0].hasUpdates = true
                 }
-                
                 break
             }
         }
@@ -188,7 +195,10 @@ class VisualizationViewController: UIViewController {
     func processOrder(figi: String, order: OrderInfo) {
         for i in 0..<self.model.stockData.count {
             if (self.model.stockData[i].instrument.figi == figi) {
-                self.model.stockData[i].operations.append(order)
+                self.model.stockData[i].operations.insert(order, at: 0)
+                if self.model.stockData[i].operations.count > 10 {
+                    self.model.stockData[i].operations.popLast()
+                }
                 
                 // Re-setting activeStock to initiate redrawing of swiftUI
                 if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[i].instrument.figi {

@@ -280,6 +280,10 @@ class RSIStrategyEngine {
         let needCandles = min(config!.rsiPeriod, historicalCandles.count)
         let candlesPayload = historicalCandles.suffix(needCandles)
         
+        if historicalCandles.isEmpty {
+            return
+        }
+        
         for candle in candlesPayload {
             if self.candles[figi] == nil {
                 self.candles[figi] = LinkedList<CandleData>()
