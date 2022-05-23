@@ -40,7 +40,8 @@ struct CandleData {
 }
 
 class CandleFetcher {
-    public init(figi: String, callback: @escaping (String, CandleData) -> ()) {
+    public init(figi: String,
+                callback: @escaping (String, CandleData) -> ()) {
         self.figi = figi
         self.callback = callback
     }
@@ -174,7 +175,12 @@ class TinkoffCandleFetcher: CandleFetcher {
         }
     }
 
-    public override func cancel() {}
+    public override func cancel() {
+        for cancellable in cancellables {
+            cancellable.cancel()
+        }
+    }
+    
     var cancellables = Set<AnyCancellable>()
 }
 
@@ -232,6 +238,16 @@ class RSIStrategyEngine {
         }
 
         collectHistoricalCandles()
+    }
+    
+    deinit {
+        stop()
+    }
+    
+    public func stop() {
+        for candlesFetcher in self.candlesFetchers {
+            candlesFetcher.value.cancel()
+        }
     }
 
     // Используется один раз для инициализации алгоритма историческими свечами.
@@ -408,7 +424,6 @@ class RSIStrategyEngine {
     
     private var portfolioLoader: PortfolioLoader? = nil
     
-//    private var tradesStreamSubscribers: [String : TradesStreamSubscriber] = [:]
     private var postOrders: [String : PostOrder] = [:]
     private var candlesFetchers: [String : CandleFetcher] = [:]
     

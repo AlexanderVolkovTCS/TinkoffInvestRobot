@@ -64,7 +64,7 @@ class VisualizationViewController: UIViewController {
 
 	func onBotFinish() {
 		started = false
-		removeSubcribers()
+        self.engine?.stop()
 		self.model.isWaitingForAccountData = false
 		GlobalBotConfig.logger.info("Stopping Bot")
 	}
