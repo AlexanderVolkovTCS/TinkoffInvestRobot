@@ -1,4 +1,4 @@
-# Tinkoff Invest Robot Contest: номинация "Торговый робот для мобильных устройств".
+# Tinkoff Invest Robot Contest: номинация "Торговый робот для мобильных устройств"
 
 ## Реализованная функциональность
 - Авторизация с использованием токена
@@ -15,6 +15,19 @@
 - Режим песочницы. Отлаживайте работу алгоритма в реальном времени, используя возможности песочницы Tinkoff API
 - Режим Тинькофф. Торгуйте настоящими средствами
 - Подробная статистика, включающая в себя: график свечей, график значений rsi, количество купленных и проданных акций за время работы торгового робота, а так же консоль событий для самых продвинутых пользователей
+
+## Интерфейс-Визуализация
+<img src="https://github.com/GoldenBrazier/TinkoffInvestRobot/blob/master/Assets/ScreeniPhone.png" width="500" alt="iPhone">
+
+<img src="https://github.com/GoldenBrazier/TinkoffInvestRobot/blob/master/Assets/Screen1.png" width="500" alt="Screen1">
+
+<img src="https://github.com/GoldenBrazier/TinkoffInvestRobot/blob/master/Assets/Screen2.png" width="500" alt="Screen2">
+
+<img src="https://github.com/GoldenBrazier/TinkoffInvestRobot/blob/master/Assets/Screen3.png" width="500" alt="Screen3">
+
+## Информация для конкурса
+- Заголовок x-app-name: GoldenBrazier
+- За время тестирования приложения, торговым роботом было успешно наторговано более 100 поручений
 
 ## Разработчики
 - **Вячеслав Пачков** fullstack https://t.me/pa_slava
