@@ -17,8 +17,6 @@ class SettingsViewController: UIViewController {
 
 	var profileLoader: ProfileListLoader = ProfileListLoader()
 
-	var currentMode: BotMode = .Tinkoff;
-
 	var model = SettingPageModel()
 
 	var vizVC: VisualizationViewController? = nil
@@ -35,7 +33,7 @@ class SettingsViewController: UIViewController {
 		let newMode = BotMode.fromIndex(tag)
 
 		// Leaving if mode has not been changed.
-		if (newMode == currentMode) {
+        if (newMode == model.currentMode) {
 			return
 		}
 
@@ -53,9 +51,16 @@ class SettingsViewController: UIViewController {
 		}
 
 		self.modeDescriptionView.text = BotMode.descriptionFor(newMode)
-		currentMode = newMode
+        model.currentMode = newMode
 	}
 
+    
+    func stopBot() {
+        self.vizVC?.onBotFinish()
+        let label = self.toolbarItems?[0].customView as? UILabel
+        label?.text = "Бот отдыхает"
+        self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .play, target: self, action: #selector(onBotStatus(_:)))
+    }
 
 	@objc
 	func onBotStatus(_ sender: UISegmentedControl) {
@@ -74,9 +79,10 @@ class SettingsViewController: UIViewController {
 		let label = self.toolbarItems?[0].customView as? UILabel
 		if self.model.isBotRunning {
 			GlobalBotConfig.account = self.model.activeAccount!
-			GlobalBotConfig.mode = currentMode
+            GlobalBotConfig.mode = self.model.currentMode
 			GlobalBotConfig.figis = self.model.figiData
 			GlobalBotConfig.algoConfig = self.model.algoConfig
+            GlobalBotConfig.emuStartDate = self.model.emuStartDate
 			self.vizVC?.onBotStartRequested()
 			label?.text = "Бот работает"
 			self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .pause, target: self, action: #selector(onBotStatus(_:)))
@@ -85,16 +91,34 @@ class SettingsViewController: UIViewController {
 				navigationController!.pushViewController(self.vizVC!, animated: true)
 			}
 		} else {
-			self.vizVC?.onBotFinish()
-			label?.text = "Бот отдыхает"
-			self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .play, target: self, action: #selector(onBotStatus(_:)))
+            stopBot()
 		}
 	}
 
+    func onConnectionIssue() {
+        stopBot()
+        print("alert")
+    }
+    
+    func internetWatcher() {
+        DispatchQueue.global(qos: .userInitiated).async {
+            while (true) {
+                if !isConnectedToInternet() {
+                    DispatchQueue.main.async {
+                        self.onConnectionIssue()
+                    }
+                }
+                sleep(1)
+            }
+        }
+    }
+    
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
-		self.model.sdk = GlobalBotConfig.sdk
+        self.internetWatcher()
+        
+        self.model.sdk = GlobalBotConfig.sdk
 
 		view.backgroundColor = .lightGray
 		self.navigationItem.title = "ИнвестоБот"

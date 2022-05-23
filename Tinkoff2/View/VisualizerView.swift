@@ -12,8 +12,9 @@ class VisualizerPageModel: ObservableObject {
 	@Published var data: [Int]? = nil
 
 	@Published var stockData: [StockInfo] = []
-	@Published var activeStock: StockInfo? = nil
+    @Published var activeStock: StockInfo? = nil
 	@Published var onStockChange: ((StockInfo) -> ())? = nil
+
 
 	@Published var portfolioData: PortfolioData = PortfolioData()
 
@@ -175,8 +176,8 @@ struct CardsView: View {
 }
 
 struct InfoCellView: View {
-	public var title1: String? = nil
-	public var title2: String? = nil
+    public var title1: String? = nil
+    public var title2: String? = nil
 	public var systemImage: String? = nil
 	@Environment(\.colorScheme) var colorScheme
 
@@ -227,34 +228,52 @@ struct InfoView: View {
 				spacing: 16
 			) {
 				if model.portfolioData.positions[model.activeStock!.instrument.figi] != nil {
-					InfoCellView(title1: String(model.portfolioData.positions[model.activeStock!.instrument.figi]!.quantityLots.units), title2: "В портфеле", systemImage: "bag.circle")
+					InfoCellView(title1: String(model.portfolioData.positions[model.activeStock!.instrument.figi]!.quantity.units), title2: "В портфеле", systemImage: "bag.circle")
 				}
-
-				// TODO: Check if text is present.
-				InfoCellView(title1: model.activeStock!.instrument.countryOfRiskName, title2: "Страна", systemImage: "globe.europe.africa")
-				InfoCellView(title1: model.activeStock!.instrument.exchange, title2: "Биржа", systemImage: "tag.circle")
-				InfoCellView(title1: model.activeStock!.instrument.currency.uppercased(), title2: "Валюта", systemImage: "dollarsign.circle")
-				InfoCellView(title1: model.activeStock!.instrument.ticker, title2: "Тикер", systemImage: "ticket")
-				InfoCellView(title1: model.activeStock!.instrument.classCode, title2: "Класс", systemImage: "123.rectangle")
-				InfoCellView(title1: model.activeStock!.instrument.isin, title2: "ISIN", systemImage: "number.circle")
+                if model.activeStock!.instrument.countryOfRiskName != "" {
+                    InfoCellView(title1: model.activeStock!.instrument.countryOfRiskName, title2: "Страна", systemImage: "globe.europe.africa")
+                }
+                if model.activeStock!.instrument.exchange != "" {
+                    InfoCellView(title1: model.activeStock!.instrument.exchange, title2: "Биржа", systemImage: "tag.circle")
+                }
+                if model.activeStock!.instrument.currency != "" {
+                    InfoCellView(title1: model.activeStock!.instrument.currency.uppercased(), title2: "Валюта", systemImage: "dollarsign.circle")
+                }
+                if model.activeStock!.instrument.ticker != "" {
+                    InfoCellView(title1: model.activeStock!.instrument.ticker, title2: "Тикер", systemImage: "ticket")
+                }
+                if model.activeStock!.instrument.classCode != "" {
+                    InfoCellView(title1: model.activeStock!.instrument.classCode, title2: "Класс", systemImage: "123.rectangle")
+                }
+                if model.activeStock!.instrument.isin != "" {
+                    InfoCellView(title1: model.activeStock!.instrument.isin, title2: "ISIN", systemImage: "number.circle")
+                }
 			}
 		}
 	}
 }
 
 struct TableCellView: View {
-	public var title1: String? = nil
+	public var operation: OrderInfo? = nil
 
 	var body: some View {
-		HStack {
-            Image(systemName: "checkmark.circle")
-                .foregroundColor(.green)
-            Text("Заявка на покупку 1 инструмента")
-            Text("Wed, 03 Aug 2011 09:44:00")
-                .foregroundColor(.gray)
-		}
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(EdgeInsets(top: 4, leading: 0, bottom: 8, trailing: 0))
+        if operation != nil {
+            HStack {
+                Image(systemName: "checkmark.circle")
+                    .foregroundColor(.green)
+                if operation!.type == .Sold {
+                    Text("Заявка на продажу \(operation!.count) инструмента(ов)")
+                } else {
+                    Text("Заявка на покупку \(operation!.count) инструмента(ов)")
+                }
+                Text(operation!.timeStr)
+                    .foregroundColor(.gray)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(EdgeInsets(top: 4, leading: 0, bottom: 8, trailing: 0))
+        } else {
+            EmptyView()
+        }
 	}
 }
 
@@ -271,9 +290,9 @@ struct TableView: View {
 				alignment: .center,
 				spacing: 16
 			) {
-				TableCellView(title1: "dai")
-                TableCellView(title1: "dai")
-                TableCellView(title1: "dai")
+                ForEach(0..<model.activeStock!.operations.count, id: \.self) { id in
+                    TableCellView(operation: model.activeStock!.operations[id])
+                }
 			}
 		}
 	}

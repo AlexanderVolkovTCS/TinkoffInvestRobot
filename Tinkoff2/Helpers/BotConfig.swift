@@ -16,6 +16,8 @@ struct BotConfig {
 
 	public var algoConfig: AlgoConfig = AlgoConfig()
 	public var logger: MacaLog = MacaLog()
+    
+    public var emuStartDate: Date = Date()
 
     public var stat: MacaStat = MacaStat()
     

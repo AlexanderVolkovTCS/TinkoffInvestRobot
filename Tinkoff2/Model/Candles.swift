@@ -64,9 +64,9 @@ class EmuCandleFetcher: CandleFetcher {
         // Preload candles for past dates.
         var req = GetCandlesRequest()
         req.figi = self.figi!
-        req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .month, value: -1, to: Date())!)
-        req.to = Google_Protobuf_Timestamp(date: Date())
-        req.interval = CandleInterval.day
+        req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: -1, to: GlobalBotConfig.emuStartDate)!)
+        req.to = Google_Protobuf_Timestamp(date: GlobalBotConfig.emuStartDate)
+        req.interval = CandleInterval.candleInterval5Min
 
         GlobalBotConfig.sdk.marketDataService.getCandels(request: req).sink { result in
             switch result {
@@ -92,59 +92,57 @@ class EmuCandleFetcher: CandleFetcher {
     }
 
     public override func fetchHistoricalData(callback: @escaping (String, [CandleData]) -> ()) {
-        print("FETCH HISTORICAL!!")
         // Preload candles for past dates.
-//        DispatchQueue.global(qos: .userInitiated).async {
-//            let now = Date()
-//            var candles: [CandleData] = []
-//            var i = -3
-//
-//            repeat {
-//                var req = GetCandlesRequest()
-//                req.figi = self.figi!
-//                req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: i, to: now)!)
-//                req.to = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: i + 1, to: now)!)
-//                req.interval = CandleInterval.candleInterval5Min
-//
-//                do {
-//                    print("collect shit")
-//                    let historicalCandles = try GlobalBotConfig.sdk.marketDataService.getCandels(request: req).wait().singleValue()
-//                    for historicalCandle in historicalCandles.candles {
-//                        candles.append(CandleData(tinkCandle: historicalCandle))
-//                    }
-//                } catch {
-//                    break
-//                }
-//                i+=1
-//            } while i <= -1
-//
-//            DispatchQueue.main.async {
-//                callback(self.figi!, candles)
-//            }
-//        }
-        
-        var req = GetCandlesRequest()
-        req.figi = self.figi!
-        req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: -4, to: Date())!)
-        req.to = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: -3, to: Date())!)
-        req.interval = CandleInterval.candleInterval5Min
+        DispatchQueue.global(qos: .userInitiated).async {
+            let now = GlobalBotConfig.emuStartDate
+            var candles: [CandleData] = []
+            var i = -3
 
-        GlobalBotConfig.sdk.marketDataService.getCandels(request: req).sink { result in
-            print("fail historical ", result)
-            switch result {
-            case .failure(let error):
-                print(error.localizedDescription)
-            case .finished:
-                print("loaded")
-            }
-        } receiveValue: { candles in
+            repeat {
+                var req = GetCandlesRequest()
+                req.figi = self.figi!
+                req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: i, to: now)!)
+                req.to = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: i + 1, to: now)!)
+                req.interval = CandleInterval.candleInterval5Min
 
-            let dataCandles = candles.candles.map { (candle) in CandleData(tinkCandle: candle) }
+                do {
+                    let historicalCandles = try GlobalBotConfig.sdk.marketDataService.getCandels(request: req).wait(timeout: 10).singleValue()
+                    for historicalCandle in historicalCandles.candles {
+                        candles.append(CandleData(tinkCandle: historicalCandle))
+                    }
+                } catch {
+                    break
+                }
+                i+=1
+            } while i <= -1
+
             DispatchQueue.main.async {
-                callback(self.figi!, dataCandles)
+                callback(self.figi!, candles)
             }
-
-        }.store(in: &cancellables)
+        }
+        
+//        var req = GetCandlesRequest()
+//        req.figi = self.figi!
+//        req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: -1, to: GlobalBotConfig.emuStartDate)!)
+//        req.to = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: 0, to: GlobalBotConfig.emuStartDate)!)
+//        req.interval = CandleInterval.candleInterval5Min
+//
+//        GlobalBotConfig.sdk.marketDataService.getCandels(request: req).sink { result in
+//            print("fail historical ", result)
+//            switch result {
+//            case .failure(let error):
+//                print(error.localizedDescription)
+//            case .finished:
+//                print("loaded")
+//            }
+//        } receiveValue: { candles in
+//
+//            let dataCandles = candles.candles.map { (candle) in CandleData(tinkCandle: candle) }
+//            DispatchQueue.main.async {
+//                callback(self.figi!, dataCandles)
+//            }
+//
+//        }.store(in: &cancellables)
     }
 
     public override func cancel() {
@@ -173,11 +171,15 @@ struct RSIOpenedPosition {
 class RSIStrategyEngine {
     public init(config: RSIConfig,
                 portfolioUpdateCallback: @escaping (PortfolioData) -> (),
-                candlesUpdateCallback: @escaping (String, LinkedList<CandleData>) -> ()
+                candlesUpdateCallback: @escaping (String, LinkedList<CandleData>) -> (),
+                orderUpdateCallback: @escaping (String, OrderInfo) -> (),
+                rsiUpdateCallback: @escaping (String, Float64) -> ()
     ) {
         self.config = config
         self.portfolioUpdateCallback = portfolioUpdateCallback
         self.candlesUpdateCallback = candlesUpdateCallback
+        self.orderUpdateCallback = orderUpdateCallback
+        self.rsiUpdateCallback = rsiUpdateCallback
         
         switch GlobalBotConfig.mode {
         case .Emu:
@@ -248,6 +250,7 @@ class RSIStrategyEngine {
         }
         
         self.candlesUpdateCallback(figi, self.candles[figi]!)
+        self.rsiUpdateCallback(figi, rsi)
     }
 
     private func onBuySuccess(figi: String, amount: Int64) {
@@ -257,6 +260,7 @@ class RSIStrategyEngine {
         
         openedPositions[figi]! += amount
         self.portfolioLoader!.syncPortfolioWithTink()
+        self.orderUpdateCallback(figi, OrderInfo(type: .Bought, count: amount))
     }
     
     private func onSellSuccess(figi: String, amount: Int64) {
@@ -264,6 +268,7 @@ class RSIStrategyEngine {
 
         openedPositions[figi]! -= amount
         self.portfolioLoader!.syncPortfolioWithTink()
+        self.orderUpdateCallback(figi, OrderInfo(type: .Sold, count: amount))
     }
     
     private func onPortfolio(portfolioData: PortfolioData) {
@@ -370,5 +375,7 @@ class RSIStrategyEngine {
     
     private var portfolioUpdateCallback: (PortfolioData) -> ()?
     private var candlesUpdateCallback: (String, LinkedList<CandleData>) -> ()
+    private var orderUpdateCallback: (String, OrderInfo) -> ()
+    private var rsiUpdateCallback: (String, Float64) -> ()
 
 }

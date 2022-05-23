@@ -16,9 +16,12 @@ class SettingPageModel: ObservableObject {
 	@Published var isAccountsLoading: Bool = false
 	@Published var activeAccount: Account? = nil
 
-	@Published var onModeChange: ((Int) -> ())? = nil
+    @Published var currentMode: BotMode = .Tinkoff;
+    @Published var onModeChange: ((Int) -> ())? = nil
 	@Published var isBotRunning: Bool = false
 
+    @Published var emuStartDate: Date = Date()
+    
 	@Published var figiData: [Instrument] = []
 	@Published var sdk: TinkoffInvestSDK? = nil
 	@Published var cancellables = Set<AnyCancellable>()
@@ -43,6 +46,8 @@ struct SettingPageView: View {
 				StockListView(model: model)
 				Spacer(minLength: 16)
 				BotSetting(model: model)
+                Spacer(minLength: 16)
+                EmuSettingsView(model: model)
 				ErrorView(model: model)
 			}
 		}
@@ -197,10 +202,9 @@ struct AccountCell: View {
 			.frame(maxWidth: .infinity, alignment: .leading)
 			.listRowBackground(colorScheme == .dark ? Color(white: 50 / 255) : Color(white: 240 / 255))
 			.onTapGesture {
-                // TODO: Turn on validation back
-//                if (account.accessLevel == .accountAccessLevelFullAccess) {
-			self.model.activeAccount = account
-//                }
+                if (account.accessLevel == .accountAccessLevelFullAccess) {
+                    self.model.activeAccount = account
+                }
 		}
 	}
 }
@@ -256,6 +260,53 @@ struct DescriptionTextView: View {
 			.foregroundColor(.gray)
 			.frame(maxWidth: .infinity, alignment: .leading)
 	}
+}
+
+struct EmuSettingsView: View {
+    @ObservedObject var model: SettingPageModel
+    @State private var date = Date()
+
+    var body: some View {
+        if model.currentMode == .Emu {
+            Text("Настройки эмуляции")
+                .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(EdgeInsets(top: 8, leading: 16, bottom: -8, trailing: 16))
+            DescriptionTextView(text: "Настройки параметра алгоритма RSI")
+                .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+            DatePickerView(model: model)
+                .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+        } else {
+            EmptyView()
+        }
+    }
+}
+
+
+struct DatePickerView: View {
+    @ObservedObject var model: SettingPageModel
+    
+    @State private var date = Date()
+    let dateRange: ClosedRange<Date> = {
+        let calendar = Calendar.current
+        let startComponents = DateComponents(year: 2021, month: 1, day: 1)
+        let endComponents = DateComponents(year: Calendar.current.component(.year, from: Date()), month: Calendar.current.component(.month, from: Date()), day: Calendar.current.component(.day, from: Date()))
+        return calendar.date(from:startComponents)!
+            ...
+            calendar.date(from:endComponents)!
+    }()
+
+    var body: some View {
+        DatePicker(
+            "Начало эмуляции",
+            selection: $date,
+            in: dateRange,
+            displayedComponents: [.date]
+        )
+        .onChange(of: date) { newValue in
+            model.emuStartDate = newValue
+        }
+    }
 }
 
 struct StockListView: View {

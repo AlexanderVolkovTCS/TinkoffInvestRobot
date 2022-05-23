@@ -48,7 +48,9 @@ class VisualizationViewController: UIViewController {
         let engineConfig = RSIConfig(figis: figis, upperRsiThreshold: uts, lowerRsiThreshold: lts, rsiPeriod: rsiPeriod)
         self.engine = RSIStrategyEngine(config: engineConfig,
                                         portfolioUpdateCallback: self.onPortfolioUpdate,
-                                        candlesUpdateCallback: self.onCandlesUpdate)
+                                        candlesUpdateCallback: self.onCandlesUpdate,
+                                        orderUpdateCallback: self.processOrder,
+                                        rsiUpdateCallback: self.processRSI)
 	}
 
 	func onBotReadyToStart(portfolio: PortfolioData) {
@@ -179,21 +181,42 @@ class VisualizationViewController: UIViewController {
                 if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[i].instrument.figi {
                     self.model.activeStock = self.model.stockData[i]
                 }
+                
+                break
             }
         }
     }
 
-
-	func processCandle(figi: String, candle: CandleData) {
-		for i in 0..<self.model.stockData.count {
-			if (self.model.stockData[i].instrument.figi == figi) {
-				self.model.stockData[i].candles.append(candle)
-				if self.model.stockData[i].candles.count > 100 {
-					self.model.stockData[i].candles.remove(at: 0)
-				}
-			}
-		}
-	}
+    func processOrder(figi: String, order: OrderInfo) {
+        for i in 0..<self.model.stockData.count {
+            if (self.model.stockData[i].instrument.figi == figi) {
+                self.model.stockData[i].operations.append(order)
+                
+                // Re-setting activeStock to initiate redrawing of swiftUI
+                if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[i].instrument.figi {
+                    self.model.activeStock = self.model.stockData[i]
+                }
+                
+                break
+            }
+        }
+    }
+    
+    func processRSI(figi: String, rsiValue: Float64) {
+//        for i in 0..<self.model.stockData.count {
+//            if (self.model.stockData[i].instrument.figi == figi) {
+//                self.model.stockData[i].operations.append(order)
+//
+//                // Re-setting activeStock to initiate redrawing of swiftUI
+//                if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[i].instrument.figi {
+//                    self.model.activeStock = self.model.stockData[i]
+//                }
+//
+//                break
+//            }
+//        }
+        print(rsiValue)
+    }
 
 	func processOrderbook(orderbook: OrderBookData) {
 		// Расчет количества лотов в заявках на покупку и продажу.
