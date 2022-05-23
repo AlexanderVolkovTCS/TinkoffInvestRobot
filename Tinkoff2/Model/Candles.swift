@@ -305,22 +305,6 @@ class RSIStrategyEngine {
         self.candlesUpdateCallback(figi, self.candles[figi]!)
         self.rsiUpdateCallback(figi, rsi)
     }
-
-    private func onBuySuccess(figi: String, amount: Int64) {
-        if openedPositions[figi] == nil {
-            openedPositions[figi] = 0
-        }
-        
-        self.portfolioLoader!.syncPortfolioWithTink()
-        self.orderUpdateCallback(figi, OrderInfo(type: .Bought, count: amount))
-    }
-    
-    private func onSellSuccess(figi: String, amount: Int64) {
-        assert(openedPositions[figi] != nil)
-
-        self.portfolioLoader!.syncPortfolioWithTink()
-        self.orderUpdateCallback(figi, OrderInfo(type: .Sold, count: amount))
-    }
     
     private func onPortfolio(portfolioData: PortfolioData) {
         print("on portfolio ", portfolioData)
@@ -403,8 +387,6 @@ class RSIStrategyEngine {
     private func openLong(figi: String) {
         // TOOD: quickly check via cached partfolio if there's enough money to buy.
         self.postOrders[figi]!.buyMarketPrice()
-        GlobalBotConfig.stat.onBuyOrderPosted(figi: figi)
-        GlobalBotConfig.logger.info("[\(figi)] Opening long with market price")
     }
 
     private func closeLong(figi: String) {
@@ -415,8 +397,22 @@ class RSIStrategyEngine {
         
         let needClose = openedPositions[figi]!
         self.postOrders[figi]!.sellMarketPrice(amount: needClose)
-        GlobalBotConfig.stat.onSellOrderPosted(figi: figi, amount: needClose)
-        GlobalBotConfig.logger.info("[\(figi)] Closing long: amount \(needClose)")
+    }
+    
+    private func onBuySuccess(figi: String, amount: Int64) {
+        if openedPositions[figi] == nil {
+            openedPositions[figi] = 0
+        }
+        
+        self.portfolioLoader!.syncPortfolioWithTink()
+        self.orderUpdateCallback(figi, OrderInfo(type: .Bought, count: amount))
+    }
+    
+    private func onSellSuccess(figi: String, amount: Int64) {
+        assert(openedPositions[figi] != nil)
+
+        self.portfolioLoader!.syncPortfolioWithTink()
+        self.orderUpdateCallback(figi, OrderInfo(type: .Sold, count: amount))
     }
 
 
