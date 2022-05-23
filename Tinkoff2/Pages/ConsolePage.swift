@@ -18,8 +18,8 @@ struct ConsolePageView: View {
 
 	var body: some View {
 		List {
-			Text("Консоль")
-				.font(.system(size: 36, weight: .bold, design: .default))
+			Text("Статистика")
+				.font(.system(size: 32, weight: .bold, design: .default))
 				.padding(16)
 			DashboardView(model: model)
 			LoggerStatView(model: model)

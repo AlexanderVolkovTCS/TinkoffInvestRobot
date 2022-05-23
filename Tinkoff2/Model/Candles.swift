@@ -132,11 +132,17 @@ class EmuCandleFetcher: CandleFetcher {
 }
 
 class TinkoffCandleFetcher: CandleFetcher {
+    override init(figi: String, callback: @escaping (String, CandleData) -> ()) {
+        super.init(figi: figi, callback: callback)
+    }
+    
     public override func run() {
+        let id = Date().timeIntervalSince1970
         GlobalBotConfig.sdk.marketDataServiceStream.subscribeToCandels(figi: self.figi!, interval: SubscriptionInterval.oneMinute).sink { result in
             } receiveValue: { result in
                 switch result.payload {
                     case .candle(let candle):
+                        print("got \(id) \(self.figi!) \(candle.high.asDouble())", id)
                         self.oncall(candle: CandleData(tinkCandle: candle))
                     default:
                         break
@@ -180,8 +186,8 @@ class TinkoffCandleFetcher: CandleFetcher {
             cancellable.cancel()
         }
     }
-    
-    var cancellables = Set<AnyCancellable>()
+
+    fileprivate var cancellables = Set<AnyCancellable>()
 }
 
 
@@ -296,7 +302,7 @@ class RSIStrategyEngine {
     }
 
     private func onNewCandle(figi: String, candle: CandleData) {
-        print("new candle! ", candle.time)
+        print("new candle! \(figi)", candle.high.asDouble(), candle.time)
         
         var mergedWithLast = false
         let last = self.candles[figi]!.last
@@ -428,6 +434,7 @@ class RSIStrategyEngine {
         
         self.portfolioLoader!.syncPortfolioWithTink()
         self.orderUpdateCallback(figi, OrderInfo(type: .Bought, count: amount))
+        GlobalBotConfig.stat.onBuyOrderPosted(figi: figi, amount: amount)
     }
     
     private func onSellSuccess(figi: String, amount: Int64) {
@@ -435,6 +442,7 @@ class RSIStrategyEngine {
 
         self.portfolioLoader!.syncPortfolioWithTink()
         self.orderUpdateCallback(figi, OrderInfo(type: .Sold, count: amount))
+        GlobalBotConfig.stat.onSellOrderPosted(figi: figi, amount: amount)
     }
 
     private var config: RSIConfig? = nil

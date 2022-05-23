@@ -58,8 +58,9 @@ class VisualizationViewController: UIViewController {
 		started = true
 		setupModel(portfolio: portfolio)
 		initSubcribers()
-		self.model.isWaitingForAccountData = false
-		navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Консоль", style: .plain, target: self, action: #selector(jumpToConsole))
+        self.model.isWaitingForAccountData = false
+        view.setNeedsLayout()
+		navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Статистика", style: .plain, target: self, action: #selector(jumpToConsole))
 		GlobalBotConfig.logger.info("Starting Bot")
 	}
 
@@ -155,8 +156,7 @@ class VisualizationViewController: UIViewController {
                 candles.forEach { candle in
                     newCandles.append(candle)
                 }
-                print("figi \(figi)", newCandles.last)
-                
+
                 self.model.stockData[i].candles = newCandles
                 
                 // Re-setting activeStock to initiate redrawing of swiftUI
@@ -235,6 +235,10 @@ class VisualizationViewController: UIViewController {
 		present(self.consoleVC!, animated: true, completion: nil)
 	}
 
+    override func viewWillDisappear(_ animated: Bool) {
+        onBotFinish()
+    }
+    
 	override func viewDidLoad() {
 		super.viewDidLoad()
 

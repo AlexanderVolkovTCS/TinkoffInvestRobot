@@ -43,7 +43,6 @@ struct VisualizerPageView: View {
         }
         
         if self.model.activeStock == nil {
-            print("exchange close self.model.activeStock == nil")
             return false
         }
         
@@ -53,11 +52,9 @@ struct VisualizerPageView: View {
         
         let ex = self.model.tradingSchedule[self.model.activeStock!.instrument.exchange]!
         if ex.days.count < 1 {
-            print("exchange close days < 1")
             return false
         }
         
-        print("exchange close days \(ex.days[0].startTime.timeIntervalSince1970) <= \(Date().timeIntervalSince1970) <= \(ex.days[0].endTime.timeIntervalSince1970)")
         return ex.days[0].startTime.timeIntervalSince1970 <= Date().timeIntervalSince1970 && Date().timeIntervalSince1970 <= ex.days[0].endTime.timeIntervalSince1970
     }
 
@@ -78,7 +75,7 @@ struct VisualizerPageView: View {
 			}
 		} else {
 			List {
-				Section(header: CardsView(model: model)) {
+                Section(header: CardsView(model: model)) {
 					VStack {
 						if self.model.activeStock != nil {
                             if exchangeIsOpened() {
@@ -87,18 +84,19 @@ struct VisualizerPageView: View {
 
                                 Spacer(minLength: 16)
                                 RSIGraph(model: model)
-
-                                Spacer(minLength: 16)
-                                InfoView(model: model)
-
-                                Spacer(minLength: 32)
-                                TableView(model: model)
                             } else {
                                 Image(systemName: "clock")
                                     .font(.system(size: 60))
                                     .foregroundColor(.gray)
                                     .frame(alignment: .center)
                                 Text("Биржа закрыта")
+                            }
+                            Spacer(minLength: 16)
+                            InfoView(model: model)
+                            
+                            if exchangeIsOpened() {
+                                Spacer(minLength: 32)
+                                TableView(model: model)
                             }
 						} else {
 							EmptyView()
@@ -120,6 +118,10 @@ struct CandleGraph: View {
             GraphViewUI(model: model)
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: 300)
+            Text("Отображены свечи в интервале 5 минут")
+                .font(.caption)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .padding(EdgeInsets(top: 2, leading: 16, bottom: 8, trailing: 16))
         }
     }
 }
@@ -133,8 +135,13 @@ struct RSIGraph: View {
             Spacer(minLength: 16)
 
             Text("Значение RSI")
+                .font(.system(size: 24, weight: .bold, design: .default))
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .font(.title)
+                .padding(EdgeInsets(top: 0, leading: 16, bottom: 1, trailing: 16))
+            DescriptionTextView(text: "График индикатора технического анализа, определяющий силу тренда и вероятность его смены.")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(EdgeInsets(top: 2, leading: 16, bottom: 8, trailing: 16))
+            
 
             Spacer(minLength: 16)
 
@@ -187,7 +194,7 @@ struct CardsView: View {
 	func waitView() -> some View {
 		VStack {
 			ProgressView()
-			Text("Fetching image...")
+			Text("Загрузка")
 		}
 	}
 
@@ -291,16 +298,12 @@ struct InfoView: View {
 
 	var body: some View {
 		VStack {
-			Text("Информация")
-				.frame(maxWidth: .infinity, alignment: .leading)
-				.font(.title)
-
 			LazyVGrid(
 				columns: columns,
 				alignment: .center,
 				spacing: 16
 			) {
-				if model.portfolioData.positions[model.activeStock!.instrument.figi] != nil {
+                if model.currentMode != .Sandbox && model.portfolioData.positions[model.activeStock!.instrument.figi] != nil {
 					InfoCellView(title1: String(model.portfolioData.positions[model.activeStock!.instrument.figi]!.quantity.units), title2: "В портфеле", systemImage: "bag.circle")
 				}
                 if model.activeStock!.instrument.countryOfRiskName != "" {
@@ -365,18 +368,28 @@ struct TableView: View {
 
 	var body: some View {
 		VStack {
-			Text("История сделок")
-				.frame(maxWidth: .infinity, alignment: .leading)
-				.font(.title)
-            Spacer()
-			VStack(
-				alignment: .center,
-				spacing: 16
-			) {
-                ForEach(0..<model.activeStock!.operations.count, id: \.self) { id in
-                    TableCellView(operation: model.activeStock!.operations[id])
+            Text("История сделок")
+                .font(.system(size: 24, weight: .bold, design: .default))
+                .frame(maxWidth: .infinity, alignment: .leading)
+            DescriptionTextView(text: "Отображены 10 последних сделок, совершенных Ботом.")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+			Spacer()
+            if model.activeStock!.operations.count > 0 {
+                VStack(
+                    alignment: .center,
+                    spacing: 16
+                ) {
+                    ForEach(0..<model.activeStock!.operations.count, id: \.self) { id in
+                        TableCellView(operation: model.activeStock!.operations[id])
+                    }
                 }
-			}
+            } else {
+                Text("Сделок пока нет")
+                    .foregroundColor(.gray)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
+            }
 		}
 	}
 }

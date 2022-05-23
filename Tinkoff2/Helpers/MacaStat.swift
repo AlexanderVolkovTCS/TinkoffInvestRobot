@@ -54,16 +54,16 @@ class MacaStat {
     
     init() { }
 
-    func onBuyOrderPosted(figi: String) {
+    func onBuyOrderPosted(figi: String, amount: Int64) {
         for i in GlobalBotConfig.figis {
             if i.figi == figi {
                 switch i.instrumentType {
                 case "share":
-                    _boughtStocks += 1
+                    _boughtStocks += amount
                 case "etf":
-                    _boughtETCs += 1
+                    _boughtETCs += amount
                 case "currency":
-                    _boughtCurrency += 1
+                    _boughtCurrency += amount
                 default:
                     break
                 }

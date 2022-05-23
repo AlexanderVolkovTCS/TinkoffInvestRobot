@@ -78,7 +78,6 @@ class EmuPostOrder: PostOrder {
         }
         
         // Add statistics about posting.
-        GlobalBotConfig.stat.onBuyOrderPosted(figi: self.figi!)
         GlobalBotConfig.logger.info("[\(String(describing: self.figi!))] Opening long with market price")
         self.dispatchOnOrderRequest(orderInfo: OrderInfo(type: OperationType.BoughtRequest, count: 1))
         self.dispatchOnBuy(amount: 1)
@@ -93,7 +92,6 @@ class EmuPostOrder: PostOrder {
         portfolio.positions[self.figi!]!.quantity.units -= amount
         
         // Add statistics about posting.
-        GlobalBotConfig.stat.onSellOrderPosted(figi: self.figi!, amount: amount)
         GlobalBotConfig.logger.info("[\(String(describing: self.figi!))] Closing long: amount \(amount)")
         self.dispatchOnOrderRequest(orderInfo: OrderInfo(type: OperationType.SoldRequest, count: amount))
         self.dispatchOnSell(amount: amount)
@@ -125,7 +123,6 @@ class SandboxPostOrder: PostOrder {
 		} receiveValue: { order in
             DispatchQueue.global(qos: .userInitiated).async {
                 // Add statistics about posting.
-                GlobalBotConfig.stat.onBuyOrderPosted(figi: self.figi!)
                 GlobalBotConfig.logger.info("[\(String(describing: self.figi!))] Opening long with market price")
                 self.dispatchOnOrderRequest(orderInfo: OrderInfo(type: OperationType.BoughtRequest, count: 1))
                 
@@ -169,7 +166,6 @@ class SandboxPostOrder: PostOrder {
 		} receiveValue: { order in
             DispatchQueue.global(qos: .userInitiated).async {
                 // Add statistics about posting.
-                GlobalBotConfig.stat.onSellOrderPosted(figi: self.figi!, amount: amount)
                 GlobalBotConfig.logger.info("[\(String(describing: self.figi!))] Closing long: amount \(amount)")
                 self.dispatchOnOrderRequest(orderInfo: OrderInfo(type: OperationType.SoldRequest, count: amount))
                 
@@ -216,7 +212,6 @@ class TinkoffPostOrder: PostOrder {
         } receiveValue: { order in
             DispatchQueue.global(qos: .userInitiated).async {
                 // Add statistics about posting.
-                GlobalBotConfig.stat.onBuyOrderPosted(figi: self.figi!)
                 GlobalBotConfig.logger.info("[\(String(describing: self.figi!))] Opening long with market price")
                 self.dispatchOnOrderRequest(orderInfo: OrderInfo(type: OperationType.BoughtRequest, count: 1))
                 
@@ -276,7 +271,6 @@ class TinkoffPostOrder: PostOrder {
         } receiveValue: { order in
             DispatchQueue.global(qos: .userInitiated).async {
                 // Add statistics about posting.
-                GlobalBotConfig.stat.onSellOrderPosted(figi: self.figi!, amount: amount)
                 GlobalBotConfig.logger.info("[\(String(describing: self.figi!))] Closing long: amount \(amount)")
                 self.dispatchOnOrderRequest(orderInfo: OrderInfo(type: OperationType.SoldRequest, count: amount))
                 

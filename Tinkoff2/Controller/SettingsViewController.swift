@@ -40,8 +40,9 @@ class SettingsViewController: UIViewController {
         }
 
         self.navigationController?.isToolbarHidden = false
-        GlobalBotConfig.sdk = TinkoffInvestSDK(appName: "GoldenBrazier", tokenProvider: DefaultTokenProvider(token: token!), sandbox: DefaultTokenProvider(token: token!))
+        GlobalBotConfig.sdk = TinkoffInvestSDK(appName: "GoldenBrazier", tokenProvider: DefaultTokenProvider(token: token!), sandbox: DefaultTokenProvider(token: "t.dw-CNkS6ho4oaAu0vo2f-dgJVgWuZr9rK2WMug3eWvL6sApv1EcClQunrpZK4GW5znkbmwosS6LElihUN4udyA"))
         self.model.isWaitingForStocks = true
+        onModeChange(tag: 0)
         loadAllStocks()
     }
     
@@ -80,7 +81,6 @@ class SettingsViewController: UIViewController {
     
     func loadAllEtfs() {
         GlobalBotConfig.sdk.instrumentsService.getEtfs(with: InstrumentStatus(rawValue: InstrumentStatus.base.rawValue)!).sink { result in
-            print(result)
             switch result {
             case .failure(let error):
                 print(error.localizedDescription)
@@ -108,7 +108,6 @@ class SettingsViewController: UIViewController {
                 instr.exchange = i.exchange
                 instr.realExchange = i.realExchange
                 self.localInstrment.append(instr)
-                print(instr)
             }
             self.loadSchedule()
         }.store(in: &cancellables)
@@ -116,7 +115,6 @@ class SettingsViewController: UIViewController {
     
     func loadAllCurrency() {
         GlobalBotConfig.sdk.instrumentsService.getCurrencies(with: InstrumentStatus(rawValue: InstrumentStatus.base.rawValue)!).sink { result in
-            print(result)
             switch result {
             case .failure(let error):
                 print(error.localizedDescription)
@@ -145,7 +143,6 @@ class SettingsViewController: UIViewController {
                 instr.exchange = i.exchange
                 instr.realExchange = i.realExchange
                 self.localInstrment.append(instr)
-                print(instr)
             }
             self.loadAllEtfs()
         }.store(in: &cancellables)
@@ -153,7 +150,6 @@ class SettingsViewController: UIViewController {
     
     func loadAllStocks() {
         GlobalBotConfig.sdk.instrumentsService.getShares(with: InstrumentStatus(rawValue: InstrumentStatus.base.rawValue)!).sink { result in
-            print(result)
             switch result {
             case .failure(let error):
                 print(error.localizedDescription)
@@ -310,7 +306,6 @@ class SettingsViewController: UIViewController {
         setupToken()
         
         // Initializing Emulating mode.
-		onModeChange(tag: 0)
 		model.onModeChange = self.onModeChange
 
 		let hostingController = UIHostingController(rootView: SettingPage(model: model, storage: tokenStorage))
