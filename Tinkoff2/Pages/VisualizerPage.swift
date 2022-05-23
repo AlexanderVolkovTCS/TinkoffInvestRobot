@@ -43,18 +43,21 @@ struct VisualizerPageView: View {
         }
         
         if self.model.activeStock == nil {
+            print("exchange close self.model.activeStock == nil")
             return false
         }
         
         if self.model.tradingSchedule[self.model.activeStock!.instrument.exchange] == nil {
-           return true
+            return true
         }
         
         let ex = self.model.tradingSchedule[self.model.activeStock!.instrument.exchange]!
         if ex.days.count < 1 {
+            print("exchange close days < 1")
             return false
         }
         
+        print("exchange close days \(ex.days[0].startTime.timeIntervalSince1970) <= \(Date().timeIntervalSince1970) <= \(ex.days[0].endTime.timeIntervalSince1970)")
         return ex.days[0].startTime.timeIntervalSince1970 <= Date().timeIntervalSince1970 && Date().timeIntervalSince1970 <= ex.days[0].endTime.timeIntervalSince1970
     }
 
