@@ -307,6 +307,8 @@ class RSIStrategyEngine {
     }
     
     private func onPortfolio(portfolioData: PortfolioData) {
+        print("on portfolio ", portfolioData)
+        
         for position in openedPositions {
             openedPositions[position.key] = 0
         }
@@ -317,6 +319,7 @@ class RSIStrategyEngine {
                     openedPositions[figi] = 0
                 }
                 openedPositions[figi]! += position.quantity.units
+                print("position, ", openedPositions[figi]!)
             }
         }
         

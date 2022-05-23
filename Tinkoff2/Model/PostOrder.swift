@@ -110,6 +110,16 @@ class SandboxPostOrder: PostOrder {
                 var executed = order.lotsExecuted
                 var status = order.executionReportStatus
                 
+                // Optimization: quickly check if an order was already completed.
+                if (status == OrderExecutionReportStatus.executionReportStatusFill ||
+                    status == OrderExecutionReportStatus.executionReportStatusRejected ||
+                    status == OrderExecutionReportStatus.executionReportStatusCancelled) {
+                    
+                    self.dispatchOnBuy(amount: executed)
+                    return
+                }
+                
+                // Polling while not completed otherwise.
                 while (status == OrderExecutionReportStatus.executionReportStatusNew ||
                        status == OrderExecutionReportStatus.executionReportStatusPartiallyfill) {
                     var orderStateReq = GetOrderStateRequest()
@@ -117,13 +127,16 @@ class SandboxPostOrder: PostOrder {
                     orderStateReq.orderID = orderID
                     
                     do {
-                        let state = try GlobalBotConfig.sdk.ordersService.getOrderState(request: orderStateReq).wait(timeout: 10).singleValue()
+                        let state = try GlobalBotConfig.sdk.sandboxService.getOrderState(accountID: orderStateReq.accountID, orderID: orderStateReq.accountID).wait(timeout: 10).singleValue()
+                        
                         if (state.lotsExecuted > executed) {
                             self.dispatchOnBuy(amount: state.lotsExecuted - executed)
                         }
+                        
                         status = state.executionReportStatus
                         executed = state.lotsExecuted
                     } catch {
+                        print("caught: \(error)")
                         break
                     }
                     
@@ -155,6 +168,15 @@ class SandboxPostOrder: PostOrder {
                 let orderID = order.orderID
                 var executed = order.lotsExecuted
                 var status = order.executionReportStatus
+                
+                // Optimization: quickly check if an order was already completed.
+                if (status == OrderExecutionReportStatus.executionReportStatusFill ||
+                    status == OrderExecutionReportStatus.executionReportStatusRejected ||
+                    status == OrderExecutionReportStatus.executionReportStatusCancelled) {
+                    
+                    self.dispatchOnSell(amount: executed)
+                    return
+                }
                 
                 while (status == OrderExecutionReportStatus.executionReportStatusNew ||
                        status == OrderExecutionReportStatus.executionReportStatusPartiallyfill) {
@@ -206,6 +228,15 @@ class TinkoffPostOrder: PostOrder {
                 var executed = order.lotsExecuted
                 var status = order.executionReportStatus
                 
+                // Optimization: quickly check if an order was already completed.
+                if (status == OrderExecutionReportStatus.executionReportStatusFill ||
+                    status == OrderExecutionReportStatus.executionReportStatusRejected ||
+                    status == OrderExecutionReportStatus.executionReportStatusCancelled) {
+                    
+                    self.dispatchOnBuy(amount: executed)
+                    return
+                }
+                
                 while (status == OrderExecutionReportStatus.executionReportStatusNew ||
                        status == OrderExecutionReportStatus.executionReportStatusPartiallyfill) {
                     var orderStateReq = GetOrderStateRequest()
@@ -253,6 +284,15 @@ class TinkoffPostOrder: PostOrder {
                 let orderID = order.orderID
                 var executed = order.lotsExecuted
                 var status = order.executionReportStatus
+                
+                // Optimization: quickly check if an order was already completed.
+                if (status == OrderExecutionReportStatus.executionReportStatusFill ||
+                    status == OrderExecutionReportStatus.executionReportStatusRejected ||
+                    status == OrderExecutionReportStatus.executionReportStatusCancelled) {
+                    
+                    self.dispatchOnSell(amount: executed)
+                    return
+                }
                 
                 while (status == OrderExecutionReportStatus.executionReportStatusNew ||
                        status == OrderExecutionReportStatus.executionReportStatusPartiallyfill) {
