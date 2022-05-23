@@ -298,6 +298,8 @@ class RSIStrategyEngine {
         }
 
         self.candlesUpdateCallback(figi, self.candles[figi]!)
+        let rsi = calculateRSI(figi: figi)
+        self.rsiUpdateCallback(figi, rsi)
         self.candlesFetchers[figi]!.run()
     }
 
