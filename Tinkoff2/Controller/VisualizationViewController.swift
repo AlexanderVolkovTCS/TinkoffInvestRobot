@@ -195,6 +195,8 @@ class VisualizationViewController: UIViewController {
                 // Re-setting activeStock to initiate redrawing of swiftUI
                 if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[i].instrument.figi {
                     self.model.activeStock = self.model.stockData[i]
+                } else {
+                    self.model.stockData[i].hasUpdates = true
                 }
                 
                 break

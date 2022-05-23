@@ -10,7 +10,7 @@ import TinkoffInvestSDK
 
 struct BotConfig {
 	public var account = Account()
-	public var sdk = TinkoffInvestSDK(tokenProvider: DefaultTokenProvider(token: "t.JXmm55rH0MxmzpuuoGJrAvREeKzBy6Vf4vhkHDL1tbbhtHoI6yO83b2d70gHfzBuY1yLk2KNZzlT0B8vYsQIxg"), sandbox: DefaultTokenProvider(token: "t.JXmm55rH0MxmzpuuoGJrAvREeKzBy6Vf4vhkHDL1tbbhtHoI6yO83b2d70gHfzBuY1yLk2KNZzlT0B8vYsQIxg"))
+	public var sdk = TinkoffInvestSDK(tokenProvider: DefaultTokenProvider(token: ""), sandbox: DefaultTokenProvider(token: ""))
 	public var mode: BotMode = .Emu
 	public var figis: [Instrument] = []
 

@@ -19,11 +19,11 @@
 		711DB5012838CF2600CF5474 /* Internet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB5002838CF2600CF5474 /* Internet.swift */; };
 		711DB5032838D37F00CF5474 /* BotMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB5022838D37F00CF5474 /* BotMode.swift */; };
 		711DB5072838F21B00CF5474 /* BotConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB5062838F21B00CF5474 /* BotConfig.swift */; };
-		711DB5092838F54400CF5474 /* AccountListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB5082838F54400CF5474 /* AccountListView.swift */; };
+		711DB5092838F54400CF5474 /* SettingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB5082838F54400CF5474 /* SettingPage.swift */; };
 		711DB50C28390DE300CF5474 /* Introspect in Frameworks */ = {isa = PBXBuildFile; productRef = 711DB50B28390DE300CF5474 /* Introspect */; };
 		711DB50E28391D1300CF5474 /* PostOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB50D28391D1300CF5474 /* PostOrder.swift */; };
 		714405262839298F007AE807 /* CandleGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 714405252839298F007AE807 /* CandleGraphView.swift */; };
-		7144052828393C54007AE807 /* VisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144052728393C54007AE807 /* VisualizerView.swift */; };
+		7144052828393C54007AE807 /* VisualizerPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144052728393C54007AE807 /* VisualizerPage.swift */; };
 		7144052A283952AE007AE807 /* TagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71440529283952AE007AE807 /* TagsView.swift */; };
 		7144052C28395B67007AE807 /* TradesStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144052B28395B67007AE807 /* TradesStream.swift */; };
 		7144053728399694007AE807 /* Candles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144053628399694007AE807 /* Candles.swift */; };
@@ -34,13 +34,17 @@
 		71440545283A4C98007AE807 /* LinkedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71440544283A4C98007AE807 /* LinkedList.swift */; };
 		71440547283A5AC2007AE807 /* Portfolio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71440546283A5AC2007AE807 /* Portfolio.swift */; };
 		7144054A283A96F3007AE807 /* DashboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71440549283A96F3007AE807 /* DashboardViewController.swift */; };
-		7144054E283A9DD2007AE807 /* ConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144054D283A9DD2007AE807 /* ConsoleView.swift */; };
+		7144054E283A9DD2007AE807 /* ConsolePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144054D283A9DD2007AE807 /* ConsolePage.swift */; };
 		71440550283AA690007AE807 /* BarGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144054F283AA690007AE807 /* BarGraphView.swift */; };
 		71440556283AACE8007AE807 /* TinkoffInvestSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 71440555283AACE8007AE807 /* TinkoffInvestSDK */; };
 		71440559283AB689007AE807 /* CombineWaiting in Frameworks */ = {isa = PBXBuildFile; productRef = 71440558283AB689007AE807 /* CombineWaiting */; };
 		7144055B283ACA47007AE807 /* MacaLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144055A283ACA47007AE807 /* MacaLog.swift */; };
 		7144055D283B534E007AE807 /* MacaStat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144055C283B534E007AE807 /* MacaStat.swift */; };
 		71F05921283BAA8D00CC4A05 /* RSIGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F05920283BAA8D00CC4A05 /* RSIGraphView.swift */; };
+		71F05924283BBA3000CC4A05 /* TokenStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F05923283BBA3000CC4A05 /* TokenStorage.swift */; };
+		71F05927283BBB0300CC4A05 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 71F05926283BBB0300CC4A05 /* KeychainAccess */; };
+		71F05929283BBCC000CC4A05 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F05928283BBCC000CC4A05 /* Globals.swift */; };
+		71F0592B283BC1A100CC4A05 /* LoginPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F0592A283BC1A100CC4A05 /* LoginPage.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,10 +61,10 @@
 		711DB5002838CF2600CF5474 /* Internet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Internet.swift; sourceTree = "<group>"; };
 		711DB5022838D37F00CF5474 /* BotMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BotMode.swift; sourceTree = "<group>"; };
 		711DB5062838F21B00CF5474 /* BotConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BotConfig.swift; sourceTree = "<group>"; };
-		711DB5082838F54400CF5474 /* AccountListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountListView.swift; sourceTree = "<group>"; };
+		711DB5082838F54400CF5474 /* SettingPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingPage.swift; sourceTree = "<group>"; };
 		711DB50D28391D1300CF5474 /* PostOrder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PostOrder.swift; sourceTree = "<group>"; };
 		714405252839298F007AE807 /* CandleGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CandleGraphView.swift; sourceTree = "<group>"; };
-		7144052728393C54007AE807 /* VisualizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualizerView.swift; sourceTree = "<group>"; };
+		7144052728393C54007AE807 /* VisualizerPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualizerPage.swift; sourceTree = "<group>"; };
 		71440529283952AE007AE807 /* TagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsView.swift; sourceTree = "<group>"; };
 		7144052B28395B67007AE807 /* TradesStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TradesStream.swift; sourceTree = "<group>"; };
 		7144053628399694007AE807 /* Candles.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Candles.swift; sourceTree = "<group>"; };
@@ -71,11 +75,14 @@
 		71440546283A5AC2007AE807 /* Portfolio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Portfolio.swift; sourceTree = "<group>"; };
 		71440548283A82A1007AE807 /* Tinkoff2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Tinkoff2.entitlements; sourceTree = "<group>"; };
 		71440549283A96F3007AE807 /* DashboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewController.swift; sourceTree = "<group>"; };
-		7144054D283A9DD2007AE807 /* ConsoleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleView.swift; sourceTree = "<group>"; };
+		7144054D283A9DD2007AE807 /* ConsolePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsolePage.swift; sourceTree = "<group>"; };
 		7144054F283AA690007AE807 /* BarGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarGraphView.swift; sourceTree = "<group>"; };
 		7144055A283ACA47007AE807 /* MacaLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacaLog.swift; sourceTree = "<group>"; };
 		7144055C283B534E007AE807 /* MacaStat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacaStat.swift; sourceTree = "<group>"; };
 		71F05920283BAA8D00CC4A05 /* RSIGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSIGraphView.swift; sourceTree = "<group>"; };
+		71F05923283BBA3000CC4A05 /* TokenStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStorage.swift; sourceTree = "<group>"; };
+		71F05928283BBCC000CC4A05 /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
+		71F0592A283BC1A100CC4A05 /* LoginPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +92,7 @@
 			files = (
 				71440556283AACE8007AE807 /* TinkoffInvestSDK in Frameworks */,
 				7144053A283996BE007AE807 /* Algorithms in Frameworks */,
+				71F05927283BBB0300CC4A05 /* KeychainAccess in Frameworks */,
 				71440559283AB689007AE807 /* CombineWaiting in Frameworks */,
 				711DB50C28390DE300CF5474 /* Introspect in Frameworks */,
 				711DB4F82838AD3600CF5474 /* Charts in Frameworks */,
@@ -117,8 +125,10 @@
 				71440543283A4C8C007AE807 /* Algo */,
 				711DB4FF2838CF1900CF5474 /* Helpers */,
 				711DB4F32838244400CF5474 /* Controller */,
+				71F0592C283BC1BB00CC4A05 /* Pages */,
 				711DB4F22838243C00CF5474 /* View */,
 				711DB4F12838243500CF5474 /* Model */,
+				71F05922283BB98F00CC4A05 /* SecurityTools */,
 				7113C0F62837C3DE004C1910 /* AppDelegate.swift */,
 				7113C0F82837C3DE004C1910 /* SceneDelegate.swift */,
 				7113C0FF2837C3DF004C1910 /* Assets.xcassets */,
@@ -147,9 +157,6 @@
 			isa = PBXGroup;
 			children = (
 				71440529283952AE007AE807 /* TagsView.swift */,
-				711DB5082838F54400CF5474 /* AccountListView.swift */,
-				7144052728393C54007AE807 /* VisualizerView.swift */,
-				7144054D283A9DD2007AE807 /* ConsoleView.swift */,
 				714405252839298F007AE807 /* CandleGraphView.swift */,
 				71F05920283BAA8D00CC4A05 /* RSIGraphView.swift */,
 				7144054F283AA690007AE807 /* BarGraphView.swift */,
@@ -176,6 +183,7 @@
 				711DB5062838F21B00CF5474 /* BotConfig.swift */,
 				7144055A283ACA47007AE807 /* MacaLog.swift */,
 				7144055C283B534E007AE807 /* MacaStat.swift */,
+				71F05928283BBCC000CC4A05 /* Globals.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -186,6 +194,25 @@
 				71440544283A4C98007AE807 /* LinkedList.swift */,
 			);
 			path = Algo;
+			sourceTree = "<group>";
+		};
+		71F05922283BB98F00CC4A05 /* SecurityTools */ = {
+			isa = PBXGroup;
+			children = (
+				71F05923283BBA3000CC4A05 /* TokenStorage.swift */,
+			);
+			path = SecurityTools;
+			sourceTree = "<group>";
+		};
+		71F0592C283BC1BB00CC4A05 /* Pages */ = {
+			isa = PBXGroup;
+			children = (
+				71F0592A283BC1A100CC4A05 /* LoginPage.swift */,
+				711DB5082838F54400CF5474 /* SettingPage.swift */,
+				7144052728393C54007AE807 /* VisualizerPage.swift */,
+				7144054D283A9DD2007AE807 /* ConsolePage.swift */,
+			);
+			path = Pages;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -210,6 +237,7 @@
 				71440539283996BE007AE807 /* Algorithms */,
 				71440555283AACE8007AE807 /* TinkoffInvestSDK */,
 				71440558283AB689007AE807 /* CombineWaiting */,
+				71F05926283BBB0300CC4A05 /* KeychainAccess */,
 			);
 			productName = Tinkoff2;
 			productReference = 7113C0F32837C3DE004C1910 /* Tinkoff2.app */;
@@ -245,6 +273,7 @@
 				71440538283996BE007AE807 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 				71440554283AACE8007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */,
 				71440557283AB689007AE807 /* XCRemoteSwiftPackageReference "CombineWaiting" */,
+				71F05925283BBB0300CC4A05 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 			);
 			productRefGroup = 7113C0F42837C3DE004C1910 /* Products */;
 			projectDirPath = "";
@@ -272,22 +301,25 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				71F05929283BBCC000CC4A05 /* Globals.swift in Sources */,
 				711DB50E28391D1300CF5474 /* PostOrder.swift in Sources */,
+				71F05924283BBA3000CC4A05 /* TokenStorage.swift in Sources */,
 				7113C0FB2837C3DE004C1910 /* SettingsViewController.swift in Sources */,
 				71440545283A4C98007AE807 /* LinkedList.swift in Sources */,
 				71440547283A5AC2007AE807 /* Portfolio.swift in Sources */,
 				7144053C2839FC65007AE807 /* StockInfo.swift in Sources */,
 				7144053728399694007AE807 /* Candles.swift in Sources */,
-				7144052828393C54007AE807 /* VisualizerView.swift in Sources */,
+				7144052828393C54007AE807 /* VisualizerPage.swift in Sources */,
 				7144055B283ACA47007AE807 /* MacaLog.swift in Sources */,
 				711DB5072838F21B00CF5474 /* BotConfig.swift in Sources */,
 				711DB4FC2838CDAA00CF5474 /* Profile.swift in Sources */,
 				7144053E283A466A007AE807 /* AlgoConfig.swift in Sources */,
 				711DB5032838D37F00CF5474 /* BotMode.swift in Sources */,
-				7144054E283A9DD2007AE807 /* ConsoleView.swift in Sources */,
+				7144054E283A9DD2007AE807 /* ConsolePage.swift in Sources */,
 				711DB5012838CF2600CF5474 /* Internet.swift in Sources */,
 				71F05921283BAA8D00CC4A05 /* RSIGraphView.swift in Sources */,
 				7144052C28395B67007AE807 /* TradesStream.swift in Sources */,
+				71F0592B283BC1A100CC4A05 /* LoginPage.swift in Sources */,
 				7144055D283B534E007AE807 /* MacaStat.swift in Sources */,
 				714405262839298F007AE807 /* CandleGraphView.swift in Sources */,
 				71440550283AA690007AE807 /* BarGraphView.swift in Sources */,
@@ -298,7 +330,7 @@
 				7144052A283952AE007AE807 /* TagsView.swift in Sources */,
 				7144054A283A96F3007AE807 /* DashboardViewController.swift in Sources */,
 				711DB4F5283824A700CF5474 /* VisualizationViewController.swift in Sources */,
-				711DB5092838F54400CF5474 /* AccountListView.swift in Sources */,
+				711DB5092838F54400CF5474 /* SettingPage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -556,6 +588,14 @@
 				minimumVersion = 0.2.0;
 			};
 		};
+		71F05925283BBB0300CC4A05 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -583,6 +623,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 71440557283AB689007AE807 /* XCRemoteSwiftPackageReference "CombineWaiting" */;
 			productName = CombineWaiting;
+		};
+		71F05926283BBB0300CC4A05 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 71F05925283BBB0300CC4A05 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

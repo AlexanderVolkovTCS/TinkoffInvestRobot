@@ -152,8 +152,6 @@ struct CardsView: View {
 	func waitView() -> some View {
 		VStack {
 			ProgressView()
-				.progressViewStyle(CircularProgressViewStyle(tint: .indigo))
-
 			Text("Fetching image...")
 		}
 	}

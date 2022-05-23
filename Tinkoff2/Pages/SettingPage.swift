@@ -19,10 +19,13 @@ class SettingPageModel: ObservableObject {
     @Published var currentMode: BotMode = .Tinkoff;
     @Published var onModeChange: ((Int) -> ())? = nil
 	@Published var isBotRunning: Bool = false
+    @Published var isWaitingForStocks: Bool = false
 
     @Published var emuStartDate: Date = Date()
     
-	@Published var figiData: [Instrument] = []
+    @Published var tradingInstruments: [Instrument] = []
+    
+    @Published var figiData: [Instrument] = []
 	@Published var sdk: TinkoffInvestSDK? = nil
 	@Published var cancellables = Set<AnyCancellable>()
 
@@ -33,24 +36,37 @@ class SettingPageModel: ObservableObject {
 	init() { }
 }
 
-struct SettingPageView: View {
+struct SettingPage: View {
 	@ObservedObject var model: SettingPageModel
+    @ObservedObject var storage: TokenStorage
 
 	var body: some View {
-		ScrollView {
-			VStack {
-				ModePicker(model: model)
-				Spacer(minLength: 16)
-				AccountListView(model: model)
-				Spacer(minLength: 16)
-				StockListView(model: model)
-				Spacer(minLength: 16)
-				BotSetting(model: model)
-                Spacer(minLength: 16)
-                EmuSettingsView(model: model)
-				ErrorView(model: model)
-			}
-		}
+        if storage.token != nil {
+            if !model.isWaitingForStocks {
+                ScrollView {
+                    VStack {
+                        ModePicker(model: model)
+                        Spacer(minLength: 16)
+                        AccountListView(model: model)
+                        Spacer(minLength: 16)
+                        StockListView(model: model)
+                        Spacer(minLength: 16)
+                        BotSetting(model: model)
+                        Spacer(minLength: 16)
+                        EmuSettingsView(model: model)
+                        LogoutView(model: model, storage: storage)
+                    }
+                }
+            } else {
+                VStack {
+                    ProgressView()
+                        .padding()
+                    Text("Fetching data")
+                }
+            }
+        } else {
+            LoginPage(storage: storage)
+        }
 	}
 }
 
@@ -66,6 +82,21 @@ struct ErrorView: View {
 				.foregroundColor(.red)
 		}
 	}
+}
+
+struct LogoutView: View {
+    @ObservedObject var model: SettingPageModel
+    @ObservedObject var storage: TokenStorage
+
+    var body: some View {
+        Button("Выйти") {
+            storage.remove()
+        }
+        .foregroundColor(.red)
+        .padding(EdgeInsets(top: 24, leading: 16, bottom: 8, trailing: 16))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .disabled(model.isBotRunning)
+    }
 }
 
 struct BotSetting: View {
@@ -316,29 +347,41 @@ struct StockListView: View {
 	@State private var instrument: Instrument? = nil
 	@State private var contentWidth: CGFloat = 0
 
-	func onrespfound(response: Instrument) {
-		instrument = response
-	}
-
 	func autocomplete(string: String) {
-		instrument = nil
-		let string = string.uppercased()
-		if string.count == 12 {
-			model.sdk?.instrumentsService.getInstrumentBy(params: InstrumentParameters(idType: .figi, classCode: "", id: string)).sink { _ in
-			} receiveValue: { resp in
-				print("instr", resp.instrument)
-				onrespfound(response: resp.instrument)
-			}.store(in: &model.cancellables)
-		}
-		if string.count < 6 {
-			let classes = ["SPBXM", "TQBR", "TQTF"]
-			for klass in classes {
-				model.sdk?.instrumentsService.getInstrumentBy(params: InstrumentParameters(idType: .ticker, classCode: klass, id: string)).sink { _ in
-				} receiveValue: { resp in
-					onrespfound(response: resp.instrument)
-				}.store(in: &model.cancellables)
-			}
-		}
+        var pretended: Instrument? = nil
+        var maxAcc = 0.0
+        
+        for instr in self.model.tradingInstruments {
+            if instr.figi == string {
+                instrument = instr
+                return
+            }
+            if instr.isin == string {
+                instrument = instr
+                return
+            }
+            if instr.ticker == string {
+                instrument = instr
+                return
+            }
+            
+            // 66% of instrument name should be similar to input.
+            if instr.name.prefix(string.count) == string {
+                let newAcc = Double(string.count) / Double(instr.name.count)
+                print(newAcc)
+                if maxAcc < newAcc {
+                    pretended = instr
+                    maxAcc = newAcc
+                }
+            }
+        }
+        
+        if maxAcc < 0.5 && pretended == nil {
+            instrument = nil
+            return
+        }
+        
+        instrument = pretended
 	}
 
 	var body: some View {

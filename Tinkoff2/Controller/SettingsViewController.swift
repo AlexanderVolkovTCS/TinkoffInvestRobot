@@ -18,8 +18,12 @@ class SettingsViewController: UIViewController {
 	var profileLoader: ProfileListLoader = ProfileListLoader()
 
 	var model = SettingPageModel()
+    
+    var tokenStorage = TokenStorage()
 
 	var vizVC: VisualizationViewController? = nil
+    
+    var localInstrment: [Instrument] = []
 
 	var cancellables = Set<AnyCancellable>()
 
@@ -27,7 +31,99 @@ class SettingsViewController: UIViewController {
 		self.model.accountList = data
 		self.model.isAccountsLoading = false
 	}
+    
+    func setupToken() {
+        let token = tokenStorage.get()
+        if token == nil {
+            return
+        }
 
+        self.navigationController?.isToolbarHidden = false
+        GlobalBotConfig.sdk = TinkoffInvestSDK(tokenProvider: DefaultTokenProvider(token: token!), sandbox: DefaultTokenProvider(token: token!))
+        self.model.isWaitingForStocks = true
+        loadAllStocks()
+    }
+    
+    @objc
+    func onTokenChange() {
+        stopBot()
+        setupToken()
+//        loadAllStocks()
+    }
+    
+    func onInstrumentsFinishLoad() {
+        DispatchQueue.main.async {
+            self.model.tradingInstruments = self.localInstrment
+            self.model.isWaitingForStocks = false
+        }
+    }
+    
+    func loadAllEtfs() {
+        GlobalBotConfig.sdk.instrumentsService.getEtfs(with: InstrumentStatus(rawValue: InstrumentStatus.base.rawValue)!).sink { result in
+            print(result)
+            switch result {
+            case .failure(let error):
+                print(error.localizedDescription)
+            case .finished:
+                print("loaded")
+            }
+        } receiveValue: { order in
+            for i in order.instruments {
+                var instr = Instrument()
+                instr.name = i.name
+                instr.classCode = i.classCode
+                instr.figi = i.figi
+                instr.instrumentType = "etf"
+                instr.apiTradeAvailableFlag = true
+                instr.buyAvailableFlag = i.buyAvailableFlag
+                instr.countryOfRisk = i.countryOfRisk
+                instr.countryOfRiskName = i.countryOfRiskName
+                instr.currency = i.currency
+                instr.dlong = i.dlong
+                instr.dlongMin = i.dlongMin
+                instr.dshort = i.dshort
+                instr.dshortMin = i.dshortMin
+                instr.exchange = i.exchange
+                instr.realExchange = i.realExchange
+                self.localInstrment.append(instr)
+            }
+            self.onInstrumentsFinishLoad()
+        }.store(in: &cancellables)
+    }
+    
+    func loadAllStocks() {
+        GlobalBotConfig.sdk.instrumentsService.getShares(with: InstrumentStatus(rawValue: InstrumentStatus.base.rawValue)!).sink { result in
+            print(result)
+            switch result {
+            case .failure(let error):
+                print(error.localizedDescription)
+            case .finished:
+                print("loaded")
+            }
+        } receiveValue: { order in
+            for i in order.instruments {
+                var instr = Instrument()
+                instr.name = i.name
+                instr.classCode = i.classCode
+                instr.figi = i.figi
+                instr.instrumentType = "share"
+                instr.apiTradeAvailableFlag = true
+                instr.buyAvailableFlag = i.buyAvailableFlag
+                instr.countryOfRisk = i.countryOfRisk
+                instr.countryOfRiskName = i.countryOfRiskName
+                instr.currency = i.currency
+                instr.dlong = i.dlong
+                instr.dlongMin = i.dlongMin
+                instr.dshort = i.dshort
+                instr.dshortMin = i.dshortMin
+                instr.exchange = i.exchange
+                instr.realExchange = i.realExchange
+                self.localInstrment.append(instr)
+            }
+            self.loadAllEtfs()
+        }.store(in: &cancellables)
+    }
+    
 	@objc
 	func onModeChange(tag: Int) {
 		let newMode = BotMode.fromIndex(tag)
@@ -128,7 +224,7 @@ class SettingsViewController: UIViewController {
 		self.navigationController?.navigationBar.backIndicatorImage = img
 		self.navigationController?.navigationBar.backIndicatorTransitionMaskImage = img
 
-		self.navigationController?.isToolbarHidden = false
+		self.navigationController?.isToolbarHidden = true
 		var items = [UIBarButtonItem]()
 		let label = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 21))
 		label.text = "Бот отдыхает"
@@ -148,11 +244,14 @@ class SettingsViewController: UIViewController {
 		self.navigationController?.toolbar.isTranslucent = true
 		self.toolbarItems = items
 
-		// Initializing Enulating mode.
+        tokenStorage = TokenStorage(callback: onTokenChange)
+        setupToken()
+        
+        // Initializing Emulating mode.
 		onModeChange(tag: 0)
 		model.onModeChange = self.onModeChange
 
-		let hostingController = UIHostingController(rootView: SettingPageView(model: model))
+		let hostingController = UIHostingController(rootView: SettingPage(model: model, storage: tokenStorage))
 		hostingController.view.translatesAutoresizingMaskIntoConstraints = false
 		let swUIViewHC1 = NSLayoutConstraint(item: hostingController.view!, attribute: NSLayoutConstraint.Attribute.left, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.left, multiplier: 1, constant: view.safeAreaInsets.left)
 		let swUIViewHC2 = NSLayoutConstraint(item: hostingController.view!, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: 0)

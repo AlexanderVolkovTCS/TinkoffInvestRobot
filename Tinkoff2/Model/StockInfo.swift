@@ -24,16 +24,16 @@ class OrderInfo {
         self.type = type
         self.count = count
         
-        let date = Date()
-        let df = DateFormatter()
-        df.dateFormat = "EEEE, MMM d, yyyy"
-        self.timeStr = df.string(from: date)
+//        let date = Date()
+//        let df = DateFormatter()
+//        df.dateFormat = "EEEE, MMM d, yyyy"
+//        self.timeStr = df.string(from: date)
     }
 }
 
 class StockInfo {
 	public var instrument: Instrument = Instrument()
-    public var hasUpdates: Bool = true
+    public var hasUpdates: Bool = false
     public var candles: [CandleData] = []
     public var rsi: [Float64] = []
     public var operations: [OrderInfo] = []
