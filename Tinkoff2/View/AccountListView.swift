@@ -306,6 +306,7 @@ struct DatePickerView: View {
         .onChange(of: date) { newValue in
             model.emuStartDate = newValue
         }
+        .disabled(model.isBotRunning)
     }
 }
 

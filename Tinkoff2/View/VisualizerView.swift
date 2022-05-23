@@ -55,22 +55,10 @@ struct VisualizerPageView: View {
 					VStack {
 						if self.model.activeStock != nil {
 							Spacer(minLength: 16)
-
-							Text("График")
-								.frame(maxWidth: .infinity, alignment: .leading)
-								.font(.title)
-
-							Text("Отображается по 5мин")
-								.frame(maxWidth: .infinity, alignment: .leading)
-								.font(.caption)
+                            CandleGraph(model: model)
 
 							Spacer(minLength: 16)
-
-							VStack {
-								GraphViewUI(model: model)
-									.frame(maxWidth: .infinity)
-									.frame(minHeight: 300)
-							}
+                            RSIGraph(model: model)
 
 							Spacer(minLength: 16)
 							InfoView(model: model)
@@ -88,6 +76,42 @@ struct VisualizerPageView: View {
 	}
 }
 
+struct CandleGraph: View {
+    @ObservedObject var model: VisualizerPageModel
+    public var operation: OrderInfo? = nil
+
+    var body: some View {
+        VStack {
+            GraphViewUI(model: model)
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: 300)
+        }
+    }
+}
+
+struct RSIGraph: View {
+    @ObservedObject var model: VisualizerPageModel
+    public var operation: OrderInfo? = nil
+
+    var body: some View {
+        VStack {
+            Spacer(minLength: 16)
+
+            Text("Значение RSI")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .font(.title)
+
+            Spacer(minLength: 16)
+
+            VStack {
+                RSIGraphViewUI(model: model)
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 300)
+            }
+        }
+    }
+}
+
 struct GraphViewUI: UIViewRepresentable {
 	@ObservedObject var model: VisualizerPageModel
 
@@ -97,11 +121,27 @@ struct GraphViewUI: UIViewRepresentable {
 
 	func updateUIView(_ uiView: CandleGraphView, context: Context) {
 		if self.model.activeStock == nil {
-            uiView.setChartData(candles: [], rsi: [])
+            uiView.setChartData(candles: [])
 			return
 		}
-        uiView.setChartData(candles: self.model.activeStock!.candles, rsi: self.model.activeStock!.rsi)
+        uiView.setChartData(candles: self.model.activeStock!.candles)
 	}
+}
+
+struct RSIGraphViewUI: UIViewRepresentable {
+    @ObservedObject var model: VisualizerPageModel
+
+    func makeUIView(context: Context) -> RSIGraphView {
+        RSIGraphView()
+    }
+
+    func updateUIView(_ uiView: RSIGraphView, context: Context) {
+        if self.model.activeStock == nil {
+            uiView.setChartData(rsi: [])
+            return
+        }
+        uiView.setChartData(rsi: self.model.activeStock!.rsi)
+    }
 }
 
 struct CardsView: View {

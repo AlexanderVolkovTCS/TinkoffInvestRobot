@@ -40,6 +40,7 @@
 		71440559283AB689007AE807 /* CombineWaiting in Frameworks */ = {isa = PBXBuildFile; productRef = 71440558283AB689007AE807 /* CombineWaiting */; };
 		7144055B283ACA47007AE807 /* MacaLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144055A283ACA47007AE807 /* MacaLog.swift */; };
 		7144055D283B534E007AE807 /* MacaStat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144055C283B534E007AE807 /* MacaStat.swift */; };
+		71F05921283BAA8D00CC4A05 /* RSIGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F05920283BAA8D00CC4A05 /* RSIGraphView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -74,6 +75,7 @@
 		7144054F283AA690007AE807 /* BarGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarGraphView.swift; sourceTree = "<group>"; };
 		7144055A283ACA47007AE807 /* MacaLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacaLog.swift; sourceTree = "<group>"; };
 		7144055C283B534E007AE807 /* MacaStat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacaStat.swift; sourceTree = "<group>"; };
+		71F05920283BAA8D00CC4A05 /* RSIGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSIGraphView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,6 +151,7 @@
 				7144052728393C54007AE807 /* VisualizerView.swift */,
 				7144054D283A9DD2007AE807 /* ConsoleView.swift */,
 				714405252839298F007AE807 /* CandleGraphView.swift */,
+				71F05920283BAA8D00CC4A05 /* RSIGraphView.swift */,
 				7144054F283AA690007AE807 /* BarGraphView.swift */,
 			);
 			path = View;
@@ -283,6 +286,7 @@
 				711DB5032838D37F00CF5474 /* BotMode.swift in Sources */,
 				7144054E283A9DD2007AE807 /* ConsoleView.swift in Sources */,
 				711DB5012838CF2600CF5474 /* Internet.swift in Sources */,
+				71F05921283BAA8D00CC4A05 /* RSIGraphView.swift in Sources */,
 				7144052C28395B67007AE807 /* TradesStream.swift in Sources */,
 				7144055D283B534E007AE807 /* MacaStat.swift in Sources */,
 				714405262839298F007AE807 /* CandleGraphView.swift in Sources */,
