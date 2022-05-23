@@ -124,6 +124,7 @@ class VisualizationViewController: UIViewController {
 
 	func onStockChange(stock: StockInfo) {
 		self.model.activeStock = stock
+        self.model.activeStock!.hasUpdates = false
 		self.navigationItem.title = stock.instrument.name
 	}
 
@@ -171,7 +172,13 @@ class VisualizationViewController: UIViewController {
                 candles.forEach { candle in
                     newCandles.append(candle)
                 }
+                
                 self.model.stockData[i].candles = newCandles
+                
+                // Re-setting activeStock to initiate redrawing of swiftUI
+                if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[i].instrument.figi {
+                    self.model.activeStock = self.model.stockData[i]
+                }
             }
         }
     }

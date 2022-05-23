@@ -99,7 +99,7 @@ struct GraphViewUI: UIViewRepresentable {
 			uiView.setChartData(candles: [])
 			return
 		}
-		uiView.setChartData(candles: self.model.activeStock!.candles)
+        uiView.setChartData(candles: self.model.activeStock!.candles)
 	}
 }
 
@@ -153,10 +153,17 @@ struct CardsView: View {
 									EmptyView()
 								}
 							}
-
-							Text(model.stockData[id].instrument.name)
+                            Text(model.stockData[id].instrument.name)
 						}
 							.padding()
+                        if model.stockData[id].hasUpdates {
+                            VStack {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .foregroundColor(.red)
+                                    .position(x: 20, y: -20)
+                                    .frame(width: 10, height: 10, alignment: .leading)
+                            }
+                        }
 					}
 						.onTapGesture {
 						self.model.onStockChange?(model.stockData[id])

@@ -10,7 +10,8 @@ import TinkoffInvestSDK
 
 class StockInfo {
 	public var instrument: Instrument = Instrument()
-	public var candles: [CandleData] = []
+    public var hasUpdates: Bool = true
+    public var candles: [CandleData] = []
 
 	init () { }
 
