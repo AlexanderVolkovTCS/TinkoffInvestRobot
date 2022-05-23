@@ -259,7 +259,7 @@ struct TableView: View {
 			Text("История сделок")
 				.frame(maxWidth: .infinity, alignment: .leading)
 				.font(.title)
-
+            Spacer()
 			VStack(
 				alignment: .center,
 				spacing: 16
