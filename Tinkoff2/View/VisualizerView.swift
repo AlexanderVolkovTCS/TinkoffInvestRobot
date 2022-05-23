@@ -97,10 +97,10 @@ struct GraphViewUI: UIViewRepresentable {
 
 	func updateUIView(_ uiView: CandleGraphView, context: Context) {
 		if self.model.activeStock == nil {
-			uiView.setChartData(candles: [])
+            uiView.setChartData(candles: [], rsi: [])
 			return
 		}
-        uiView.setChartData(candles: self.model.activeStock!.candles)
+        uiView.setChartData(candles: self.model.activeStock!.candles, rsi: self.model.activeStock!.rsi)
 	}
 }
 

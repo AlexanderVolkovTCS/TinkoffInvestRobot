@@ -203,19 +203,18 @@ class VisualizationViewController: UIViewController {
     }
     
     func processRSI(figi: String, rsiValue: Float64) {
-//        for i in 0..<self.model.stockData.count {
-//            if (self.model.stockData[i].instrument.figi == figi) {
-//                self.model.stockData[i].operations.append(order)
-//
-//                // Re-setting activeStock to initiate redrawing of swiftUI
-//                if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[i].instrument.figi {
-//                    self.model.activeStock = self.model.stockData[i]
-//                }
-//
-//                break
-//            }
-//        }
-        print(rsiValue)
+        for i in 0..<self.model.stockData.count {
+            if (self.model.stockData[i].instrument.figi == figi) {
+                self.model.stockData[i].rsi.append(rsiValue)
+                
+                // Re-setting activeStock to initiate redrawing of swiftUI
+                if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[i].instrument.figi {
+                    self.model.activeStock = self.model.stockData[i]
+                }
+                
+                break
+            }
+        }
     }
 
 	func processOrderbook(orderbook: OrderBookData) {

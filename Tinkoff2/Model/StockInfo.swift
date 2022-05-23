@@ -35,6 +35,7 @@ class StockInfo {
 	public var instrument: Instrument = Instrument()
     public var hasUpdates: Bool = true
     public var candles: [CandleData] = []
+    public var rsi: [Float64] = []
     public var operations: [OrderInfo] = []
 
 	init () { }
