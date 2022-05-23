@@ -20,10 +20,11 @@ class PostOrder {
         self.onSell = onSell
 	}
 
-	// buyMarketPrice выставляет заявку на покупку акции по рыночной цене.
+	// buyMarketPrice выставляет заявку на покупку одной акции по рыночной цене.
 	public func buyMarketPrice() { }
-	// sellMarketPrice выставляет заявку на продажу акции по рыночной цене.
-	public func sellMarketPrice() { }
+    
+	// sellMarketPrice выставляет заявку на продажу нескольких акций по рыночной цене.
+	public func sellMarketPrice(amount: Int64) { }
     
     public func dispatchOnBuy(amount: Int64) {
         DispatchQueue.main.async {
@@ -69,25 +70,24 @@ class EmuPostOrder: PostOrder {
         self.dispatchOnBuy(amount: 1)
 	}
 
-	public override func sellMarketPrice() {
+	public override func sellMarketPrice(amount: Int64) {
         // Emulate porfolio
         let portfolio = self.emuPortfolioLoader!.getPortfolioCached()
         if (portfolio.positions[self.figi!] == nil) {
             return
         }
+        portfolio.positions[self.figi!]!.quantity.units -= amount
         
-        portfolio.positions[self.figi!]!.quantity.units -= 1
-
-        self.dispatchOnSell(amount: 1)
+        self.dispatchOnSell(amount: amount)
 	}
     
     var emuPortfolioLoader: EmuPortfolioLoader?
 }
 
 class SandboxPostOrder: PostOrder {
+    var cancellables = Set<AnyCancellable>()
+    
 	public override func buyMarketPrice() {
-		var cancellables = Set<AnyCancellable>()
-
 		var req = PostOrderRequest()
 		req.accountID = GlobalBotConfig.account.id
 		req.orderID = UUID().uuidString
@@ -132,14 +132,12 @@ class SandboxPostOrder: PostOrder {
             }
 		}.store(in: &cancellables)
 	}
-
-	public override func sellMarketPrice() {
-		var cancellables = Set<AnyCancellable>()
-
+    
+	public override func sellMarketPrice(amount: Int64) {
 		var req = PostOrderRequest()
 		req.accountID = GlobalBotConfig.account.id
 		req.orderID = UUID().uuidString
-		req.quantity = 1
+		req.quantity = amount
 		req.direction = OrderDirection.sell
 		req.figi = self.figi!
         req.orderType = OrderType.market
@@ -183,9 +181,9 @@ class SandboxPostOrder: PostOrder {
 }
 
 class TinkoffPostOrder: PostOrder {
+    var cancellables = Set<AnyCancellable>()
+    
     public override func buyMarketPrice() {
-        var cancellables = Set<AnyCancellable>()
-
         var req = PostOrderRequest()
         req.accountID = GlobalBotConfig.account.id
         req.orderID = UUID().uuidString
@@ -231,13 +229,13 @@ class TinkoffPostOrder: PostOrder {
         }.store(in: &cancellables)
     }
 
-    public override func sellMarketPrice() {
+    public override func sellMarketPrice(amount: Int64) {
         var cancellables = Set<AnyCancellable>()
 
         var req = PostOrderRequest()
         req.accountID = GlobalBotConfig.account.id
         req.orderID = UUID().uuidString
-        req.quantity = 1
+        req.quantity = amount
         req.direction = OrderDirection.sell
         req.figi = self.figi!
         req.orderType = OrderType.market

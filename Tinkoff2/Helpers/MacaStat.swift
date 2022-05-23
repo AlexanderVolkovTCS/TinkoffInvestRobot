@@ -67,12 +67,12 @@ class MacaStat {
         }
     }
     
-    func onSellOrderPosted(figi: String) {
+    func onSellOrderPosted(figi: String, amount: Int64) {
         for i in GlobalBotConfig.figis {
             if i.figi == figi {
                 switch i.instrumentType {
                 case "share":
-                    _soldStocks += 1
+                    _soldStocks += amount
                 default:
                     break
                 }

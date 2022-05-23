@@ -120,29 +120,6 @@ class EmuCandleFetcher: CandleFetcher {
                 callback(self.figi!, candles)
             }
         }
-        
-//        var req = GetCandlesRequest()
-//        req.figi = self.figi!
-//        req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: -1, to: GlobalBotConfig.emuStartDate)!)
-//        req.to = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: 0, to: GlobalBotConfig.emuStartDate)!)
-//        req.interval = CandleInterval.candleInterval5Min
-//
-//        GlobalBotConfig.sdk.marketDataService.getCandels(request: req).sink { result in
-//            print("fail historical ", result)
-//            switch result {
-//            case .failure(let error):
-//                print(error.localizedDescription)
-//            case .finished:
-//                print("loaded")
-//            }
-//        } receiveValue: { candles in
-//
-//            let dataCandles = candles.candles.map { (candle) in CandleData(tinkCandle: candle) }
-//            DispatchQueue.main.async {
-//                callback(self.figi!, dataCandles)
-//            }
-//
-//        }.store(in: &cancellables)
     }
 
     public override func cancel() {
@@ -150,6 +127,54 @@ class EmuCandleFetcher: CandleFetcher {
     }
 
     var shouldStop = false
+    var cancellables = Set<AnyCancellable>()
+}
+
+class TinkoffCandleFetcher: CandleFetcher {
+    public override func run() {
+        GlobalBotConfig.sdk.marketDataServiceStream.subscribeToCandels(figi: self.figi!, interval: SubscriptionInterval.oneMinute).sink { result in
+            } receiveValue: { result in
+                switch result.payload {
+                    case .candle(let candle):
+                        self.oncall(candle: CandleData(tinkCandle: candle))
+                    default:
+                        break
+                    }
+            }.store(in: &cancellables)
+    }
+
+    public override func fetchHistoricalData(callback: @escaping (String, [CandleData]) -> ()) {
+        // Preload candles for past dates.
+        DispatchQueue.global(qos: .userInitiated).async {
+            let now = Date()
+            var candles: [CandleData] = []
+            var i = -3
+
+            repeat {
+                var req = GetCandlesRequest()
+                req.figi = self.figi!
+                req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: i, to: now)!)
+                req.to = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: i + 1, to: now)!)
+                req.interval = CandleInterval.candleInterval5Min
+
+                do {
+                    let historicalCandles = try GlobalBotConfig.sdk.marketDataService.getCandels(request: req).wait(timeout: 10).singleValue()
+                    for historicalCandle in historicalCandles.candles {
+                        candles.append(CandleData(tinkCandle: historicalCandle))
+                    }
+                } catch {
+                    break
+                }
+                i+=1
+            } while i <= -1
+
+            DispatchQueue.main.async {
+                callback(self.figi!, candles)
+            }
+        }
+    }
+
+    public override func cancel() {}
     var cancellables = Set<AnyCancellable>()
 }
 
@@ -198,11 +223,11 @@ class RSIStrategyEngine {
 
             case .Sandbox:
                 self.postOrders[figi] = SandboxPostOrder(figi: figi, onBuy: onBuySuccess, onSell: onSellSuccess)
-                self.candlesFetchers[figi] = EmuCandleFetcher(figi: figi, callback: self.onNewCandle)
+                self.candlesFetchers[figi] = TinkoffCandleFetcher(figi: figi, callback: self.onNewCandle)
 
             case .Tinkoff:
                 self.postOrders[figi] = TinkoffPostOrder(figi: figi, onBuy: onBuySuccess, onSell: onSellSuccess)
-                self.candlesFetchers[figi] = EmuCandleFetcher(figi: figi, callback: self.onNewCandle)
+                self.candlesFetchers[figi] = TinkoffCandleFetcher(figi: figi, callback: self.onNewCandle)
             }
         }
 
@@ -210,7 +235,6 @@ class RSIStrategyEngine {
     }
 
     // Используется один раз для инициализации алгоритма историческими свечами.
-    // 3 дня 5 минутных свечей
     public func collectHistoricalCandles() {
         for candlesFetcher in self.candlesFetchers {
             candlesFetcher.value.fetchHistoricalData(callback: onHistoricalCandles)
@@ -234,11 +258,23 @@ class RSIStrategyEngine {
     }
 
     private func onNewCandle(figi: String, candle: CandleData) {
-        print("new candle!")
-        if candles[figi]!.count == self.config!.rsiPeriod {
-            candles[figi]!.remove(at: 0)
+        print("new candle! ", candle.time)
+        
+        var mergedWithLast = false
+        let last = self.candles[figi]!.last
+        if last != nil {
+            if candle.time == last!.value.time {
+                last!.value = candle
+                mergedWithLast = true
+            }
         }
-        candles[figi]!.append(candle)
+        
+        if !mergedWithLast {
+            if candles[figi]!.count == self.config!.rsiPeriod {
+                candles[figi]!.remove(at: 0)
+            }
+            candles[figi]!.append(candle)
+        }
 
         let rsi = calculateRSI(figi: figi)
         print("rsi = ", rsi)
@@ -277,6 +313,9 @@ class RSIStrategyEngine {
         
         for figi in self.config!.figis {
             if let position = portfolioData.positions[figi] {
+                if openedPositions[figi] == nil {
+                    openedPositions[figi] = 0
+                }
                 openedPositions[figi]! += position.quantity.units
             }
         }
@@ -350,17 +389,14 @@ class RSIStrategyEngine {
     }
 
     private func closeLong(figi: String) {
-        if openedPositions[figi] == nil {
+        // Проверяем, есть ли открытые позиции, которые следует закрыть.
+        if openedPositions[figi] == nil || openedPositions[figi] == 0 {
             return
         }
         
-        var needClose = openedPositions[figi]!
-        print("NEED CLOSE =", needClose)
-        while (needClose > 0) {
-            self.postOrders[figi]!.sellMarketPrice()
-            needClose -= 1
-        }
-        GlobalBotConfig.stat.onSellOrderPosted(figi: figi)
+        let needClose = openedPositions[figi]!
+        self.postOrders[figi]!.sellMarketPrice(amount: needClose)
+        GlobalBotConfig.stat.onSellOrderPosted(figi: figi, amount: needClose)
         GlobalBotConfig.logger.info("[\(figi)] Closing long: amount \(needClose)")
     }
 
