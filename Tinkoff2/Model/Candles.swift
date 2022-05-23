@@ -203,12 +203,14 @@ class RSIStrategyEngine {
     public init(config: RSIConfig,
                 portfolioUpdateCallback: @escaping (PortfolioData) -> (),
                 candlesUpdateCallback: @escaping (String, LinkedList<CandleData>) -> (),
+                orderRequestCallback: @escaping (String, OrderInfo) -> (),
                 orderUpdateCallback: @escaping (String, OrderInfo) -> (),
                 rsiUpdateCallback: @escaping (String, Float64) -> ()
     ) {
         self.config = config
         self.portfolioUpdateCallback = portfolioUpdateCallback
         self.candlesUpdateCallback = candlesUpdateCallback
+        self.orderRequestCallback = orderRequestCallback
         self.orderUpdateCallback = orderUpdateCallback
         self.rsiUpdateCallback = rsiUpdateCallback
         
@@ -415,7 +417,6 @@ class RSIStrategyEngine {
         self.orderUpdateCallback(figi, OrderInfo(type: .Sold, count: amount))
     }
 
-
     private var config: RSIConfig? = nil
     
     private var portfolioLoader: PortfolioLoader? = nil
@@ -428,6 +429,7 @@ class RSIStrategyEngine {
     
     private var portfolioUpdateCallback: (PortfolioData) -> ()?
     private var candlesUpdateCallback: (String, LinkedList<CandleData>) -> ()
+    private var orderRequestCallback: (String, OrderInfo) -> ()
     private var orderUpdateCallback: (String, OrderInfo) -> ()
     private var rsiUpdateCallback: (String, Float64) -> ()
 

@@ -11,10 +11,13 @@ import TinkoffInvestSDK
 class VisualizerPageModel: ObservableObject {
 	@Published var data: [Int]? = nil
 
-	@Published var stockData: [StockInfo] = []
+    @Published var currentMode: BotMode = .Tinkoff;
+    
+    @Published var stockData: [StockInfo] = []
     @Published var activeStock: StockInfo? = nil
 	@Published var onStockChange: ((StockInfo) -> ())? = nil
-
+    
+    @Published var tradingSchedule: [String:TradingSchedule] = [:]
 
 	@Published var portfolioData: PortfolioData = PortfolioData()
 
@@ -33,6 +36,27 @@ struct VisualizerPageView: View {
 	let columns = [
 		GridItem(.adaptive(minimum: 200))
 	]
+    
+    func exchangeIsOpened() -> Bool {
+        if self.model.currentMode == .Emu {
+            return true
+        }
+        
+        if self.model.activeStock == nil {
+            return false
+        }
+        
+        if self.model.tradingSchedule[self.model.activeStock!.instrument.exchange] == nil {
+           return true
+        }
+        
+        let ex = self.model.tradingSchedule[self.model.activeStock!.instrument.exchange]!
+        if ex.days.count < 1 {
+            return false
+        }
+        
+        return ex.days[0].startTime.timeIntervalSince1970 <= Date().timeIntervalSince1970 && Date().timeIntervalSince1970 <= ex.days[0].endTime.timeIntervalSince1970
+    }
 
 	var body: some View {
 		if self.model.isWaitingForAccountData {
@@ -54,17 +78,25 @@ struct VisualizerPageView: View {
 				Section(header: CardsView(model: model)) {
 					VStack {
 						if self.model.activeStock != nil {
-							Spacer(minLength: 16)
-                            CandleGraph(model: model)
+                            if exchangeIsOpened() {
+                                Spacer(minLength: 16)
+                                CandleGraph(model: model)
 
-							Spacer(minLength: 16)
-                            RSIGraph(model: model)
+                                Spacer(minLength: 16)
+                                RSIGraph(model: model)
 
-							Spacer(minLength: 16)
-							InfoView(model: model)
+                                Spacer(minLength: 16)
+                                InfoView(model: model)
 
-							Spacer(minLength: 32)
-							TableView(model: model)
+                                Spacer(minLength: 32)
+                                TableView(model: model)
+                            } else {
+                                Image(systemName: "clock")
+                                    .font(.system(size: 60))
+                                    .foregroundColor(.gray)
+                                    .frame(alignment: .center)
+                                Text("Биржа закрыта")
+                            }
 						} else {
 							EmptyView()
 						}
@@ -297,12 +329,22 @@ struct TableCellView: View {
 	var body: some View {
         if operation != nil {
             HStack {
-                Image(systemName: "checkmark.circle")
-                    .foregroundColor(.green)
-                if operation!.type == .Sold {
-                    Text("Заявка на продажу \(operation!.count) инструмента(ов)")
+                if operation!.type == .SoldRequest || operation!.type == .BoughtRequest {
+                    Image(systemName: "clock")
+                        .foregroundColor(.gray)
+                    if operation!.type == .SoldRequest {
+                        Text("Заявка на продажу \(operation!.count) инструмента(ов)")
+                    } else {
+                        Text("Заявка на покупку \(operation!.count) инструмента(ов)")
+                    }
                 } else {
-                    Text("Заявка на покупку \(operation!.count) инструмента(ов)")
+                    Image(systemName: "checkmark.circle")
+                        .foregroundColor(.green)
+                    if operation!.type == .Sold {
+                        Text("Продажа исполнена \(operation!.count) инструмента(ов)")
+                    } else {
+                        Text("Покупка испольнена \(operation!.count) инструмента(ов)")
+                    }
                 }
                 Text(operation!.timeStr)
                     .foregroundColor(.gray)

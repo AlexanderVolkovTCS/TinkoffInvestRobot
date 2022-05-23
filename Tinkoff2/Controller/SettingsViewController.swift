@@ -9,6 +9,7 @@ import UIKit
 import Combine
 import TinkoffInvestSDK
 import SwiftUI
+import SwiftProtobuf
 
 class SettingsViewController: UIViewController {
 	let padding = 16.0
@@ -39,7 +40,7 @@ class SettingsViewController: UIViewController {
         }
 
         self.navigationController?.isToolbarHidden = false
-        GlobalBotConfig.sdk = TinkoffInvestSDK(tokenProvider: DefaultTokenProvider(token: token!), sandbox: DefaultTokenProvider(token: token!))
+        GlobalBotConfig.sdk = TinkoffInvestSDK(appName: "GoldenBrazier", tokenProvider: DefaultTokenProvider(token: token!), sandbox: DefaultTokenProvider(token: token!))
         self.model.isWaitingForStocks = true
         loadAllStocks()
     }
@@ -58,6 +59,25 @@ class SettingsViewController: UIViewController {
         }
     }
     
+    func loadSchedule() {
+        var req = TradingSchedulesRequest()
+        req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: 0, to: Date())!)
+        req.to = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: 0, to: Date())!)
+        GlobalBotConfig.sdk.instrumentsService.getTradingSchedules(request: req).sink { result in
+            switch result {
+            case .failure(let error):
+                print(error.localizedDescription)
+            case .finished:
+                print("loaded")
+            }
+        } receiveValue: { sched in
+            for i in sched.exchanges {
+                GlobalBotConfig.tradingSchedule[i.exchange] = i
+            }
+            self.onInstrumentsFinishLoad()
+        }.store(in: &cancellables)
+    }
+    
     func loadAllEtfs() {
         GlobalBotConfig.sdk.instrumentsService.getEtfs(with: InstrumentStatus(rawValue: InstrumentStatus.base.rawValue)!).sink { result in
             print(result)
@@ -71,6 +91,8 @@ class SettingsViewController: UIViewController {
             for i in order.instruments {
                 var instr = Instrument()
                 instr.name = i.name
+                instr.ticker = i.ticker
+                instr.isin = i.isin
                 instr.classCode = i.classCode
                 instr.figi = i.figi
                 instr.instrumentType = "etf"
@@ -86,8 +108,46 @@ class SettingsViewController: UIViewController {
                 instr.exchange = i.exchange
                 instr.realExchange = i.realExchange
                 self.localInstrment.append(instr)
+                print(instr)
             }
-            self.onInstrumentsFinishLoad()
+            self.loadSchedule()
+        }.store(in: &cancellables)
+    }
+    
+    func loadAllCurrency() {
+        GlobalBotConfig.sdk.instrumentsService.getCurrencies(with: InstrumentStatus(rawValue: InstrumentStatus.base.rawValue)!).sink { result in
+            print(result)
+            switch result {
+            case .failure(let error):
+                print(error.localizedDescription)
+            case .finished:
+                print("loaded")
+            }
+        } receiveValue: { order in
+            for i in order.instruments {
+                var instr = Instrument()
+                instr.name = i.name
+                instr.isin = i.isin
+                instr.ticker = i.ticker
+                instr.classCode = i.classCode
+                instr.isin = i.isin
+                instr.figi = i.figi
+                instr.instrumentType = "currency"
+                instr.apiTradeAvailableFlag = true
+                instr.buyAvailableFlag = i.buyAvailableFlag
+                instr.countryOfRisk = i.countryOfRisk
+                instr.countryOfRiskName = i.countryOfRiskName
+                instr.currency = i.currency
+                instr.dlong = i.dlong
+                instr.dlongMin = i.dlongMin
+                instr.dshort = i.dshort
+                instr.dshortMin = i.dshortMin
+                instr.exchange = i.exchange
+                instr.realExchange = i.realExchange
+                self.localInstrment.append(instr)
+                print(instr)
+            }
+            self.loadAllEtfs()
         }.store(in: &cancellables)
     }
     
@@ -104,6 +164,8 @@ class SettingsViewController: UIViewController {
             for i in order.instruments {
                 var instr = Instrument()
                 instr.name = i.name
+                instr.ticker = i.ticker
+                instr.isin = i.isin
                 instr.classCode = i.classCode
                 instr.figi = i.figi
                 instr.instrumentType = "share"
@@ -120,7 +182,7 @@ class SettingsViewController: UIViewController {
                 instr.realExchange = i.realExchange
                 self.localInstrment.append(instr)
             }
-            self.loadAllEtfs()
+            self.loadAllCurrency()
         }.store(in: &cancellables)
     }
     

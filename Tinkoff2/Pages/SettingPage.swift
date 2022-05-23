@@ -147,7 +147,7 @@ struct BotSetting: View {
                         Double(self.model.algoConfig.rsiPeriod)
                     }, set: { (newVal) in
                             self.model.algoConfig.rsiPeriod = Int(newVal)
-                        }), in: 14...32)
+                        }), in: 8...32)
                         .disabled(model.isBotRunning)
                 }
                 .padding()
@@ -160,7 +160,7 @@ struct BotSetting: View {
                         Double(self.model.algoConfig.upperRsiThreshold)
                     }, set: { (newVal) in
                             self.model.algoConfig.upperRsiThreshold = Int(newVal)
-                        }), in: 65...85)
+                        }), in: 35...85)
                         .disabled(model.isBotRunning || presetId != 2)
                 }
                 .padding()
@@ -173,7 +173,7 @@ struct BotSetting: View {
                         Double(self.model.algoConfig.lowerRsiThreshold)
                     }, set: { (newVal) in
                             self.model.algoConfig.lowerRsiThreshold = Int(newVal)
-                        }), in: 10...40)
+                        }), in: 10...60)
                         .disabled(model.isBotRunning || presetId != 2)
                 }
                 .padding()
@@ -347,7 +347,8 @@ struct StockListView: View {
 	@State private var instrument: Instrument? = nil
 	@State private var contentWidth: CGFloat = 0
 
-	func autocomplete(string: String) {
+	func autocomplete(input: String) {
+        let string = input.uppercased()
         var pretended: Instrument? = nil
         var maxAcc = 0.0
         
@@ -366,9 +367,8 @@ struct StockListView: View {
             }
             
             // 66% of instrument name should be similar to input.
-            if instr.name.prefix(string.count) == string {
+            if instr.name.uppercased().contains(string) {
                 let newAcc = Double(string.count) / Double(instr.name.count)
-                print(newAcc)
                 if maxAcc < newAcc {
                     pretended = instr
                     maxAcc = newAcc
@@ -376,7 +376,7 @@ struct StockListView: View {
             }
         }
         
-        if maxAcc < 0.5 && pretended == nil {
+        if maxAcc < 0.5 || pretended == nil {
             instrument = nil
             return
         }
@@ -412,17 +412,12 @@ struct StockListView: View {
 			)
 				.disableAutocorrection(true)
 				.onChange(of: figifield) {
-				self.autocomplete(string: $0)
+                    self.autocomplete(input: $0)
 			}
 				.textFieldStyle(.roundedBorder)
 				.disabled(model.isBotRunning)
 				.padding(EdgeInsets(top: 8, leading: 16, bottom: 0, trailing: 16))
-			if instrument != nil && !(instrument!.apiTradeAvailableFlag) {
-				Text("\(instrument!.name) недоступен для торговли через API")
-					.font(.caption)
-					.frame(maxWidth: .infinity, alignment: .leading)
-					.padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-			} else if instrument != nil {
+			if instrument != nil {
 				Text("Найдено \(instrument!.name)")
 					.font(.caption)
 					.frame(maxWidth: .infinity, alignment: .leading)

@@ -9,6 +9,8 @@ import Foundation
 import TinkoffInvestSDK
 
 enum OperationType {
+    case SoldRequest
+    case BoughtRequest
     case Sold
     case Bought
 }
@@ -23,11 +25,6 @@ class OrderInfo {
     init(type: OperationType, count: Int64) {
         self.type = type
         self.count = count
-        
-//        let date = Date()
-//        let df = DateFormatter()
-//        df.dateFormat = "EEEE, MMM d, yyyy"
-//        self.timeStr = df.string(from: date)
     }
 }
 

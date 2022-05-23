@@ -60,6 +60,10 @@ class MacaStat {
                 switch i.instrumentType {
                 case "share":
                     _boughtStocks += 1
+                case "etf":
+                    _boughtETCs += 1
+                case "currency":
+                    _boughtCurrency += 1
                 default:
                     break
                 }
@@ -73,6 +77,10 @@ class MacaStat {
                 switch i.instrumentType {
                 case "share":
                     _soldStocks += amount
+                case "etf":
+                    _soldETCs += amount
+                case "currency":
+                    _soldCurrency += amount
                 default:
                     break
                 }

@@ -36,7 +36,6 @@
 		7144054A283A96F3007AE807 /* DashboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71440549283A96F3007AE807 /* DashboardViewController.swift */; };
 		7144054E283A9DD2007AE807 /* ConsolePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144054D283A9DD2007AE807 /* ConsolePage.swift */; };
 		71440550283AA690007AE807 /* BarGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144054F283AA690007AE807 /* BarGraphView.swift */; };
-		71440556283AACE8007AE807 /* TinkoffInvestSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 71440555283AACE8007AE807 /* TinkoffInvestSDK */; };
 		71440559283AB689007AE807 /* CombineWaiting in Frameworks */ = {isa = PBXBuildFile; productRef = 71440558283AB689007AE807 /* CombineWaiting */; };
 		7144055B283ACA47007AE807 /* MacaLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144055A283ACA47007AE807 /* MacaLog.swift */; };
 		7144055D283B534E007AE807 /* MacaStat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144055C283B534E007AE807 /* MacaStat.swift */; };
@@ -45,6 +44,7 @@
 		71F05927283BBB0300CC4A05 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 71F05926283BBB0300CC4A05 /* KeychainAccess */; };
 		71F05929283BBCC000CC4A05 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F05928283BBCC000CC4A05 /* Globals.swift */; };
 		71F0592B283BC1A100CC4A05 /* LoginPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F0592A283BC1A100CC4A05 /* LoginPage.swift */; };
+		71F0592F283BED2D00CC4A05 /* TinkoffInvestSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 71F0592E283BED2D00CC4A05 /* TinkoffInvestSDK */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -90,9 +90,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				71440556283AACE8007AE807 /* TinkoffInvestSDK in Frameworks */,
 				7144053A283996BE007AE807 /* Algorithms in Frameworks */,
 				71F05927283BBB0300CC4A05 /* KeychainAccess in Frameworks */,
+				71F0592F283BED2D00CC4A05 /* TinkoffInvestSDK in Frameworks */,
 				71440559283AB689007AE807 /* CombineWaiting in Frameworks */,
 				711DB50C28390DE300CF5474 /* Introspect in Frameworks */,
 				711DB4F82838AD3600CF5474 /* Charts in Frameworks */,
@@ -235,9 +235,9 @@
 				711DB4F72838AD3600CF5474 /* Charts */,
 				711DB50B28390DE300CF5474 /* Introspect */,
 				71440539283996BE007AE807 /* Algorithms */,
-				71440555283AACE8007AE807 /* TinkoffInvestSDK */,
 				71440558283AB689007AE807 /* CombineWaiting */,
 				71F05926283BBB0300CC4A05 /* KeychainAccess */,
+				71F0592E283BED2D00CC4A05 /* TinkoffInvestSDK */,
 			);
 			productName = Tinkoff2;
 			productReference = 7113C0F32837C3DE004C1910 /* Tinkoff2.app */;
@@ -271,9 +271,9 @@
 				711DB4F62838AD3600CF5474 /* XCRemoteSwiftPackageReference "Charts" */,
 				711DB50A28390DE300CF5474 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
 				71440538283996BE007AE807 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
-				71440554283AACE8007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */,
 				71440557283AB689007AE807 /* XCRemoteSwiftPackageReference "CombineWaiting" */,
 				71F05925283BBB0300CC4A05 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+				71F0592D283BED2D00CC4A05 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */,
 			);
 			productRefGroup = 7113C0F42837C3DE004C1910 /* Products */;
 			projectDirPath = "";
@@ -572,14 +572,6 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		71440554283AACE8007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/nimelehin/TinkoffInvestSwiftSDK.git";
-			requirement = {
-				kind = revision;
-				revision = 6a2d343932018fbc46bf529720263741875bf406;
-			};
-		};
 		71440557283AB689007AE807 /* XCRemoteSwiftPackageReference "CombineWaiting" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/jameshurst/CombineWaiting.git";
@@ -594,6 +586,14 @@
 			requirement = {
 				branch = master;
 				kind = branch;
+			};
+		};
+		71F0592D283BED2D00CC4A05 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nimelehin/TinkoffInvestSwiftSDK.git";
+			requirement = {
+				kind = revision;
+				revision = 4bd6d7ce8e18b2cd9718a1a9b46435c8e067b099;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -614,11 +614,6 @@
 			package = 71440538283996BE007AE807 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
 			productName = Algorithms;
 		};
-		71440555283AACE8007AE807 /* TinkoffInvestSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 71440554283AACE8007AE807 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */;
-			productName = TinkoffInvestSDK;
-		};
 		71440558283AB689007AE807 /* CombineWaiting */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 71440557283AB689007AE807 /* XCRemoteSwiftPackageReference "CombineWaiting" */;
@@ -628,6 +623,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 71F05925283BBB0300CC4A05 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
 			productName = KeychainAccess;
+		};
+		71F0592E283BED2D00CC4A05 /* TinkoffInvestSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 71F0592D283BED2D00CC4A05 /* XCRemoteSwiftPackageReference "TinkoffInvestSwiftSDK" */;
+			productName = TinkoffInvestSDK;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

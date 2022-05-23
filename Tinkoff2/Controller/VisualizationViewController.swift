@@ -49,6 +49,7 @@ class VisualizationViewController: UIViewController {
         self.engine = RSIStrategyEngine(config: engineConfig,
                                         portfolioUpdateCallback: self.onPortfolioUpdate,
                                         candlesUpdateCallback: self.onCandlesUpdate,
+                                        orderRequestCallback: self.processOrderRequest,
                                         orderUpdateCallback: self.processOrder,
                                         rsiUpdateCallback: self.processRSI)
 	}
@@ -80,8 +81,10 @@ class VisualizationViewController: UIViewController {
 	}
 
 	func setupModel(portfolio: PortfolioData) {
+        self.model.currentMode = GlobalBotConfig.mode
         self.model.stat = GlobalBotConfig.stat
         self.model.logger = GlobalBotConfig.logger
+        self.model.tradingSchedule = GlobalBotConfig.tradingSchedule
 		self.model.portfolioData = portfolio
 
 		// If Stock is not requestes to be tracked any more, removing it.
@@ -133,24 +136,6 @@ class VisualizationViewController: UIViewController {
 	func initSubcribers() {
 		// Should uninitilize everything here and reinit data sources.
 		removeSubcribers()
-
-//		switch GlobalBotConfig.mode {
-//		case .Emu:
-////			self.tradesStreamSub = EmuTradesStreamSubscriber(figi: "BBG000BBJQV0", callback: processTrade)
-//			self.orderSub = EmuOrderSubscriber(figi: "BBG000BBJQV0", callback: processOrderbook)
-//			self.postOrder = EmuPostOrder(figi: "BBG000BBJQV0", tradesStreamSubsriber: self.tradesStreamSub! as! EmuTradesStreamSubscriber)
-//			self.candlesStreamSub = EmuCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
-//		case .Sandbox:
-//			self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "BBG000BBJQV0", callback: processTrade)
-//			self.orderSub = TinkoffOrderSubscriber(figi: "BBG000BBJQV0", callback: processOrderbook)
-//			self.postOrder = SandboxPostOrder(figi: "BBG000BBJQV0")
-//			self.candlesStreamSub = TinkoffCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
-//		case .Tinkoff:
-//			self.tradesStreamSub = TinkoffTradesStreamSubscriber(figi: "BBG000BBJQV0", callback: processTrade)
-//			self.orderSub = TinkoffOrderSubscriber(figi: "BBG000BBJQV0", callback: processOrderbook)
-//			self.postOrder = TinkoffPostOrder(figi: "BBG000BBJQV0")
-//			self.candlesStreamSub = TinkoffCandleStreamSubscriber(figi: "BBG000BBJQV0", callback: self.processCandle)
-//		}
 	}
 
 
@@ -162,10 +147,6 @@ class VisualizationViewController: UIViewController {
 		self.model.portfolioData = portfolio
 		self.model.isWaitingForAccountData = false
 	}
-
-//	func processTrade(trade: Trade) {
-//		return
-//	}
     
     func onCandlesUpdate(figi: String, candles: LinkedList<CandleData>) {
         for i in 0..<self.model.stockData.count {
@@ -187,6 +168,23 @@ class VisualizationViewController: UIViewController {
         }
     }
 
+    func processOrderRequest(figi: String, order: OrderInfo) {
+        for i in 0..<self.model.stockData.count {
+            if (self.model.stockData[i].instrument.figi == figi) {
+                self.model.stockData[i].operations.append(order)
+                
+                // Re-setting activeStock to initiate redrawing of swiftUI
+                if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[i].instrument.figi {
+                    self.model.activeStock = self.model.stockData[i]
+                } else {
+                    self.model.stockData[i].hasUpdates = true
+                }
+                
+                break
+            }
+        }
+    }
+    
     func processOrder(figi: String, order: OrderInfo) {
         for i in 0..<self.model.stockData.count {
             if (self.model.stockData[i].instrument.figi == figi) {
@@ -218,64 +216,6 @@ class VisualizationViewController: UIViewController {
             }
         }
     }
-
-	func processOrderbook(orderbook: OrderBookData) {
-		// Расчет количества лотов в заявках на покупку и продажу.
-		var countBuy: Int64 = 0
-		for bid in orderbook.bids {
-			countBuy += bid.quantity
-		}
-
-		var countSell: Int64 = 0
-		for ask in orderbook.asks {
-			countSell += ask.quantity
-		}
-
-		self.model.data = [Int(countBuy)]
-
-		print("buy = ", countBuy)
-		print("sell = ", countSell)
-
-		// Перевес в количестве заявок на покупку.
-		if countBuy > countSell {
-			print("more buy, need to buy more!")
-			self.postOrder?.buyMarketPrice()
-			return
-		}
-
-		// Перевес в количестве заявок на продажу.
-		if (countSell > countBuy) {
-			print("more sell, need to sell some!")
-			// Продаем по верхней границе стакана.
-			var price = Quotation()
-			price.units = orderbook.bids.last!.price.units
-			price.nano = orderbook.bids.last!.price.nano
-//			self.postOrder?.sellWithLimit(price: price)
-			return
-		}
-
-		// Ничего не делаем, если нет значимого перевеса.
-	}
-
-	// subscirbeToOrderBook подписывает на получение информации по стакану с глубиной 20.
-	// ответ асинхронно приходит в "case .orderbook" как только состояние стакана изменится.
-	// BBG000BBJQV0 - figi of Nvidia
-//    func subscirbeToOrderBook() {
-//        self.sdk.marketDataServiceStream.subscribeToOrderBook(figi: "BBG000BBJQV0", depth: 20).sink { result in
-//           print(result)
-//        } receiveValue: { result in
-//           switch result.payload {
-//           case .orderbook(let orderbook):
-//               self.processOrderbook(orderbook: orderbook)
-//           default:
-//               print("dai \(result.payload)")
-//               break
-//           }
-//        }.store(in: &cancellables)
-//    }
-
-	// TODO:
-	// may be use OrdersStreamService for visualizer?
 
 	@objc
 	func jumpToConsole() {

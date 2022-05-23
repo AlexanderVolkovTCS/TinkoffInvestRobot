@@ -18,6 +18,8 @@ struct BotConfig {
 	public var logger: MacaLog = MacaLog()
     
     public var emuStartDate: Date = Date()
+    
+    public var tradingSchedule: [String:TradingSchedule] = [:]
 
     public var stat: MacaStat = MacaStat()
     
