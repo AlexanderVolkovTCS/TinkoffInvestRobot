@@ -65,6 +65,7 @@ struct ErrorView: View {
 
 struct BotSetting: View {
 	@ObservedObject var model: SettingPageModel
+    @State private var presetId = 0
 
 	var body: some View {
 		VStack {
@@ -72,51 +73,82 @@ struct BotSetting: View {
 				.font(.headline)
 				.frame(maxWidth: .infinity, alignment: .leading)
 				.padding(EdgeInsets(top: 8, leading: 16, bottom: -8, trailing: 16))
-			DescriptionTextView(text: "Настройки алгоритма RSI")
+			DescriptionTextView(text: "Настройки параметра алгоритма RSI")
 				.padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
 
-			VStack {
-				Text("Период: \(Int(self.model.algoConfig.rsiPeriod))")
-					.frame(maxWidth: .infinity, alignment: .leading)
-					.padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
-				Slider(value: Binding(get: {
-					Double(self.model.algoConfig.rsiPeriod)
-				}, set: { (newVal) in
-						self.model.algoConfig.rsiPeriod = Int(newVal)
-					}), in: 14...32)
-					.disabled(model.isBotRunning)
-			}.padding()
+            VStack {
+                Picker("Preset", selection: $presetId) {
+                    Text("Спокойный").tag(0)
+                    Text("Активный").tag(1)
+                    Text("Кастом").tag(2)
+                }
+                    .onChange(of: presetId) { tag in
+                        switch tag {
+                        case 0:
+                            self.model.algoConfig.rsiPeriod = 14
+                            self.model.algoConfig.upperRsiThreshold = 80
+                            self.model.algoConfig.lowerRsiThreshold = 12
+                        case 1:
+                            self.model.algoConfig.rsiPeriod = 26
+                            self.model.algoConfig.upperRsiThreshold = 67
+                            self.model.algoConfig.lowerRsiThreshold = 29
+                        default:
+                            break
+                        }
+                        
+                    }
+                    .disabled(model.isBotRunning)
+            }
+                .padding(16)
+                .pickerStyle(.segmented)
+            
+            if presetId == 2 {
+                VStack {
+                    Text("Период: \(Int(self.model.algoConfig.rsiPeriod))")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
+                    Slider(value: Binding(get: {
+                        Double(self.model.algoConfig.rsiPeriod)
+                    }, set: { (newVal) in
+                            self.model.algoConfig.rsiPeriod = Int(newVal)
+                        }), in: 14...32)
+                        .disabled(model.isBotRunning)
+                }
+                .padding()
 
-			VStack {
-				Text("Верхняя граница: \(Int(self.model.algoConfig.upperRsiThreshold))")
-					.frame(maxWidth: .infinity, alignment: .leading)
-					.padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
-				Slider(value: Binding(get: {
-					Double(self.model.algoConfig.upperRsiThreshold)
-				}, set: { (newVal) in
-						self.model.algoConfig.upperRsiThreshold = Int(newVal)
-					}), in: 65...85)
-					.disabled(model.isBotRunning)
-			}.padding()
-
-			VStack {
-				Text("Нижняя граница: \(Int(self.model.algoConfig.lowerRsiThreshold))")
-					.frame(maxWidth: .infinity, alignment: .leading)
-					.padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
-				Slider(value: Binding(get: {
-					Double(self.model.algoConfig.lowerRsiThreshold)
-				}, set: { (newVal) in
-						self.model.algoConfig.lowerRsiThreshold = Int(newVal)
-					}), in: 20...40)
-					.disabled(model.isBotRunning)
-			}.padding()
+                VStack {
+                    Text("Верхняя граница: \(Int(self.model.algoConfig.upperRsiThreshold))")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
+                    Slider(value: Binding(get: {
+                        Double(self.model.algoConfig.upperRsiThreshold)
+                    }, set: { (newVal) in
+                            self.model.algoConfig.upperRsiThreshold = Int(newVal)
+                        }), in: 65...85)
+                        .disabled(model.isBotRunning || presetId != 2)
+                }
+                .padding()
+                
+                VStack {
+                    Text("Нижняя граница: \(Int(self.model.algoConfig.lowerRsiThreshold))")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
+                    Slider(value: Binding(get: {
+                        Double(self.model.algoConfig.lowerRsiThreshold)
+                    }, set: { (newVal) in
+                            self.model.algoConfig.lowerRsiThreshold = Int(newVal)
+                        }), in: 10...40)
+                        .disabled(model.isBotRunning || presetId != 2)
+                }
+                .padding()
+            }
 		}
 	}
 }
 
 struct ModePicker: View {
 	@ObservedObject var model: SettingPageModel
-	@State private var suggestedTopping = 0
+	@State private var suggestedMode = 0
 
 	var descs = [
 		"Режим Эмуляции позволяет запускать бота на исторических данных.",
@@ -126,14 +158,14 @@ struct ModePicker: View {
 
 	var body: some View {
 		VStack {
-			Picker("Topping", selection: $suggestedTopping) {
+			Picker("Mode", selection: $suggestedMode) {
 				Text("Эмулятор").tag(0)
 				Text("Песочница").tag(1)
 				Text("Тинькофф").tag(2)
 			}
-				.onChange(of: suggestedTopping) { tag in model.onModeChange?(tag) }
+				.onChange(of: suggestedMode) { tag in model.onModeChange?(tag) }
 				.disabled(model.isBotRunning)
-			DescriptionTextView(text: self.descs[suggestedTopping])
+			DescriptionTextView(text: self.descs[suggestedMode])
 				.padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
 		}
 			.padding(16)
@@ -165,6 +197,7 @@ struct AccountCell: View {
 			.frame(maxWidth: .infinity, alignment: .leading)
 			.listRowBackground(colorScheme == .dark ? Color(white: 50 / 255) : Color(white: 240 / 255))
 			.onTapGesture {
+                // TODO: Turn on validation back
 //                if (account.accessLevel == .accountAccessLevelFullAccess) {
 			self.model.activeAccount = account
 //                }

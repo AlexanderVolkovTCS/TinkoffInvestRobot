@@ -240,10 +240,14 @@ struct TableCellView: View {
 
 	var body: some View {
 		HStack {
-			Text("Buy | sell")
-			Image(systemName: "checkmark.circle")
-				.foregroundColor(.green)
+            Image(systemName: "checkmark.circle")
+                .foregroundColor(.green)
+            Text("Заявка на покупку 1 инструмента")
+            Text("Wed, 03 Aug 2011 09:44:00")
+                .foregroundColor(.gray)
 		}
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(EdgeInsets(top: 4, leading: 0, bottom: 8, trailing: 0))
 	}
 }
 
@@ -261,7 +265,8 @@ struct TableView: View {
 				spacing: 16
 			) {
 				TableCellView(title1: "dai")
-
+                TableCellView(title1: "dai")
+                TableCellView(title1: "dai")
 			}
 		}
 	}
