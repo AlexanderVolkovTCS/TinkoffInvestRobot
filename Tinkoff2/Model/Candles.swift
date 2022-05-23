@@ -226,15 +226,31 @@ class RSIStrategyEngine {
         for figi in self.config!.figis {
             switch GlobalBotConfig.mode {
             case .Emu:
-                self.postOrders[figi] = EmuPostOrder(figi: figi, onBuy: onBuySuccess, onSell: onSellSuccess, emuPortfolioLoader: self.portfolioLoader as! EmuPortfolioLoader)
+                self.postOrders[figi] = EmuPostOrder(
+                    figi: figi,
+                    onBuy: onBuySuccess,
+                    onSell: onSellSuccess,
+                    orderRequestCallback: self.orderRequestCallback,
+                    emuPortfolioLoader: self.portfolioLoader as! EmuPortfolioLoader
+                )
                 self.candlesFetchers[figi] = EmuCandleFetcher(figi: figi, callback: self.onNewCandle)
 
             case .Sandbox:
-                self.postOrders[figi] = SandboxPostOrder(figi: figi, onBuy: onBuySuccess, onSell: onSellSuccess)
+                self.postOrders[figi] = SandboxPostOrder(
+                    figi: figi,
+                    onBuy: onBuySuccess,
+                    onSell: onSellSuccess,
+                    orderRequestCallback: self.orderRequestCallback
+                )
                 self.candlesFetchers[figi] = TinkoffCandleFetcher(figi: figi, callback: self.onNewCandle)
 
             case .Tinkoff:
-                self.postOrders[figi] = TinkoffPostOrder(figi: figi, onBuy: onBuySuccess, onSell: onSellSuccess)
+                self.postOrders[figi] = TinkoffPostOrder(
+                    figi: figi,
+                    onBuy: onBuySuccess,
+                    onSell: onSellSuccess,
+                    orderRequestCallback: self.orderRequestCallback
+                )
                 self.candlesFetchers[figi] = TinkoffCandleFetcher(figi: figi, callback: self.onNewCandle)
             }
         }

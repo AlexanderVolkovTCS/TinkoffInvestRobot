@@ -13,11 +13,13 @@ import CombineWaiting
 class PostOrder {
 	public init(figi: String,
                 onBuy: @escaping (String, Int64) -> (),
-                onSell: @escaping (String, Int64) -> ()
+                onSell: @escaping (String, Int64) -> (),
+                orderRequestCallback: @escaping (String, OrderInfo) -> ()
     ) {
 		self.figi = figi
         self.onBuy = onBuy
         self.onSell = onSell
+        self.orderRequestCallback = orderRequestCallback
 	}
 
 	// buyMarketPrice выставляет заявку на покупку одной акции по рыночной цене.
@@ -25,6 +27,12 @@ class PostOrder {
     
 	// sellMarketPrice выставляет заявку на продажу нескольких акций по рыночной цене.
 	public func sellMarketPrice(amount: Int64) { }
+    
+    public func dispatchOnOrderRequest(orderInfo: OrderInfo) {
+        DispatchQueue.main.async {
+            self.orderRequestCallback(self.figi!, orderInfo)
+        }
+    }
     
     public func dispatchOnBuy(amount: Int64) {
         DispatchQueue.main.async {
@@ -41,6 +49,7 @@ class PostOrder {
 	var figi: String?
     var onBuy: (String, Int64) -> ()?
     var onSell: (String, Int64) -> ()?
+    var orderRequestCallback: (String, OrderInfo) -> ()?
 }
 
 
@@ -48,9 +57,10 @@ class EmuPostOrder: PostOrder {
     public init(figi: String,
                 onBuy: @escaping (String, Int64) -> (),
                 onSell: @escaping (String, Int64) -> (),
+                orderRequestCallback: @escaping (String, OrderInfo) -> (),
                 emuPortfolioLoader: EmuPortfolioLoader
     ) {
-        super.init(figi: figi, onBuy: onBuy, onSell: onSell)
+        super.init(figi: figi, onBuy: onBuy, onSell: onSell, orderRequestCallback: orderRequestCallback)
         self.emuPortfolioLoader = emuPortfolioLoader
     }
     
@@ -70,7 +80,7 @@ class EmuPostOrder: PostOrder {
         // Add statistics about posting.
         GlobalBotConfig.stat.onBuyOrderPosted(figi: self.figi!)
         GlobalBotConfig.logger.info("[\(String(describing: self.figi!))] Opening long with market price")
-
+        self.dispatchOnOrderRequest(orderInfo: OrderInfo(type: OperationType.BoughtRequest, count: 1))
         self.dispatchOnBuy(amount: 1)
 	}
 
@@ -85,7 +95,7 @@ class EmuPostOrder: PostOrder {
         // Add statistics about posting.
         GlobalBotConfig.stat.onSellOrderPosted(figi: self.figi!, amount: amount)
         GlobalBotConfig.logger.info("[\(String(describing: self.figi!))] Closing long: amount \(amount)")
-        
+        self.dispatchOnOrderRequest(orderInfo: OrderInfo(type: OperationType.SoldRequest, count: amount))
         self.dispatchOnSell(amount: amount)
 	}
     
@@ -114,10 +124,10 @@ class SandboxPostOrder: PostOrder {
 			}
 		} receiveValue: { order in
             DispatchQueue.global(qos: .userInitiated).async {
-                
                 // Add statistics about posting.
                 GlobalBotConfig.stat.onBuyOrderPosted(figi: self.figi!)
                 GlobalBotConfig.logger.info("[\(String(describing: self.figi!))] Opening long with market price")
+                self.dispatchOnOrderRequest(orderInfo: OrderInfo(type: OperationType.BoughtRequest, count: 1))
                 
                 let orderID = order.orderID
                 var executed = order.lotsExecuted
@@ -181,6 +191,7 @@ class SandboxPostOrder: PostOrder {
                 // Add statistics about posting.
                 GlobalBotConfig.stat.onSellOrderPosted(figi: self.figi!, amount: amount)
                 GlobalBotConfig.logger.info("[\(String(describing: self.figi!))] Closing long: amount \(amount)")
+                self.dispatchOnOrderRequest(orderInfo: OrderInfo(type: OperationType.SoldRequest, count: amount))
                 
                 let orderID = order.orderID
                 var executed = order.lotsExecuted
@@ -244,6 +255,7 @@ class TinkoffPostOrder: PostOrder {
                 // Add statistics about posting.
                 GlobalBotConfig.stat.onBuyOrderPosted(figi: self.figi!)
                 GlobalBotConfig.logger.info("[\(String(describing: self.figi!))] Opening long with market price")
+                self.dispatchOnOrderRequest(orderInfo: OrderInfo(type: OperationType.BoughtRequest, count: 1))
                 
                 let orderID = order.orderID
                 var executed = order.lotsExecuted
@@ -282,12 +294,6 @@ class TinkoffPostOrder: PostOrder {
     }
 
     public override func sellMarketPrice(amount: Int64) {
-        // Add statistics about posting.
-        GlobalBotConfig.stat.onSellOrderPosted(figi: self.figi!, amount: amount)
-        GlobalBotConfig.logger.info("[\(String(describing: self.figi!))] Closing long: amount \(amount)")
-        
-        var cancellables = Set<AnyCancellable>()
-
         var req = PostOrderRequest()
         req.accountID = GlobalBotConfig.account.id
         req.orderID = UUID().uuidString
@@ -306,6 +312,11 @@ class TinkoffPostOrder: PostOrder {
             }
         } receiveValue: { order in
             DispatchQueue.global(qos: .userInitiated).async {
+                // Add statistics about posting.
+                GlobalBotConfig.stat.onSellOrderPosted(figi: self.figi!, amount: amount)
+                GlobalBotConfig.logger.info("[\(String(describing: self.figi!))] Closing long: amount \(amount)")
+                self.dispatchOnOrderRequest(orderInfo: OrderInfo(type: OperationType.SoldRequest, count: amount))
+                
                 let orderID = order.orderID
                 var executed = order.lotsExecuted
                 var status = order.executionReportStatus
