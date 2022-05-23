@@ -129,9 +129,8 @@ class SandboxPostOrder: PostOrder {
                 GlobalBotConfig.logger.info("[\(String(describing: self.figi!))] Opening long with market price")
                 self.dispatchOnOrderRequest(orderInfo: OrderInfo(type: OperationType.BoughtRequest, count: 1))
                 
-                let orderID = order.orderID
-                var executed = order.lotsExecuted
-                var status = order.executionReportStatus
+                let executed = order.lotsExecuted
+                let status = order.executionReportStatus
                 
                 // Optimization: quickly check if an order was already completed.
                 if (status == OrderExecutionReportStatus.executionReportStatusFill ||
@@ -142,29 +141,10 @@ class SandboxPostOrder: PostOrder {
                     return
                 }
                 
-                // Polling while not completed otherwise.
-                while (status == OrderExecutionReportStatus.executionReportStatusNew ||
-                       status == OrderExecutionReportStatus.executionReportStatusPartiallyfill) {
-                    var orderStateReq = GetOrderStateRequest()
-                    orderStateReq.accountID = GlobalBotConfig.account.id
-                    orderStateReq.orderID = orderID
-                    
-                    do {
-                        let state = try GlobalBotConfig.sdk.sandboxService.getOrderState(accountID: orderStateReq.accountID, orderID: orderStateReq.accountID).wait(timeout: 10).singleValue()
-                        
-                        if (state.lotsExecuted > executed) {
-                            self.dispatchOnBuy(amount: state.lotsExecuted - executed)
-                        }
-                        
-                        status = state.executionReportStatus
-                        executed = state.lotsExecuted
-                    } catch {
-                        print("caught: \(error)")
-                        break
-                    }
-                    
-                    sleep(1)
-                }
+                // В следствие особенностей взаимодействия с песочницей, мы не дожидаемся исполнения
+                // getOrderState при работе с sandbox.
+                self.dispatchOnBuy(amount: 1)
+
             }
 		}.store(in: &cancellables)
 	}
@@ -193,9 +173,8 @@ class SandboxPostOrder: PostOrder {
                 GlobalBotConfig.logger.info("[\(String(describing: self.figi!))] Closing long: amount \(amount)")
                 self.dispatchOnOrderRequest(orderInfo: OrderInfo(type: OperationType.SoldRequest, count: amount))
                 
-                let orderID = order.orderID
-                var executed = order.lotsExecuted
-                var status = order.executionReportStatus
+                let executed = order.lotsExecuted
+                let status = order.executionReportStatus
                 
                 // Optimization: quickly check if an order was already completed.
                 if (status == OrderExecutionReportStatus.executionReportStatusFill ||
@@ -206,25 +185,9 @@ class SandboxPostOrder: PostOrder {
                     return
                 }
                 
-                while (status == OrderExecutionReportStatus.executionReportStatusNew ||
-                       status == OrderExecutionReportStatus.executionReportStatusPartiallyfill) {
-                    var orderStateReq = GetOrderStateRequest()
-                    orderStateReq.accountID = GlobalBotConfig.account.id
-                    orderStateReq.orderID = orderID
-                    
-                    do {
-                        let state = try GlobalBotConfig.sdk.ordersService.getOrderState(request: orderStateReq).wait(timeout: 10).singleValue()
-                        if (state.lotsExecuted > executed) {
-                            self.dispatchOnSell(amount: state.lotsExecuted - executed)
-                        }
-                        status = state.executionReportStatus
-                        executed = state.lotsExecuted
-                    } catch {
-                        break
-                    }
-                    
-                    sleep(1)
-                }
+                // В следствие особенностей взаимодействия с песочницей, мы не дожидаемся исполнения
+                // getOrderState при работе с sandbox.
+                self.dispatchOnSell(amount: amount)
             }
 		}.store(in: &cancellables)
 	}
