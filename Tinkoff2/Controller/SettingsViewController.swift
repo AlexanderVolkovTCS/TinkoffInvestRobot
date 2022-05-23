@@ -50,7 +50,6 @@ class SettingsViewController: UIViewController {
     func onTokenChange() {
         stopBot()
         setupToken()
-//        loadAllStocks()
     }
     
     func onInstrumentsFinishLoad() {
@@ -152,6 +151,10 @@ class SettingsViewController: UIViewController {
         GlobalBotConfig.sdk.instrumentsService.getShares(with: InstrumentStatus(rawValue: InstrumentStatus.base.rawValue)!).sink { result in
             switch result {
             case .failure(let error):
+                DispatchQueue.main.async {
+                    self.navigationController?.isToolbarHidden = true
+                    self.tokenStorage.remove()
+                }
                 print(error.localizedDescription)
             case .finished:
                 print("loaded")
