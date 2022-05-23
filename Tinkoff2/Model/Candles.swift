@@ -241,12 +241,13 @@ class RSIStrategyEngine {
         candles[figi]!.append(candle)
 
         let rsi = calculateRSI(figi: figi)
-        // Открываем лонг, если RSI меньше нижней границы
+        print("rsi = ", rsi)
+        // Продаем, если RSI меньше нижней границы.
         if rsi < Float64(config!.lowerRsiThreshold) {
-            openLong(figi: figi)
-            // Закрываем лонг, если RSI больше верхней границы
-        } else if rsi > Float64(config!.upperRsiThreshold) {
             closeLong(figi: figi)
+            // Покупаем, если RSI больше верхней границы.
+        } else if rsi > Float64(config!.upperRsiThreshold) {
+            openLong(figi: figi)
         }
         
         self.candlesUpdateCallback(figi, self.candles[figi]!)
@@ -258,20 +259,21 @@ class RSIStrategyEngine {
             openedPositions[figi] = 0
         }
         
-        openedPositions[figi]! += amount
         self.portfolioLoader!.syncPortfolioWithTink()
         self.orderUpdateCallback(figi, OrderInfo(type: .Bought, count: amount))
     }
     
     private func onSellSuccess(figi: String, amount: Int64) {
-        assert(openedPositions[figi] == nil)
+        assert(openedPositions[figi] != nil)
 
-        openedPositions[figi]! -= amount
         self.portfolioLoader!.syncPortfolioWithTink()
         self.orderUpdateCallback(figi, OrderInfo(type: .Sold, count: amount))
     }
     
     private func onPortfolio(portfolioData: PortfolioData) {
+        for position in openedPositions {
+            openedPositions[position.key] = 0
+        }
         
         for figi in self.config!.figis {
             if let position = portfolioData.positions[figi] {
@@ -283,7 +285,7 @@ class RSIStrategyEngine {
     }
 
     private func calculateRSI(figi: String) -> Float64 {
-        if (candles.count < 2) {
+        if (candles[figi]!.count < 2) {
             return 0
         }
 
@@ -292,12 +294,12 @@ class RSIStrategyEngine {
         var totalLoss: Float64 = 0
         var lossAmount = 0
 
-        var candleClosePrice: Float64 = 0
-        var prevCandleClosePrice: Float64 = 0
+        var candleClosePrice: Float64 = -1
+        var prevCandleClosePrice: Float64 = -1
 
         candles[figi]!.forEach { candle in
-            if prevCandleClosePrice == 0 {
-                prevCandleClosePrice = cast_money(quotation: candle.close)
+            if candleClosePrice == -1 {
+                candleClosePrice = cast_money(quotation: candle.close)
                 return
             }
 
@@ -312,7 +314,7 @@ class RSIStrategyEngine {
                 totalGain += change
                 gainAmount += 1
             } else {
-                totalLoss += change
+                totalLoss -= change
                 lossAmount += 1
             }
         }
@@ -334,8 +336,8 @@ class RSIStrategyEngine {
             avgLoss = 1
         }
 
-        var rs = avgGain / avgLoss
-        var rsi = 100 - (1 + rs)
+        let rs = avgGain / avgLoss
+        let rsi = 100 - 100 / (1 + rs)
 
         return rsi
     }
@@ -353,6 +355,7 @@ class RSIStrategyEngine {
         }
         
         var needClose = openedPositions[figi]!
+        print("NEED CLOSE =", needClose)
         while (needClose > 0) {
             self.postOrders[figi]!.sellMarketPrice()
             needClose -= 1
