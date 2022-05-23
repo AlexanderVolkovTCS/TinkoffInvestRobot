@@ -58,10 +58,9 @@ struct BoughtInstrumentGraphViewUI: UIViewRepresentable {
 
 	func updateUIView(_ uiView: BarGraphView, context: Context) {
 		if self.model.activeStock == nil {
-			uiView.setChartData(bars: [BarDescriptor(value: 32, label: "Акции", color: SoftColorList[0]), BarDescriptor(value: 15, label: "Фонды", color: SoftColorList[1]), BarDescriptor(value: 22, label: "Валюта", color: SoftColorList[2])])
 			return
 		}
-		uiView.setChartData(bars: [BarDescriptor(value: 12, label: "Акции", color: SoftColorList[0]), BarDescriptor(value: 20, label: "Фонды", color: SoftColorList[1]), BarDescriptor(value: 18, label: "Валюта", color: SoftColorList[2])])
+        uiView.setChartData(bars: [BarDescriptor(value: Int(self.model.stat.boughtStocks), label: "Акции", color: SoftColorList[0]), BarDescriptor(value: Int(self.model.stat.boughtETCs), label: "Фонды", color: SoftColorList[1]), BarDescriptor(value: Int(self.model.stat.boughtCurrency), label: "Валюта", color: SoftColorList[2])])
 	}
 }
 
@@ -93,10 +92,9 @@ struct SoldInstrumentGraphViewUI: UIViewRepresentable {
 
 	func updateUIView(_ uiView: BarGraphView, context: Context) {
 		if self.model.activeStock == nil {
-			uiView.setChartData(bars: [BarDescriptor(value: 12, label: "Акции", color: SoftColorList[0]), BarDescriptor(value: 20, label: "Фонды", color: SoftColorList[1]), BarDescriptor(value: 18, label: "Валюта", color: SoftColorList[2])])
-			return
+            return
 		}
-		uiView.setChartData(bars: [BarDescriptor(value: 12, label: "Акции", color: SoftColorList[0]), BarDescriptor(value: 20, label: "Фонды", color: SoftColorList[1]), BarDescriptor(value: 18, label: "Валюта", color: SoftColorList[2])])
+        uiView.setChartData(bars: [BarDescriptor(value: Int(self.model.stat.soldStocks), label: "Акции", color: SoftColorList[0]), BarDescriptor(value: Int(self.model.stat.soldETCs), label: "Фонды", color: SoftColorList[1]), BarDescriptor(value: Int(self.model.stat.soldCurrency), label: "Валюта", color: SoftColorList[2])])
 	}
 }
 

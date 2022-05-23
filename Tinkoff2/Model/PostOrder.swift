@@ -56,7 +56,15 @@ class EmuPostOrder: PostOrder {
     public override func buyMarketPrice() {
         // Emulate porfolio
         let portfolio = self.emuPortfolioLoader!.getPortfolioCached()
-        portfolio.positions[self.figi!]!.quantity.units += 1
+        if (portfolio.positions[self.figi!] != nil) {
+            portfolio.positions[self.figi!]!.quantity.units += 1
+        } else {
+            var pp = PortfolioPosition()
+            pp.figi = self.figi!
+            pp.quantityLots.units = 0
+            pp.quantityLots.nano = 0
+            portfolio.positions[self.figi!] = pp
+        }
 
         self.dispatchOnBuy(amount: 1)
 	}
@@ -64,6 +72,10 @@ class EmuPostOrder: PostOrder {
 	public override func sellMarketPrice() {
         // Emulate porfolio
         let portfolio = self.emuPortfolioLoader!.getPortfolioCached()
+        if (portfolio.positions[self.figi!] == nil) {
+            return
+        }
+        
         portfolio.positions[self.figi!]!.quantity.units -= 1
 
         self.dispatchOnSell(amount: 1)

@@ -38,7 +38,8 @@
 		71440550283AA690007AE807 /* BarGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144054F283AA690007AE807 /* BarGraphView.swift */; };
 		71440556283AACE8007AE807 /* TinkoffInvestSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 71440555283AACE8007AE807 /* TinkoffInvestSDK */; };
 		71440559283AB689007AE807 /* CombineWaiting in Frameworks */ = {isa = PBXBuildFile; productRef = 71440558283AB689007AE807 /* CombineWaiting */; };
-		7144055B283ACA47007AE807 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144055A283ACA47007AE807 /* Log.swift */; };
+		7144055B283ACA47007AE807 /* MacaLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144055A283ACA47007AE807 /* MacaLog.swift */; };
+		7144055D283B534E007AE807 /* MacaStat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144055C283B534E007AE807 /* MacaStat.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -71,7 +72,8 @@
 		71440549283A96F3007AE807 /* DashboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewController.swift; sourceTree = "<group>"; };
 		7144054D283A9DD2007AE807 /* ConsoleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleView.swift; sourceTree = "<group>"; };
 		7144054F283AA690007AE807 /* BarGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarGraphView.swift; sourceTree = "<group>"; };
-		7144055A283ACA47007AE807 /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
+		7144055A283ACA47007AE807 /* MacaLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacaLog.swift; sourceTree = "<group>"; };
+		7144055C283B534E007AE807 /* MacaStat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacaStat.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -169,7 +171,8 @@
 				711DB5002838CF2600CF5474 /* Internet.swift */,
 				711DB5022838D37F00CF5474 /* BotMode.swift */,
 				711DB5062838F21B00CF5474 /* BotConfig.swift */,
-				7144055A283ACA47007AE807 /* Log.swift */,
+				7144055A283ACA47007AE807 /* MacaLog.swift */,
+				7144055C283B534E007AE807 /* MacaStat.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -273,7 +276,7 @@
 				7144053C2839FC65007AE807 /* StockInfo.swift in Sources */,
 				7144053728399694007AE807 /* Candles.swift in Sources */,
 				7144052828393C54007AE807 /* VisualizerView.swift in Sources */,
-				7144055B283ACA47007AE807 /* Log.swift in Sources */,
+				7144055B283ACA47007AE807 /* MacaLog.swift in Sources */,
 				711DB5072838F21B00CF5474 /* BotConfig.swift in Sources */,
 				711DB4FC2838CDAA00CF5474 /* Profile.swift in Sources */,
 				7144053E283A466A007AE807 /* AlgoConfig.swift in Sources */,
@@ -281,6 +284,7 @@
 				7144054E283A9DD2007AE807 /* ConsoleView.swift in Sources */,
 				711DB5012838CF2600CF5474 /* Internet.swift in Sources */,
 				7144052C28395B67007AE807 /* TradesStream.swift in Sources */,
+				7144055D283B534E007AE807 /* MacaStat.swift in Sources */,
 				714405262839298F007AE807 /* CandleGraphView.swift in Sources */,
 				71440550283AA690007AE807 /* BarGraphView.swift in Sources */,
 				7113C0F72837C3DE004C1910 /* AppDelegate.swift in Sources */,

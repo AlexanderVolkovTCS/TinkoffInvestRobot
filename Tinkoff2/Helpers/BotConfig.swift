@@ -17,6 +17,8 @@ struct BotConfig {
 	public var algoConfig: AlgoConfig = AlgoConfig()
 	public var logger: MacaLog = MacaLog()
 
+    public var stat: MacaStat = MacaStat()
+    
 	init() { }
 }
 

@@ -20,6 +20,8 @@ class VisualizerPageModel: ObservableObject {
 	@Published var isWaitingForAccountData: Bool = false
 
 	@Published var logger: MacaLog = MacaLog()
+    
+    @Published var stat: MacaStat = MacaStat()
 
 	init() { }
 }
@@ -74,11 +76,6 @@ struct VisualizerPageView: View {
 
 							Spacer(minLength: 32)
 							TableView(model: model)
-
-//							Spacer(minLength: 32)
-//							Text("Логи бота")
-//								.frame(maxWidth: .infinity, alignment: .leading)
-//								.font(.title)
 						} else {
 							EmptyView()
 						}

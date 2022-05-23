@@ -78,7 +78,8 @@ class VisualizationViewController: UIViewController {
 	}
 
 	func setupModel(portfolio: PortfolioData) {
-		self.model.logger = GlobalBotConfig.logger
+        self.model.stat = GlobalBotConfig.stat
+        self.model.logger = GlobalBotConfig.logger
 		self.model.portfolioData = portfolio
 
 		// If Stock is not requestes to be tracked any more, removing it.

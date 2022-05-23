@@ -10,7 +10,6 @@ import Charts
 import TinkoffInvestSDK
 
 class CandleGraphView: UIView {
-	let ITEM_COUNT = 30
 	fileprivate var chartView: CombinedChartView = CombinedChartView()
 
 	required init(coder aDecoder: NSCoder) {
@@ -44,8 +43,7 @@ class CandleGraphView: UIView {
 
 	func setChartData(candles: [CandleData]) {
 		let data = CombinedChartData()
-//		data.lineData = generateLineData()
-		data.candleData = generateCandleData(candles: candles)
+        data.candleData = generateCandleData(candles: candles)
 
 		chartView.xAxis.axisMaximum = data.xMax + 1
 		chartView.xAxis.axisMinimum = 0
@@ -72,28 +70,11 @@ class CandleGraphView: UIView {
 		return lineSet
 	}
 
-//	func generateLineData() -> LineChartData {
-//		let set1 = genLine((0..<ITEM_COUNT).map { (i) -> ChartDataEntry in
-//				return ChartDataEntry(x: Double(i) + 1, y: Double(95))
-//			})
-//
-//		let set2 = genLine((0..<ITEM_COUNT).map { (i) -> ChartDataEntry in
-//				return ChartDataEntry(x: Double(i) + 1, y: Double(5))
-//			})
-//
-//		let set3 = genLine((0..<ITEM_COUNT).map { (i) -> ChartDataEntry in
-//				return ChartDataEntry(x: Double(i) + 1, y: 50)
-//			})
-//
-//
-//		return LineChartData(dataSets: [set1, set2, set3])
-//	}
-
 	func generateCandleData(candles: [CandleData]) -> CandleChartData {
 		var entries: [CandleChartDataEntry] = []
 
-		let start = max(candles.count - 30, 0)
-		let padding = 30 - min(candles.count, 30)
+        let start = max(candles.count - GlobalBotConfig.algoConfig.rsiPeriod, 0)
+		let padding = GlobalBotConfig.algoConfig.rsiPeriod - min(candles.count, GlobalBotConfig.algoConfig.rsiPeriod)
 		for i in start..<candles.count {
 			let candle = candles[i]
 			entries.append(CandleChartDataEntry(x: Double(padding + i), shadowH: candle.high.asDouble(), shadowL: candle.low.asDouble(), open: candle.open.asDouble(), close: candle.close.asDouble()))

@@ -1,5 +1,5 @@
 //
-//  Log.swift
+//  MacaLog.swift
 //  Tinkoff2
 //
 //  Created by Никита Мелехин on 22.05.2022.

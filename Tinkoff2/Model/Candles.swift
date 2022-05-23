@@ -221,9 +221,12 @@ class RSIStrategyEngine {
         let candlesPayload = historicalCandles.suffix(needCandles)
         
         for candle in candlesPayload {
-            self.candles[figi, default: LinkedList<CandleData>()].append(candle)
+            if self.candles[figi] == nil {
+                self.candles[figi] = LinkedList<CandleData>()
+            }
+            self.candles[figi]!.append(candle)
         }
-        
+
         self.candlesUpdateCallback(figi, self.candles[figi]!)
         self.candlesFetchers[figi]!.run()
     }
@@ -243,14 +246,22 @@ class RSIStrategyEngine {
         } else if rsi > Float64(config!.upperRsiThreshold) {
             closeLong(figi: figi)
         }
+        
+        self.candlesUpdateCallback(figi, self.candles[figi]!)
     }
 
     private func onBuySuccess(figi: String, amount: Int64) {
+        if openedPositions[figi] == nil {
+            openedPositions[figi] = 0
+        }
+        
         openedPositions[figi]! += amount
         self.portfolioLoader!.syncPortfolioWithTink()
     }
     
     private func onSellSuccess(figi: String, amount: Int64) {
+        assert(openedPositions[figi] == nil)
+
         openedPositions[figi]! -= amount
         self.portfolioLoader!.syncPortfolioWithTink()
     }
@@ -327,14 +338,22 @@ class RSIStrategyEngine {
     private func openLong(figi: String) {
         // TOOD: quickly check via cached partfolio if there's enough money to buy.
         self.postOrders[figi]!.buyMarketPrice()
+        GlobalBotConfig.stat.onBuyOrderPosted(figi: figi)
+        GlobalBotConfig.logger.info("[\(figi)] Opening long with market price")
     }
 
     private func closeLong(figi: String) {
+        if openedPositions[figi] == nil {
+            return
+        }
+        
         var needClose = openedPositions[figi]!
         while (needClose > 0) {
             self.postOrders[figi]!.sellMarketPrice()
             needClose -= 1
         }
+        GlobalBotConfig.stat.onSellOrderPosted(figi: figi)
+        GlobalBotConfig.logger.info("[\(figi)] Closing long: amount \(needClose)")
     }
 
 
