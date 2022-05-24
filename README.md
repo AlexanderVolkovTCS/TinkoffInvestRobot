@@ -30,6 +30,8 @@
 ## Интерфейс-Визуализация
 <img src="https://github.com/GoldenBrazier/TinkoffInvestRobot/blob/master/Assets/ScreeniPhone.png" width="500" alt="iPhone">
 
+<img src="https://github.com/GoldenBrazier/TinkoffInvestRobot/blob/master/Assets/ScreeniPhone2.png" width="500" alt="iPhone">
+
 <img src="https://github.com/GoldenBrazier/TinkoffInvestRobot/blob/master/Assets/Screen1.png" width="500" alt="Screen1">
 
 <img src="https://github.com/GoldenBrazier/TinkoffInvestRobot/blob/master/Assets/Screen2.png" width="500" alt="Screen2">
