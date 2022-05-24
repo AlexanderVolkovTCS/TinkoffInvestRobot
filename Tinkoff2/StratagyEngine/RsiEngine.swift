@@ -191,12 +191,12 @@ class RSIStrategyEngine {
 
         candles[figi]!.forEach { candle in
             if candleClosePrice == -1 {
-                candleClosePrice = cast_money(quotation: candle.close)
+                candleClosePrice = candle.close.asDouble()
                 return
             }
 
             prevCandleClosePrice = candleClosePrice
-            candleClosePrice = cast_money(quotation: candle.close)
+            candleClosePrice = candle.close.asDouble()
             let change = candleClosePrice - prevCandleClosePrice
 
             if (change == 0) {

@@ -81,4 +81,3 @@ extension SceneDelegate: UISplitViewControllerDelegate {
 		return .primary
 	}
 }
-
