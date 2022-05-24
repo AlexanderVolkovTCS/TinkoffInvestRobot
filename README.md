@@ -28,6 +28,8 @@
 Видеопрезентация готового приложения доступна на гугл диске по [адресу](https://drive.google.com/file/d/1UhRzWSKCw1JbNUZtSE8ychlcROO_8OVv/view). Просьба смотреть ее со звуком.
 
 ## Интерфейс-Визуализация
+<img src="https://github.com/GoldenBrazier/TinkoffInvestRobot/blob/master/Assets/Demo.gif" width="500" alt="Demo">
+
 <img src="https://github.com/GoldenBrazier/TinkoffInvestRobot/blob/master/Assets/ScreeniPhone.png" width="500" alt="iPhone">
 
 <img src="https://github.com/GoldenBrazier/TinkoffInvestRobot/blob/master/Assets/ScreeniPhone2.png" width="500" alt="iPhone">
