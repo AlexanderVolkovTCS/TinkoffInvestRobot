@@ -78,8 +78,8 @@ class EmuPostOrder: PostOrder {
 		} else {
 			var pp = PortfolioPosition()
 			pp.figi = self.figi!
-			pp.quantityLots.units = 1
-			pp.quantityLots.nano = 0
+			pp.quantity.units = 1
+			pp.quantity.nano = 0
 			portfolio.positions[self.figi!] = pp
 		}
 

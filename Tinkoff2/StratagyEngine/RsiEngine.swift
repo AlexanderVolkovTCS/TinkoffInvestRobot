@@ -353,6 +353,11 @@ class RSIStrategyEngine {
 
 	private func onSellSuccess(figi: String, amount: Int64, total: MoneyValue) {
 		assert(openedPositions[figi] != nil)
+        
+        // Так же закрываем стоп-лосс.
+        if openedPositions[figi] == 0 {
+            stopLossPositions.removeValue(forKey: figi)
+        }
 
 		// Синхронизируеся с портфолио только при успешной покупке/продаже.
 		self.portfolioLoader!.syncPortfolioWithTink()
