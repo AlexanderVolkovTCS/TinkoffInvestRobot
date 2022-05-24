@@ -228,7 +228,7 @@ struct StockListView: View {
 			ErrorInstrumentView(model: model)
 				.padding(EdgeInsets(top: 0, leading: 16, bottom: -8, trailing: 16))
 			TextField(
-				"Вводите Тикер или FIGI",
+				"Начните вводить название, тикер или FIGI...",
 				text: $figifield,
 				onCommit: {
 					if instrument != nil && instrument!.apiTradeAvailableFlag {
