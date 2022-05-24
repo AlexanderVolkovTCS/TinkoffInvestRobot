@@ -104,7 +104,6 @@ class EmuOrderSubscriber: OrderSubscriber {
 		DispatchQueue.global(qos: .userInitiated).async {
 			while (!self.shouldStop) {
 				DispatchQueue.main.async {
-					print("Call")
 					self.oncall(orderbook: OrderBookData())
 				}
 				sleep(1)
@@ -122,17 +121,6 @@ class EmuOrderSubscriber: OrderSubscriber {
 class TinkoffOrderSubscriber: OrderSubscriber {
 	public override init(figi: String, callback: @escaping (OrderBookData) -> ()) {
 		super.init(figi: figi, callback: callback)
-//        self.sdk.marketDataServiceStream.subscribeToOrderBook(figi: figi, depth: 20).sink { result in
-//           print(result)
-//        } receiveValue: { result in
-//           switch result.payload {
-//           case .orderbook(let orderbook):
-//               self.processOrderbook(orderbook: orderbook)
-//           default:
-//               print("dai \(result.payload)")
-//               break
-//           }
-//        }.store(in: &cancellables)
 	}
 
 	public override func cancel() {

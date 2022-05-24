@@ -27,7 +27,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UINavigationControllerD
 		let detailNavigationController = UINavigationController(rootViewController: detailController)
 
 		let dashboardController = DashboardViewController()
-		let dashboardNavigationController = UINavigationController(rootViewController: dashboardController)
+		let _ = UINavigationController(rootViewController: dashboardController)
 
 		dashboardController.model = detailController.model
 		detailController.consoleVC = dashboardController

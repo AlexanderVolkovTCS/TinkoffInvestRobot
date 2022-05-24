@@ -66,9 +66,9 @@ class SettingsViewController: UIViewController {
         GlobalBotConfig.sdk.instrumentsService.getTradingSchedules(request: req).sink { result in
             switch result {
             case .failure(let error):
-                print(error.localizedDescription)
+                GlobalBotConfig.logger.debug(error.localizedDescription)
             case .finished:
-                print("loaded")
+                break
             }
         } receiveValue: { sched in
             for i in sched.exchanges {
@@ -82,9 +82,9 @@ class SettingsViewController: UIViewController {
         GlobalBotConfig.sdk.instrumentsService.getEtfs(with: InstrumentStatus(rawValue: InstrumentStatus.base.rawValue)!).sink { result in
             switch result {
             case .failure(let error):
-                print(error.localizedDescription)
+                GlobalBotConfig.logger.debug(error.localizedDescription)
             case .finished:
-                print("loaded")
+                break
             }
         } receiveValue: { order in
             for i in order.instruments {
@@ -116,9 +116,9 @@ class SettingsViewController: UIViewController {
         GlobalBotConfig.sdk.instrumentsService.getCurrencies(with: InstrumentStatus(rawValue: InstrumentStatus.base.rawValue)!).sink { result in
             switch result {
             case .failure(let error):
-                print(error.localizedDescription)
+                GlobalBotConfig.logger.debug(error.localizedDescription)
             case .finished:
-                print("loaded")
+                break
             }
         } receiveValue: { order in
             for i in order.instruments {
@@ -155,9 +155,9 @@ class SettingsViewController: UIViewController {
                     self.navigationController?.isToolbarHidden = true
                     self.tokenStorage.remove()
                 }
-                print(error.localizedDescription)
+                GlobalBotConfig.logger.debug(error.localizedDescription)
             case .finished:
-                print("loaded")
+                break
             }
         } receiveValue: { order in
             for i in order.instruments {
@@ -221,16 +221,22 @@ class SettingsViewController: UIViewController {
 
 	@objc
 	func onBotStatus(_ sender: UISegmentedControl) {
-		if self.model.figiData.isEmpty {
-			self.model.errorText = "Выберите инструменты"
-			return
+        var errorFound = false
+        self.model.errorInstrumentText = nil
+        self.model.errorAccountListText = nil
+        
+        if self.model.figiData.isEmpty {
+			self.model.errorInstrumentText = "Выберите инструменты"
+            errorFound = true
 		}
 		if self.model.activeAccount == nil {
-			self.model.errorText = "Выберите счет"
-			return
+			self.model.errorAccountListText = "Выберите счет"
+            errorFound = true
 		}
-
-		self.model.errorText = nil
+        if errorFound {
+            return
+        }
+        
 		self.model.isBotRunning = !self.model.isBotRunning
 
 		let label = self.toolbarItems?[0].customView as? UILabel

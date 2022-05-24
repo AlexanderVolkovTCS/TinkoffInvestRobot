@@ -260,7 +260,6 @@ class VisualizationViewController: UIViewController {
 		view.backgroundColor = .white
 		self.navigationItem.title = ""
 		self.navigationController?.navigationBar.prefersLargeTitles = true
-		print(isConnectedToInternet())
 
 		let hostingController = UIHostingController(rootView: VisualizerPageView(model: model))
 		hostingController.view.translatesAutoresizingMaskIntoConstraints = false

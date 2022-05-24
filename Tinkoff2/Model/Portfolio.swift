@@ -106,9 +106,9 @@ class SandboxPortfolioLoader: PortfolioLoader {
         GlobalBotConfig.sdk.sandboxService.getPortfolio(accountID: profile.id).sink { result in
             switch result {
             case .failure(let error):
-                print(error.localizedDescription)
+                GlobalBotConfig.logger.debug(error.localizedDescription)
             case .finished:
-                print("loaded")
+                break
             }
         } receiveValue: { portfolio in
             self.onDataLoaded(portfolioData: PortfolioData(portfolioResp: portfolio))
@@ -128,9 +128,9 @@ class TinkoffPortfolioLoader: PortfolioLoader {
         GlobalBotConfig.sdk.portfolioService.getPortfolio(accountID: profile.id).sink { result in
             switch result {
             case .failure(let error):
-                print(error.localizedDescription)
+                GlobalBotConfig.logger.debug(error.localizedDescription)
             case .finished:
-                print("loaded")
+                break
             }
         } receiveValue: { portfolio in
             self.onDataLoaded(portfolioData: PortfolioData(portfolioResp: portfolio))

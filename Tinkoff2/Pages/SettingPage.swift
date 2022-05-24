@@ -31,7 +31,8 @@ class SettingPageModel: ObservableObject {
 
 	@Published var algoConfig: AlgoConfig = AlgoConfig()
 
-	@Published var errorText: String? = nil
+    @Published var errorInstrumentText: String? = nil
+    @Published var errorAccountListText: String? = nil
 
 	init() { }
 }
@@ -61,124 +62,12 @@ struct SettingPage: View {
                 VStack {
                     ProgressView()
                         .padding()
-                    Text("Fetching data")
+                    Text("Загрузка")
                 }
             }
         } else {
             LoginPage(storage: storage)
         }
-	}
-}
-
-struct ErrorView: View {
-	@ObservedObject var model: SettingPageModel
-
-	var body: some View {
-		if self.model.errorText == nil {
-			EmptyView()
-		} else {
-			Text(self.model.errorText!)
-				.font(.caption)
-				.foregroundColor(.red)
-		}
-	}
-}
-
-struct LogoutView: View {
-    @ObservedObject var model: SettingPageModel
-    @ObservedObject var storage: TokenStorage
-
-    var body: some View {
-        Button("Выйти") {
-            storage.remove()
-        }
-        .foregroundColor(.red)
-        .padding(EdgeInsets(top: 24, leading: 16, bottom: 8, trailing: 16))
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .disabled(model.isBotRunning)
-    }
-}
-
-struct BotSetting: View {
-	@ObservedObject var model: SettingPageModel
-    @State private var presetId = 0
-
-	var body: some View {
-		VStack {
-			Text("Настройки бота")
-				.font(.headline)
-				.frame(maxWidth: .infinity, alignment: .leading)
-				.padding(EdgeInsets(top: 8, leading: 16, bottom: -8, trailing: 16))
-			DescriptionTextView(text: "Настройки параметра алгоритма RSI")
-				.padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-
-            VStack {
-                Picker("Preset", selection: $presetId) {
-                    Text("Спокойный").tag(0)
-                    Text("Активный").tag(1)
-                    Text("Кастом").tag(2)
-                }
-                    .onChange(of: presetId) { tag in
-                        switch tag {
-                        case 0:
-                            self.model.algoConfig.rsiPeriod = 14
-                            self.model.algoConfig.upperRsiThreshold = 80
-                            self.model.algoConfig.lowerRsiThreshold = 12
-                        case 1:
-                            self.model.algoConfig.rsiPeriod = 26
-                            self.model.algoConfig.upperRsiThreshold = 67
-                            self.model.algoConfig.lowerRsiThreshold = 29
-                        default:
-                            break
-                        }
-                        
-                    }
-                    .disabled(model.isBotRunning)
-            }
-                .padding(16)
-                .pickerStyle(.segmented)
-            
-            if presetId == 2 {
-                VStack {
-                    Text("Период: \(Int(self.model.algoConfig.rsiPeriod))")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
-                    Slider(value: Binding(get: {
-                        Double(self.model.algoConfig.rsiPeriod)
-                    }, set: { (newVal) in
-                            self.model.algoConfig.rsiPeriod = Int(newVal)
-                        }), in: 8...32)
-                        .disabled(model.isBotRunning)
-                }
-                .padding()
-
-                VStack {
-                    Text("Верхняя граница: \(Int(self.model.algoConfig.upperRsiThreshold))")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
-                    Slider(value: Binding(get: {
-                        Double(self.model.algoConfig.upperRsiThreshold)
-                    }, set: { (newVal) in
-                            self.model.algoConfig.upperRsiThreshold = Int(newVal)
-                        }), in: 35...85)
-                        .disabled(model.isBotRunning || presetId != 2)
-                }
-                .padding()
-                
-                VStack {
-                    Text("Нижняя граница: \(Int(self.model.algoConfig.lowerRsiThreshold))")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
-                    Slider(value: Binding(get: {
-                        Double(self.model.algoConfig.lowerRsiThreshold)
-                    }, set: { (newVal) in
-                            self.model.algoConfig.lowerRsiThreshold = Int(newVal)
-                        }), in: 10...60)
-                        .disabled(model.isBotRunning || presetId != 2)
-                }
-                .padding()
-            }
-		}
 	}
 }
 
@@ -264,9 +153,11 @@ struct AccountListView: View {
 					.font(.headline)
 					.frame(maxWidth: .infinity, alignment: .leading)
 					.padding(EdgeInsets(top: 8, leading: 16, bottom: -8, trailing: 16))
-				DescriptionTextView(text: "Выберите один из счетов, который будет использоваться для торговли ботом. Внимание: Бот может использовать все средства на счету.")
+                DescriptionTextView(text: "Выберите один из счетов, который будет использоваться для торговли ботом. Внимание: Бот может использовать все средства на счету.")
 					.padding(EdgeInsets(top: 8, leading: 16, bottom: -24, trailing: 16))
-				List {
+                ErrorAccountListView(model: model)
+                    .padding(EdgeInsets(top: 16, leading: 16, bottom: -16, trailing: 16))
+                List {
 					ForEach(model.accountList.accounts, id: \.self) { item in
 						AccountCell(account: item, model: self.model)
 					}
@@ -280,65 +171,6 @@ struct AccountListView: View {
 			}
 		}
 	}
-}
-
-struct DescriptionTextView: View {
-	var text: String = ""
-
-	var body: some View {
-		Text(text)
-			.font(.caption2)
-			.foregroundColor(.gray)
-			.frame(maxWidth: .infinity, alignment: .leading)
-	}
-}
-
-struct EmuSettingsView: View {
-    @ObservedObject var model: SettingPageModel
-    @State private var date = Date()
-
-    var body: some View {
-        if model.currentMode == .Emu {
-            Text("Настройки эмуляции")
-                .font(.headline)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(EdgeInsets(top: 8, leading: 16, bottom: -8, trailing: 16))
-            DescriptionTextView(text: "Настройки параметра алгоритма RSI")
-                .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-            DatePickerView(model: model)
-                .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-        } else {
-            EmptyView()
-        }
-    }
-}
-
-
-struct DatePickerView: View {
-    @ObservedObject var model: SettingPageModel
-    
-    @State private var date = Date()
-    let dateRange: ClosedRange<Date> = {
-        let calendar = Calendar.current
-        let startComponents = DateComponents(year: 2021, month: 1, day: 1)
-        let endComponents = DateComponents(year: Calendar.current.component(.year, from: Date()), month: Calendar.current.component(.month, from: Date()), day: Calendar.current.component(.day, from: Date()))
-        return calendar.date(from:startComponents)!
-            ...
-            calendar.date(from:endComponents)!
-    }()
-
-    var body: some View {
-        DatePicker(
-            "Начало эмуляции",
-            selection: $date,
-            in: dateRange,
-            displayedComponents: [.date]
-        )
-        .onChange(of: date) { newValue in
-            model.emuStartDate = newValue
-        }
-        .disabled(model.isBotRunning)
-    }
 }
 
 struct StockListView: View {
@@ -393,7 +225,9 @@ struct StockListView: View {
 				.readSize { size in contentWidth = size.width - 16 }
 			DescriptionTextView(text: "Выберите акции, которыми сможет торговать Бот.")
 				.padding(EdgeInsets(top: 8, leading: 16, bottom: 0, trailing: 16))
-			TextField(
+            ErrorInstrumentView(model: model)
+                .padding(EdgeInsets(top: 0, leading: 16, bottom: -8, trailing: 16))
+            TextField(
 				"Вводите Тикер или FIGI",
 				text: $figifield,
 				onCommit: {
@@ -463,3 +297,135 @@ struct StockListView: View {
 		}
 	}
 }
+
+struct BotSetting: View {
+    @ObservedObject var model: SettingPageModel
+    @State private var presetId = 0
+
+    var body: some View {
+        VStack {
+            Text("Настройки бота")
+                .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(EdgeInsets(top: 8, leading: 16, bottom: -8, trailing: 16))
+            DescriptionTextView(text: "Настройки параметра алгоритма RSI")
+                .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+
+            VStack {
+                Picker("Preset", selection: $presetId) {
+                    Text("Спокойный").tag(0)
+                    Text("Активный").tag(1)
+                    Text("Кастом").tag(2)
+                }
+                    .onChange(of: presetId) { tag in
+                        switch tag {
+                        case 0:
+                            self.model.algoConfig.rsiPeriod = 14
+                            self.model.algoConfig.upperRsiThreshold = 80
+                            self.model.algoConfig.lowerRsiThreshold = 12
+                        case 1:
+                            self.model.algoConfig.rsiPeriod = 26
+                            self.model.algoConfig.upperRsiThreshold = 67
+                            self.model.algoConfig.lowerRsiThreshold = 29
+                        default:
+                            break
+                        }
+                        
+                    }
+                    .disabled(model.isBotRunning)
+            }
+                .padding(16)
+                .pickerStyle(.segmented)
+            
+            if presetId == 2 {
+                VStack {
+                    Text("Период: \(Int(self.model.algoConfig.rsiPeriod))")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
+                    Slider(value: Binding(get: {
+                        Double(self.model.algoConfig.rsiPeriod)
+                    }, set: { (newVal) in
+                            self.model.algoConfig.rsiPeriod = Int(newVal)
+                        }), in: 8...32)
+                        .disabled(model.isBotRunning)
+                }
+                .padding()
+
+                VStack {
+                    Text("Верхняя граница: \(Int(self.model.algoConfig.upperRsiThreshold))")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
+                    Slider(value: Binding(get: {
+                        Double(self.model.algoConfig.upperRsiThreshold)
+                    }, set: { (newVal) in
+                            self.model.algoConfig.upperRsiThreshold = Int(newVal)
+                        }), in: 35...85)
+                        .disabled(model.isBotRunning || presetId != 2)
+                }
+                .padding()
+                
+                VStack {
+                    Text("Нижняя граница: \(Int(self.model.algoConfig.lowerRsiThreshold))")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
+                    Slider(value: Binding(get: {
+                        Double(self.model.algoConfig.lowerRsiThreshold)
+                    }, set: { (newVal) in
+                            self.model.algoConfig.lowerRsiThreshold = Int(newVal)
+                        }), in: 10...60)
+                        .disabled(model.isBotRunning || presetId != 2)
+                }
+                .padding()
+            }
+        }
+    }
+}
+
+struct DatePickerView: View {
+    @ObservedObject var model: SettingPageModel
+    
+    @State private var date = Date()
+    let dateRange: ClosedRange<Date> = {
+        let calendar = Calendar.current
+        let startComponents = DateComponents(year: 2021, month: 1, day: 1)
+        let endComponents = DateComponents(year: Calendar.current.component(.year, from: Date()), month: Calendar.current.component(.month, from: Date()), day: Calendar.current.component(.day, from: Date()))
+        return calendar.date(from:startComponents)!
+            ...
+            calendar.date(from:endComponents)!
+    }()
+
+    var body: some View {
+        DatePicker(
+            "Начало эмуляции",
+            selection: $date,
+            in: dateRange,
+            displayedComponents: [.date]
+        )
+        .onChange(of: date) { newValue in
+            model.emuStartDate = newValue
+        }
+        .disabled(model.isBotRunning)
+    }
+}
+
+struct EmuSettingsView: View {
+    @ObservedObject var model: SettingPageModel
+    @State private var date = Date()
+
+    var body: some View {
+        if model.currentMode == .Emu {
+            Text("Настройки эмуляции")
+                .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(EdgeInsets(top: 8, leading: 16, bottom: -8, trailing: 16))
+            DescriptionTextView(text: "Настройки параметра алгоритма RSI")
+                .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+            DatePickerView(model: model)
+                .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+        } else {
+            EmptyView()
+        }
+    }
+}
+
+

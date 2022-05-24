@@ -46,6 +46,8 @@
 		71F0592F283BED2D00CC4A05 /* TinkoffInvestSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 71F0592E283BED2D00CC4A05 /* TinkoffInvestSDK */; };
 		71F0593D283C91CC00CC4A05 /* RsiEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F0593C283C91CC00CC4A05 /* RsiEngine.swift */; };
 		71F0593F283C9A5A00CC4A05 /* ExtTink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F0593E283C9A5A00CC4A05 /* ExtTink.swift */; };
+		71F05941283CC10800CC4A05 /* TextViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F05940283CC10800CC4A05 /* TextViews.swift */; };
+		71F05943283CC22C00CC4A05 /* ErrorViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F05942283CC22C00CC4A05 /* ErrorViews.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -85,6 +87,8 @@
 		71F0592A283BC1A100CC4A05 /* LoginPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPage.swift; sourceTree = "<group>"; };
 		71F0593C283C91CC00CC4A05 /* RsiEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RsiEngine.swift; sourceTree = "<group>"; };
 		71F0593E283C9A5A00CC4A05 /* ExtTink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtTink.swift; sourceTree = "<group>"; };
+		71F05940283CC10800CC4A05 /* TextViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViews.swift; sourceTree = "<group>"; };
+		71F05942283CC22C00CC4A05 /* ErrorViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorViews.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,6 +166,8 @@
 				714405252839298F007AE807 /* CandleGraphView.swift */,
 				71F05920283BAA8D00CC4A05 /* RSIGraphView.swift */,
 				7144054F283AA690007AE807 /* BarGraphView.swift */,
+				71F05940283CC10800CC4A05 /* TextViews.swift */,
+				71F05942283CC22C00CC4A05 /* ErrorViews.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -328,6 +334,7 @@
 				711DB4FC2838CDAA00CF5474 /* Profile.swift in Sources */,
 				7144053E283A466A007AE807 /* AlgoConfig.swift in Sources */,
 				711DB5032838D37F00CF5474 /* BotMode.swift in Sources */,
+				71F05943283CC22C00CC4A05 /* ErrorViews.swift in Sources */,
 				7144054E283A9DD2007AE807 /* ConsolePage.swift in Sources */,
 				711DB5012838CF2600CF5474 /* Internet.swift in Sources */,
 				71F05921283BAA8D00CC4A05 /* RSIGraphView.swift in Sources */,
@@ -341,6 +348,7 @@
 				7113C0F92837C3DE004C1910 /* SceneDelegate.swift in Sources */,
 				7144052A283952AE007AE807 /* TagsView.swift in Sources */,
 				7144054A283A96F3007AE807 /* DashboardViewController.swift in Sources */,
+				71F05941283CC10800CC4A05 /* TextViews.swift in Sources */,
 				711DB4F5283824A700CF5474 /* VisualizationViewController.swift in Sources */,
 				711DB5092838F54400CF5474 /* SettingPage.swift in Sources */,
 			);

@@ -121,7 +121,7 @@ class RSIStrategyEngine {
     }
 
     private func onNewCandle(figi: String, candle: CandleData) {
-        print("new candle! \(figi)", candle.high.asDouble(), candle.time)
+        GlobalBotConfig.logger.debug("new candle! \(figi) \(candle.high.asDouble()) \(candle.time)")
         
         var mergedWithLast = false
         let last = self.candles[figi]!.last
@@ -140,7 +140,7 @@ class RSIStrategyEngine {
         }
 
         let rsi = calculateRSI(figi: figi)
-        print("rsi = ", rsi)
+        GlobalBotConfig.logger.debug("new rsi = \(rsi)")
         // Продаем, если RSI меньше нижней границы.
         if rsi < Float64(config!.lowerRsiThreshold) {
             closeLong(figi: figi)
@@ -154,8 +154,6 @@ class RSIStrategyEngine {
     }
     
     private func onPortfolio(portfolioData: PortfolioData) {
-        print("on portfolio ", portfolioData)
-        
         for position in openedPositions {
             openedPositions[position.key] = 0
         }
@@ -166,7 +164,6 @@ class RSIStrategyEngine {
                     openedPositions[figi] = 0
                 }
                 openedPositions[figi]! += position.quantity.units
-                print("position, ", openedPositions[figi]!)
             }
         }
         
@@ -251,7 +248,7 @@ class RSIStrategyEngine {
         
         let hasMoney = portfolioData.getMoneyValue(currency: instrument!.currency)
         if hasMoney != nil && hasMoney!.units < money.units {
-            print("openLong: Could not buy (no money) has: \(hasMoney!.asString()), want: \(money.asString())")
+            GlobalBotConfig.logger.debug("openLong: Could not buy (no money) has: \(hasMoney!.asString()), want: \(money.asString())")
             return
         }
         

@@ -72,9 +72,9 @@ class EmuCandleFetcher: CandleFetcher {
         GlobalBotConfig.sdk.marketDataService.getCandels(request: req).sink { result in
             switch result {
             case .failure(let error):
-                print(error.localizedDescription)
+                GlobalBotConfig.logger.debug(error.localizedDescription)
             case .finished:
-                print("loaded")
+                break
             }
         } receiveValue: { candles in
             // Starting a new thread to emulate candels streaming.

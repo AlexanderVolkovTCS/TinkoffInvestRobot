@@ -59,7 +59,7 @@ class SandboxProfileListLoader: ProfileListLoader {
 		GlobalBotConfig.sdk.sandboxService.openAccount().sink { result in
 			switch result {
 			case .failure(let error):
-				print(error.localizedDescription)
+                GlobalBotConfig.logger.debug(error.localizedDescription)
 			case .finished:
                 break
 			}
@@ -76,7 +76,7 @@ class SandboxProfileListLoader: ProfileListLoader {
 		GlobalBotConfig.sdk.sandboxService.payIn(accountID: id, amount: mv).sink { result in
 			switch result {
 			case .failure(let error):
-				print(error.localizedDescription)
+                GlobalBotConfig.logger.debug(error.localizedDescription)
 			case .finished:
                 break
 			}
@@ -89,7 +89,7 @@ class SandboxProfileListLoader: ProfileListLoader {
 		GlobalBotConfig.sdk.sandboxService.getAccounts().sink { result in
 			switch result {
 			case .failure(let error):
-				print(error.localizedDescription)
+                GlobalBotConfig.logger.debug(error.localizedDescription)
             case .finished:
                 break
 			}
@@ -115,9 +115,9 @@ class TinkoffProfileListLoader: ProfileListLoader {
 		GlobalBotConfig.sdk.userService.getAccounts().sink { result in
 			switch result {
 			case .failure(let error):
-				print(error.localizedDescription)
+                GlobalBotConfig.logger.debug(error.localizedDescription)
 			case .finished:
-				print("loaded")
+				break
 			}
 		} receiveValue: { accresp in
 			self.onDataLoaded(profdata: AccountList(accounts: accresp.accounts))

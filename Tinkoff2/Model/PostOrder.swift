@@ -129,7 +129,7 @@ class SandboxPostOrder: PostOrder {
 		GlobalBotConfig.sdk.sandboxService.postOrder(request: req).sink { result in
 			switch result {
 			case .failure(let error):
-				print("Error loading SandboxPostOrder.buyMarketPrice", error.localizedDescription)
+                GlobalBotConfig.logger.debug("Error loading SandboxPostOrder.buyMarketPrice \(error.localizedDescription)")
 			case .finished:
 				break
 			}
@@ -173,7 +173,7 @@ class SandboxPostOrder: PostOrder {
 		GlobalBotConfig.sdk.sandboxService.postOrder(request: req).sink { result in
 			switch result {
 			case .failure(let error):
-				print("Error loading SandboxPostOrder.sellMarketPrice", error.localizedDescription)
+                GlobalBotConfig.logger.debug("Error loading SandboxPostOrder.sellMarketPrice \(error.localizedDescription)")
 			case .finished:
 				break
 			}
@@ -226,9 +226,9 @@ class TinkoffPostOrder: PostOrder {
         GlobalBotConfig.sdk.ordersService.postOrder(request: req).sink { result in
             switch result {
             case .failure(let error):
-                print(error.localizedDescription)
+                GlobalBotConfig.logger.debug(error.localizedDescription)
             case .finished:
-                print("loaded")
+                break
             }
         } receiveValue: { order in
             DispatchQueue.global(qos: .userInitiated).async {
@@ -285,9 +285,9 @@ class TinkoffPostOrder: PostOrder {
         GlobalBotConfig.sdk.ordersService.postOrder(request: req).sink { result in
             switch result {
             case .failure(let error):
-                print(error.localizedDescription)
+                GlobalBotConfig.logger.debug(error.localizedDescription)
             case .finished:
-                print("loaded")
+                break
             }
         } receiveValue: { order in
             DispatchQueue.global(qos: .userInitiated).async {
