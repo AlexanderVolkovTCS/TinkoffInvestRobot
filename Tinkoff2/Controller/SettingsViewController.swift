@@ -20,7 +20,7 @@ class SettingsViewController: UIViewController {
     
     var tokenStorage = TokenStorage()
 
-	var vizVC: VisualizationViewController? = nil
+	var visualizerVC: VisualizationViewController? = nil
     
     var localInstrment: [Instrument] = []
 
@@ -153,9 +153,9 @@ class SettingsViewController: UIViewController {
         model.currentMode = newMode
 	}
 
-    
     func stopBot() {
-        self.vizVC?.onBotFinish()
+        self.model.isBotRunning = false
+        self.visualizerVC?.onBotFinish()
         let label = self.toolbarItems?[0].customView as? UILabel
         label?.text = "Бот отдыхает"
         self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .play, target: self, action: #selector(onBotStatus(_:)))
@@ -188,12 +188,12 @@ class SettingsViewController: UIViewController {
 			GlobalBotConfig.figis = self.model.figiData
 			GlobalBotConfig.algoConfig = self.model.algoConfig
             GlobalBotConfig.emuStartDate = self.model.emuStartDate
-			self.vizVC?.onBotStartRequested()
+			self.visualizerVC?.onBotStartRequested()
 			label?.text = "Бот работает"
 			self.toolbarItems?[2] = UIBarButtonItem(barButtonSystemItem: .pause, target: self, action: #selector(onBotStatus(_:)))
 
 			if parent?.parent?.children.count == 1 {
-				navigationController!.pushViewController(self.vizVC!, animated: true)
+				navigationController!.pushViewController(self.visualizerVC!, animated: true)
 			}
 		} else {
             stopBot()

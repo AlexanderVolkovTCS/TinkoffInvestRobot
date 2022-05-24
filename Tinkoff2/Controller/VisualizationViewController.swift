@@ -19,6 +19,8 @@ class VisualizationViewController: UIViewController {
 	var started = false
 
 	var cancellables = Set<AnyCancellable>()
+    
+    var settingsVC: SettingsViewController? = nil
 
 	var postOrder: PostOrder? = nil
 
@@ -236,7 +238,7 @@ class VisualizationViewController: UIViewController {
 	}
 
     override func viewWillDisappear(_ animated: Bool) {
-        onBotFinish()
+        settingsVC?.stopBot()
     }
     
 	override func viewDidLoad() {

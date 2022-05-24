@@ -14,7 +14,6 @@
 		7113C1032837C3DF004C1910 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7113C1012837C3DF004C1910 /* LaunchScreen.storyboard */; };
 		711DB4F5283824A700CF5474 /* VisualizationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB4F4283824A700CF5474 /* VisualizationViewController.swift */; };
 		711DB4F82838AD3600CF5474 /* Charts in Frameworks */ = {isa = PBXBuildFile; productRef = 711DB4F72838AD3600CF5474 /* Charts */; };
-		711DB4FA2838B43700CF5474 /* Orders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB4F92838B43700CF5474 /* Orders.swift */; };
 		711DB4FC2838CDAA00CF5474 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB4FB2838CDAA00CF5474 /* Profile.swift */; };
 		711DB5012838CF2600CF5474 /* Internet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB5002838CF2600CF5474 /* Internet.swift */; };
 		711DB5072838F21B00CF5474 /* BotConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711DB5062838F21B00CF5474 /* BotConfig.swift */; };
@@ -58,7 +57,6 @@
 		7113C1022837C3DF004C1910 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7113C1042837C3DF004C1910 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		711DB4F4283824A700CF5474 /* VisualizationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualizationViewController.swift; sourceTree = "<group>"; };
-		711DB4F92838B43700CF5474 /* Orders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Orders.swift; sourceTree = "<group>"; };
 		711DB4FB2838CDAA00CF5474 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		711DB5002838CF2600CF5474 /* Internet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Internet.swift; sourceTree = "<group>"; };
 		711DB5062838F21B00CF5474 /* BotConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BotConfig.swift; sourceTree = "<group>"; };
@@ -148,7 +146,6 @@
 			children = (
 				7144053628399694007AE807 /* Candles.swift */,
 				711DB50D28391D1300CF5474 /* PostOrder.swift */,
-				711DB4F92838B43700CF5474 /* Orders.swift */,
 				711DB4FB2838CDAA00CF5474 /* Profile.swift */,
 				7144053B2839FC65007AE807 /* StockInfo.swift */,
 				7144053D283A466A007AE807 /* AlgoConfig.swift */,
@@ -339,7 +336,6 @@
 				714405262839298F007AE807 /* CandleGraphView.swift in Sources */,
 				71440550283AA690007AE807 /* BarGraphView.swift in Sources */,
 				7113C0F72837C3DE004C1910 /* AppDelegate.swift in Sources */,
-				711DB4FA2838B43700CF5474 /* Orders.swift in Sources */,
 				7113C0F92837C3DE004C1910 /* SceneDelegate.swift in Sources */,
 				7144052A283952AE007AE807 /* TagsView.swift in Sources */,
 				7144054A283A96F3007AE807 /* DashboardViewController.swift in Sources */,
