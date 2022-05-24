@@ -163,7 +163,7 @@ class RSIStrategyEngine {
                 if openedPositions[figi] == nil {
                     openedPositions[figi] = 0
                 }
-                openedPositions[figi]! += position.quantity.units
+                openedPositions[figi]! += position.quantity.units + 1
             }
         }
         

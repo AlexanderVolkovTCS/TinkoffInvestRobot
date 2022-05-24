@@ -210,7 +210,7 @@ class VisualizationViewController: UIViewController {
                 let soldPerStock = self.model.stockData[i].soldTotalPrice / Double(self.model.stockData[i].soldCount)
                 let cnt = Double(min(self.model.stockData[i].boughtCount, self.model.stockData[i].soldCount))
                 if cnt != 0 {
-                    self.model.stockData[i].profitPercentage = 100.0 * (boughtPerStock * cnt - soldPerStock * cnt) / (boughtPerStock * cnt)
+                    self.model.stockData[i].profitPercentage = 100.0 * (soldPerStock * cnt - boughtPerStock * cnt) / (boughtPerStock * cnt)
                 } else {
                     self.model.stockData[i].profitPercentage = 0.0
                 }
