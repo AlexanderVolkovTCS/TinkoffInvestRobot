@@ -14,8 +14,6 @@ import SwiftProtobuf
 class SettingsViewController: UIViewController {
 	let padding = 16.0
 
-	var modeDescriptionView: UITextView = UITextView()
-
 	var profileLoader: ProfileListLoader = ProfileListLoader()
 
 	var model = SettingPageModel()
@@ -88,25 +86,7 @@ class SettingsViewController: UIViewController {
             }
         } receiveValue: { order in
             for i in order.instruments {
-                var instr = Instrument()
-                instr.name = i.name
-                instr.ticker = i.ticker
-                instr.isin = i.isin
-                instr.classCode = i.classCode
-                instr.figi = i.figi
-                instr.instrumentType = "etf"
-                instr.apiTradeAvailableFlag = true
-                instr.buyAvailableFlag = i.buyAvailableFlag
-                instr.countryOfRisk = i.countryOfRisk
-                instr.countryOfRiskName = i.countryOfRiskName
-                instr.currency = i.currency
-                instr.dlong = i.dlong
-                instr.dlongMin = i.dlongMin
-                instr.dshort = i.dshort
-                instr.dshortMin = i.dshortMin
-                instr.exchange = i.exchange
-                instr.realExchange = i.realExchange
-                self.localInstrment.append(instr)
+                self.localInstrment.append(Instrument(etf: i))
             }
             self.loadSchedule()
         }.store(in: &cancellables)
@@ -122,26 +102,7 @@ class SettingsViewController: UIViewController {
             }
         } receiveValue: { order in
             for i in order.instruments {
-                var instr = Instrument()
-                instr.name = i.name
-                instr.isin = i.isin
-                instr.ticker = i.ticker
-                instr.classCode = i.classCode
-                instr.isin = "noisin"
-                instr.figi = i.figi
-                instr.instrumentType = "currency"
-                instr.apiTradeAvailableFlag = true
-                instr.buyAvailableFlag = i.buyAvailableFlag
-                instr.countryOfRisk = i.countryOfRisk
-                instr.countryOfRiskName = i.countryOfRiskName
-                instr.currency = i.currency
-                instr.dlong = i.dlong
-                instr.dlongMin = i.dlongMin
-                instr.dshort = i.dshort
-                instr.dshortMin = i.dshortMin
-                instr.exchange = i.exchange
-                instr.realExchange = i.realExchange
-                self.localInstrment.append(instr)
+                self.localInstrment.append(Instrument(currency: i))
             }
             self.loadAllEtfs()
         }.store(in: &cancellables)
@@ -161,25 +122,7 @@ class SettingsViewController: UIViewController {
             }
         } receiveValue: { order in
             for i in order.instruments {
-                var instr = Instrument()
-                instr.name = i.name
-                instr.ticker = i.ticker
-                instr.isin = i.isin
-                instr.classCode = i.classCode
-                instr.figi = i.figi
-                instr.instrumentType = "share"
-                instr.apiTradeAvailableFlag = true
-                instr.buyAvailableFlag = i.buyAvailableFlag
-                instr.countryOfRisk = i.countryOfRisk
-                instr.countryOfRiskName = i.countryOfRiskName
-                instr.currency = i.currency
-                instr.dlong = i.dlong
-                instr.dlongMin = i.dlongMin
-                instr.dshort = i.dshort
-                instr.dshortMin = i.dshortMin
-                instr.exchange = i.exchange
-                instr.realExchange = i.realExchange
-                self.localInstrment.append(instr)
+                self.localInstrment.append(Instrument(share: i))
             }
             self.loadAllCurrency()
         }.store(in: &cancellables)
@@ -207,7 +150,6 @@ class SettingsViewController: UIViewController {
 			profileLoader = TinkoffProfileListLoader(callback: onNewProfileListData)
 		}
 
-		self.modeDescriptionView.text = BotMode.descriptionFor(newMode)
         model.currentMode = newMode
 	}
 

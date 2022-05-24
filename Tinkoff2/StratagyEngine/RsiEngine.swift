@@ -168,11 +168,10 @@ class RSIStrategyEngine {
                 if openedPositions[figi] == nil {
                     openedPositions[figi] = 0
                 }
-                openedPositions[figi]! += position.quantity.units + 1
+                openedPositions[figi]! += position.quantity.units
             }
         }
         
-        self.portfolioData = portfolioData
         self.portfolioUpdateCallback(portfolioData)
     }
 
@@ -251,7 +250,7 @@ class RSIStrategyEngine {
         money.nano = candle.nano
         money.currency = instrument!.currency
         
-        let hasMoney = portfolioData.getMoneyValue(currency: instrument!.currency)
+        let hasMoney = self.portfolioLoader?.getPortfolioCached().getMoneyValue(currency: instrument!.currency)
         if hasMoney != nil && hasMoney!.units < money.units {
             GlobalBotConfig.logger.debug("openLong: Could not buy (no money) has: \(hasMoney!.asString()), want: \(money.asString())")
             return
@@ -329,9 +328,7 @@ class RSIStrategyEngine {
     private var candles: [String : LinkedList<CandleData>] = [:]
     private var openedPositions: [String : Int64] = [:]
     private var stopLossPositions: [String : Double] = [:]
-    
-    private var portfolioData = PortfolioData()
-    
+        
     private var portfolioUpdateCallback: (PortfolioData) -> ()?
     private var candlesUpdateCallback: (String, LinkedList<CandleData>) -> ()
     private var orderRequestCallback: (String, OrderInfo) -> ()

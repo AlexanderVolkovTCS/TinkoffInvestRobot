@@ -296,6 +296,7 @@ class TinkoffPostOrder: PostOrder {
                 self.dispatchOnOrderRequest(orderInfo: OrderInfo(type: OperationType.SoldRequest, count: amount, price: MoneyValue()))
                 
                 let orderID = order.orderID
+                var totalAmount = order.totalOrderAmount
                 var executed = order.lotsExecuted
                 var status = order.executionReportStatus
                 
@@ -304,7 +305,7 @@ class TinkoffPostOrder: PostOrder {
                     status == OrderExecutionReportStatus.executionReportStatusRejected ||
                     status == OrderExecutionReportStatus.executionReportStatusCancelled) {
                     
-                    self.dispatchOnSell(amount: executed, total: order.totalOrderAmount)
+                    self.dispatchOnSell(amount: executed, total: totalAmount)
                     return
                 }
                 
@@ -316,11 +317,14 @@ class TinkoffPostOrder: PostOrder {
                     
                     do {
                         let state = try GlobalBotConfig.sdk.ordersService.getOrderState(request: orderStateReq).wait(timeout: 10).singleValue()
+                        var newTotalAmount = state.totalOrderAmount
+                        newTotalAmount.minus(mv: totalAmount)
                         if (state.lotsExecuted > executed) {
-                            self.dispatchOnSell(amount: state.lotsExecuted - executed, total: state.totalOrderAmount)
+                            self.dispatchOnSell(amount: state.lotsExecuted - executed, total: newTotalAmount)
                         }
                         status = state.executionReportStatus
                         executed = state.lotsExecuted
+                        totalAmount = state.totalOrderAmount
                     } catch {
                         break
                     }
