@@ -130,7 +130,7 @@ extension Instrument {
 
 extension MoneyValue {
     func asString() -> String {
-        return "\(asDouble()) \(currency)"
+        return "\(String(format: "%.2f", asDouble())) \(sign())"
     }
     
     mutating func minus(mv: MoneyValue) {

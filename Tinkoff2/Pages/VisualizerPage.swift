@@ -344,18 +344,19 @@ struct InfoCellView: View {
 				.frame(maxHeight: .infinity)
 			VStack {
 				Image(systemName: systemImage ?? "info.circle")
-					.font(.system(size: 40))
+					.font(.system(size: 30))
 					.foregroundColor(.gray)
 					.frame(maxWidth: .infinity, alignment: .leading)
 				Spacer()
 				Text(title2 ?? "")
+                    .font(.system(size: 14, weight: .thin, design: .default))
 					.frame(maxWidth: .infinity, alignment: .leading)
-					.padding(EdgeInsets(top: 0, leading: 0, bottom: 1, trailing: 0))
+					.padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
 				Text(title1 ?? "")
-					.bold()
-					.frame(maxWidth: .infinity, alignment: .leading)
+                    .font(.system(size: 14, weight: .regular, design: .default))
+                    .frame(maxWidth: .infinity, alignment: .leading)
 			}
-				.frame(height: 140)
+				.frame(height: 120)
 				.frame(maxWidth: .infinity, alignment: .leading)
 				.compositingGroup()
 				.padding(16)
@@ -367,8 +368,8 @@ struct InfoView: View {
 	@ObservedObject var model: VisualizerPageModel
 
 	var columns: [GridItem] = [
-		GridItem(.adaptive(minimum: 160), spacing: 32),
-		GridItem(.adaptive(minimum: 160), spacing: 32)
+		GridItem(.adaptive(minimum: 120), spacing: 16),
+		GridItem(.adaptive(minimum: 120), spacing: 16)
 	]
 
 	var body: some View {
@@ -422,9 +423,9 @@ struct TableCellView: View {
                     Image(systemName: "checkmark.circle")
                         .foregroundColor(.green)
                     if operation!.type == .Sold {
-                        Text("Продажа исполнена \(operation!.count) инструмента(ов)")
+                        Text("Продажа исполнена \(operation!.count) инструмента(ов) за \(operation!.price.asString())")
                     } else {
-                        Text("Покупка испольнена \(operation!.count) инструмента(ов)")
+                        Text("Покупка исполнена \(operation!.count) инструмента(ов) за \(operation!.price.asString())")
                     }
                 }
                 Text(operation!.timeStr)

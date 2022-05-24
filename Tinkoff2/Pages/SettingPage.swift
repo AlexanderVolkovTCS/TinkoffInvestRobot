@@ -312,19 +312,6 @@ struct BotSetting: View {
                 .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
             
             VStack {
-                Text("Стоп-лосс: \(Int(self.model.algoConfig.stopLoss * 100))%")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
-                Slider(value: Binding(get: {
-                    Double(self.model.algoConfig.stopLoss * 100)
-                }, set: { (newVal) in
-                        self.model.algoConfig.stopLoss = newVal / 100
-                    }), in: 70...99)
-                    .disabled(model.isBotRunning)
-                }
-            .padding()
-
-            VStack {
                 Picker("Preset", selection: $presetId) {
                     Text("Спокойный").tag(0)
                     Text("Активный").tag(1)
@@ -350,11 +337,28 @@ struct BotSetting: View {
                 .padding(16)
                 .pickerStyle(.segmented)
             
+            VStack {
+                Text("Стоп-лосс: \(Int(self.model.algoConfig.stopLoss * 100))%")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
+                DescriptionTextView(text: "Установите поручение для Бота автоматически продать акции, когда котировки упадут до определенного уровня")
+                    .padding(EdgeInsets(top: 8, leading: 0, bottom: 4, trailing: 0))
+                Slider(value: Binding(get: {
+                    Double(self.model.algoConfig.stopLoss * 100)
+                }, set: { (newVal) in
+                        self.model.algoConfig.stopLoss = newVal / 100
+                    }), in: 70...99)
+                    .disabled(model.isBotRunning)
+                }
+            .padding()
+            
             if presetId == 2 {
                 VStack {
                     Text("Период: \(Int(self.model.algoConfig.rsiPeriod))")
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
+                    DescriptionTextView(text: "Установите глубину истории, которую Бот будет использовать для пересчета значения RSI")
+                        .padding(EdgeInsets(top: 8, leading: 0, bottom: 4, trailing: 0))
                     Slider(value: Binding(get: {
                         Double(self.model.algoConfig.rsiPeriod)
                     }, set: { (newVal) in
@@ -368,6 +372,8 @@ struct BotSetting: View {
                     Text("Верхняя граница: \(Int(self.model.algoConfig.upperRsiThreshold))")
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
+                    DescriptionTextView(text: "Установите границу, по которой Бот примет решение, что восходящий тренд закончился")
+                        .padding(EdgeInsets(top: 8, leading: 0, bottom: 4, trailing: 0))
                     Slider(value: Binding(get: {
                         Double(self.model.algoConfig.upperRsiThreshold)
                     }, set: { (newVal) in
@@ -381,6 +387,8 @@ struct BotSetting: View {
                     Text("Нижняя граница: \(Int(self.model.algoConfig.lowerRsiThreshold))")
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
+                    DescriptionTextView(text: "Установите границу, по которой Бот примет решение, что нисходящий тренд закончился")
+                        .padding(EdgeInsets(top: 8, leading: 0, bottom: 4, trailing: 0))
                     Slider(value: Binding(get: {
                         Double(self.model.algoConfig.lowerRsiThreshold)
                     }, set: { (newVal) in
@@ -431,7 +439,7 @@ struct EmuSettingsView: View {
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(EdgeInsets(top: 8, leading: 16, bottom: -8, trailing: 16))
-            DescriptionTextView(text: "Настройки параметра алгоритма RSI")
+            DescriptionTextView(text: "Укажите параметры, которые будут использоваться для эмуляции")
                 .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
             DatePickerView(model: model)
                 .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
