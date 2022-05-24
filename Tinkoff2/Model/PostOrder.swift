@@ -266,6 +266,7 @@ class TinkoffPostOrder: PostOrder {
                             }
                             status = state.executionReportStatus
                             executed = state.lotsExecuted
+                            break
                         } catch {
                             GlobalBotConfig.logger.debug("Error loading TinkoffPostOrder.buyMarketPrice \(error.localizedDescription)")
                             attempts += 1
@@ -340,6 +341,7 @@ class TinkoffPostOrder: PostOrder {
                             status = state.executionReportStatus
                             executed = state.lotsExecuted
                             totalAmount = state.totalOrderAmount
+                            break
                         } catch {
                             GlobalBotConfig.logger.debug("Error loading TinkoffPostOrder.sellMarketPrice \(error.localizedDescription)")
                             attempts += 1
