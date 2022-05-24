@@ -29,6 +29,8 @@ class SettingsViewController: UIViewController {
 	func onNewProfileListData(data: AccountList) {
 		self.model.accountList = data
 		self.model.isAccountsLoading = false
+        view.setNeedsDisplay()
+        view.setNeedsLayout()
 	}
 
 	func setupToken() {
