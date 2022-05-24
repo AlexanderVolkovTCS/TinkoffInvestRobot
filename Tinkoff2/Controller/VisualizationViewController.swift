@@ -56,8 +56,14 @@ class VisualizationViewController: UIViewController {
 		started = true
 		setupModel(portfolio: portfolio)
 		self.model.isWaitingForAccountData = false
-		view.setNeedsLayout()
-		navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Статистика", style: .plain, target: self, action: #selector(jumpToConsole))
+        
+        // Форсим перерисовку
+        view.setNeedsDisplay()
+        if self.model.activeStock != nil {
+            self.navigationItem.title = self.model.activeStock!.instrument.name
+        }
+        view.setNeedsLayout()
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Статистика", style: .plain, target: self, action: #selector(jumpToConsole))
 		GlobalBotConfig.logger.info("Starting Bot")
 	}
 
@@ -70,7 +76,7 @@ class VisualizationViewController: UIViewController {
 
 	func earlySetupModel() {
 		// Set up a loading state.
-		self.model.isWaitingForAccountData = true
+        self.model.isWaitingForAccountData = true
 	}
 
 	func setupModel(portfolio: PortfolioData) {
@@ -79,6 +85,7 @@ class VisualizationViewController: UIViewController {
 		self.model.logger = GlobalBotConfig.logger
 		self.model.tradingSchedule = GlobalBotConfig.tradingSchedule
 		self.model.portfolioData = portfolio
+        self.model.dismissController = dismissController
 
 		// If Stock is not requestes to be tracked any more, removing it.
 		var removeIds: [Int] = []
@@ -236,9 +243,16 @@ class VisualizationViewController: UIViewController {
 		}
 		present(self.consoleVC!, animated: true, completion: nil)
 	}
+    
+    @objc
+    func dismissController() {
+        dismiss(animated: true, completion: nil)
+    }
 
 	override func viewWillDisappear(_ animated: Bool) {
 		settingsVC?.stopBot()
+        navigationController?.popViewController(animated: true)
+        dismiss(animated: true, completion: nil)
 	}
 
 	override func viewDidLoad() {

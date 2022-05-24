@@ -229,10 +229,6 @@ class SettingsViewController: UIViewController {
 		self.navigationItem.title = "ИнвестоБот"
 		self.navigationController?.navigationBar.prefersLargeTitles = true
 
-		let img = UIImage(systemName: "stop.circle")
-		self.navigationController?.navigationBar.backIndicatorImage = img
-		self.navigationController?.navigationBar.backIndicatorTransitionMaskImage = img
-
 		self.navigationController?.isToolbarHidden = true
 		var items = [UIBarButtonItem]()
 		let label = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 21))

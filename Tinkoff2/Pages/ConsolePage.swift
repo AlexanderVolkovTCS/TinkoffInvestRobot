@@ -15,12 +15,23 @@ let SoftColorList = [
 
 struct ConsolePageView: View {
 	@ObservedObject var model: VisualizerPageModel
+    @Environment(\.presentationMode) var presentation
 
 	var body: some View {
 		List {
+            HStack {
 			Text("Статистика")
 				.font(.system(size: 32, weight: .bold, design: .default))
 				.padding(16)
+            Spacer()
+            Image(systemName: "xmark.circle.fill")
+                .foregroundColor(.gray)
+                .onTapGesture {
+                    if self.model.dismissController != nil {
+                        self.model.dismissController!()
+                    }
+                }
+            }
 			DashboardView(model: model)
 			LoggerStatView(model: model)
 		}

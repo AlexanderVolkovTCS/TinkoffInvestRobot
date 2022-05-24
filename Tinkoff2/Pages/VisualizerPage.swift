@@ -16,8 +16,8 @@ class VisualizerPageModel: ObservableObject {
 	@Published var stockData: [StockInfo] = []
 	@Published var activeStock: StockInfo? = nil
 	@Published var onStockChange: ((StockInfo) -> ())? = nil
-
-	@Published var tradingSchedule: [String: TradingSchedule] = [:]
+    
+    @Published var tradingSchedule: [String: TradingSchedule] = [:]
 
 	@Published var portfolioData: PortfolioData = PortfolioData()
 
@@ -26,6 +26,8 @@ class VisualizerPageModel: ObservableObject {
 	@Published var logger: MacaLog = MacaLog()
 
 	@Published var stat: MacaStat = MacaStat()
+    
+    @Published var dismissController: (() -> ())? = nil
 
 	init() { }
 }
@@ -115,6 +117,7 @@ struct VisualizerPageView: View {
 struct ShortStat: View {
 	@ObservedObject var model: VisualizerPageModel
 	@Environment(\.colorScheme) var colorScheme
+    @State private var contentHeight: CGFloat = 0
 
 	var columns: [GridItem] = [
 		GridItem(.adaptive(minimum: 120), spacing: 16)
@@ -124,9 +127,8 @@ struct ShortStat: View {
 		ZStack {
 			RoundedRectangle(cornerRadius: 16)
 				.fill(colorScheme == .dark ? Color(white: 50 / 255) : Color(white: 240 / 255))
-				.frame(maxWidth: .infinity)
-				.frame(maxHeight: .infinity)
-			LazyVGrid(
+                .frame(height: contentHeight + 16 * 2)
+            LazyVGrid(
 				columns: columns,
 				alignment: .center,
 				spacing: 16
@@ -134,71 +136,72 @@ struct ShortStat: View {
 				VStack {
 					HStack {
 						Image(systemName: "arrow.down.circle")
-							.font(.system(size: 14))
-							.foregroundColor(.gray)
+							.font(.system(size: 12))
+                            .foregroundColor(.gray)
 						Text("Куплено".uppercased())
-							.font(.system(size: 12, weight: .regular, design: .default))
-							.padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
+                        	.font(.system(size: 12, weight: .regular, design: .default))
+                            .padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
 					}
 					Text(String(format: "%.2f", self.model.activeStock!.boughtTotalPrice) + self.model.activeStock!.instrument.sign())
-						.font(.system(size: 16, weight: .bold, design: .default))
-						.padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
+						.font(.system(size: 14, weight: .bold, design: .default))
+                        .padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
 				}
 				VStack {
 					HStack {
 						Image(systemName: "arrow.up.circle")
-							.font(.system(size: 14))
+							.font(.system(size: 12))
 							.foregroundColor(.gray)
 						Text("Продано".uppercased())
 							.font(.system(size: 12, weight: .regular, design: .default))
-							.padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
+                            .padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
 					}
 					Text(String(format: "%.2f", self.model.activeStock!.soldTotalPrice) + self.model.activeStock!.instrument.sign())
-						.font(.system(size: 16, weight: .bold, design: .default))
-						.padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
+						.font(.system(size: 14, weight: .bold, design: .default))
+                        .padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
 				}
 				VStack {
 					HStack {
 						Image(systemName: "plus.circle")
-							.font(.system(size: 14))
+							.font(.system(size: 12))
 							.foregroundColor(.gray)
 						Text("Куплено ".uppercased() + "(шт.)")
 							.font(.system(size: 12, weight: .regular, design: .default))
-							.padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
+                            .padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
 					}
 					Text(String(self.model.activeStock!.boughtCount))
-						.font(.system(size: 16, weight: .bold, design: .default))
-						.padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
+						.font(.system(size: 14, weight: .bold, design: .default))
+                        .padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
 				}
 				VStack {
 					HStack {
 						Image(systemName: "minus.circle")
-							.font(.system(size: 14))
+							.font(.system(size: 12))
 							.foregroundColor(.gray)
 						Text("Продано ".uppercased() + "(шт.)")
 							.font(.system(size: 12, weight: .regular, design: .default))
-							.padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
+                            .padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
 					}
 					Text(String(self.model.activeStock!.soldCount))
-						.font(.system(size: 16, weight: .bold, design: .default))
-						.padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
+						.font(.system(size: 14, weight: .bold, design: .default))
+                        .padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
 				}
 				VStack {
 					HStack {
 						Image(systemName: "percent")
-							.font(.system(size: 14))
+							.font(.system(size: 12))
 							.foregroundColor(.gray)
 						Text("Прибыль ".uppercased())
 							.font(.system(size: 12, weight: .regular, design: .default))
-							.padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
+                            .padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
 					}
 					Text(String(format: "%.2f", self.model.activeStock!.profitPercentage) + "%")
-						.font(.system(size: 16, weight: .bold, design: .default))
-						.padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
+						.font(.system(size: 14, weight: .bold, design: .default))
+                        .padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
 				}
 			}
-				.frame(maxWidth: .infinity, alignment: .leading)
-				.padding(16)
+//				.frame(maxWidth: .infinity, alignment: .leading)
+            .readSize { size in contentHeight = size.height }
+            .padding(16)
 		}
 	}
 }
