@@ -19,8 +19,8 @@ class VisualizationViewController: UIViewController {
 	var started = false
 
 	var cancellables = Set<AnyCancellable>()
-    
-    var settingsVC: SettingsViewController? = nil
+
+	var settingsVC: SettingsViewController? = nil
 
 	var postOrder: PostOrder? = nil
 
@@ -29,41 +29,41 @@ class VisualizationViewController: UIViewController {
 	var consoleVC: DashboardViewController? = nil
 
 	var model = VisualizerPageModel()
-    
-    var engine: RSIStrategyEngine? = nil
+
+	var engine: RSIStrategyEngine? = nil
 
 	func onBotStartRequested() {
 		earlySetupModel()
-        
-        var figis: [String] = []
-        GlobalBotConfig.figis.forEach { figiInstrument in
-            figis.append(figiInstrument.figi)
-        }
-        let uts = GlobalBotConfig.algoConfig.upperRsiThreshold
-        let lts = GlobalBotConfig.algoConfig.lowerRsiThreshold
-        let rsiPeriod = GlobalBotConfig.algoConfig.rsiPeriod
-        let stopLoss = GlobalBotConfig.algoConfig.stopLoss
-        let engineConfig = RSIConfig(figis: figis, upperRsiThreshold: uts, lowerRsiThreshold: lts, rsiPeriod: rsiPeriod, stopLoss: stopLoss)
-        self.engine = RSIStrategyEngine(config: engineConfig,
-                                        portfolioUpdateCallback: self.onPortfolioUpdate,
-                                        candlesUpdateCallback: self.onCandlesUpdate,
-                                        orderRequestCallback: self.processOrderRequest,
-                                        orderUpdateCallback: self.processOrder,
-                                        rsiUpdateCallback: self.processRSI)
+
+		var figis: [String] = []
+		GlobalBotConfig.figis.forEach { figiInstrument in
+			figis.append(figiInstrument.figi)
+		}
+		let uts = GlobalBotConfig.algoConfig.upperRsiThreshold
+		let lts = GlobalBotConfig.algoConfig.lowerRsiThreshold
+		let rsiPeriod = GlobalBotConfig.algoConfig.rsiPeriod
+		let stopLoss = GlobalBotConfig.algoConfig.stopLoss
+		let engineConfig = RSIConfig(figis: figis, upperRsiThreshold: uts, lowerRsiThreshold: lts, rsiPeriod: rsiPeriod, stopLoss: stopLoss)
+		self.engine = RSIStrategyEngine(config: engineConfig,
+			portfolioUpdateCallback: self.onPortfolioUpdate,
+			candlesUpdateCallback: self.onCandlesUpdate,
+			orderRequestCallback: self.processOrderRequest,
+			orderUpdateCallback: self.processOrder,
+			rsiUpdateCallback: self.processRSI)
 	}
 
 	func onBotReadyToStart(portfolio: PortfolioData) {
 		started = true
 		setupModel(portfolio: portfolio)
-        self.model.isWaitingForAccountData = false
-        view.setNeedsLayout()
+		self.model.isWaitingForAccountData = false
+		view.setNeedsLayout()
 		navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Статистика", style: .plain, target: self, action: #selector(jumpToConsole))
 		GlobalBotConfig.logger.info("Starting Bot")
 	}
 
 	func onBotFinish() {
 		started = false
-        self.engine?.stop()
+		self.engine?.stop()
 		self.model.isWaitingForAccountData = false
 		GlobalBotConfig.logger.info("Stopping Bot")
 	}
@@ -74,10 +74,10 @@ class VisualizationViewController: UIViewController {
 	}
 
 	func setupModel(portfolio: PortfolioData) {
-        self.model.currentMode = GlobalBotConfig.mode
-        self.model.stat = GlobalBotConfig.stat
-        self.model.logger = GlobalBotConfig.logger
-        self.model.tradingSchedule = GlobalBotConfig.tradingSchedule
+		self.model.currentMode = GlobalBotConfig.mode
+		self.model.stat = GlobalBotConfig.stat
+		self.model.logger = GlobalBotConfig.logger
+		self.model.tradingSchedule = GlobalBotConfig.tradingSchedule
 		self.model.portfolioData = portfolio
 
 		// If Stock is not requestes to be tracked any more, removing it.
@@ -122,112 +122,112 @@ class VisualizationViewController: UIViewController {
 
 	func onStockChange(stock: StockInfo) {
 		self.model.activeStock = stock
-        self.model.activeStock!.hasUpdates = false
+		self.model.activeStock!.hasUpdates = false
 		self.navigationItem.title = stock.instrument.name
 	}
 
 	func onPortfolioUpdate(portfolio: PortfolioData) {
-        if (!started) {
-            onBotReadyToStart(portfolio: portfolio)
-            return
-        }
+		if (!started) {
+			onBotReadyToStart(portfolio: portfolio)
+			return
+		}
 		self.model.portfolioData = portfolio
 		self.model.isWaitingForAccountData = false
 	}
-    
-    func onCandlesUpdate(figi: String, candles: LinkedList<CandleData>) {
-        for i in 0..<self.model.stockData.count {
-            if (self.model.stockData[i].instrument.figi == figi) {
-                var newCandles: [CandleData] = []
-                candles.forEach { candle in
-                    newCandles.append(candle)
-                }
 
-                self.model.stockData[i].candles = newCandles
-                
-                // Re-setting activeStock to initiate redrawing of swiftUI
-                if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[i].instrument.figi {
-                    self.model.activeStock = self.model.stockData[i]
-                }
-                
-                break
-            }
-        }
-    }
+	func onCandlesUpdate(figi: String, candles: LinkedList<CandleData>) {
+		for i in 0..<self.model.stockData.count {
+			if (self.model.stockData[i].instrument.figi == figi) {
+				var newCandles: [CandleData] = []
+				candles.forEach { candle in
+					newCandles.append(candle)
+				}
 
-    func processOrderRequest(figi: String, order: OrderInfo) {
-        for i in 0..<self.model.stockData.count {
-            if (self.model.stockData[i].instrument.figi == figi) {
-                self.model.stockData[i].operations.insert(order, at: 0)
-                if self.model.stockData[i].operations.count > 10 {
-                    let _ = self.model.stockData[i].operations.popLast()
-                }
-                
-                let std = self.model.stockData[i]
-                self.model.stockData.remove(at: i)
-                self.model.stockData.insert(std, at: 0)
-                
-                // Re-setting activeStock to initiate redrawing of swiftUI
-                if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[0].instrument.figi {
-                    self.model.activeStock = self.model.stockData[0]
-                } else {
-                    self.model.stockData[0].hasUpdates = true
-                }
-                break
-            }
-        }
-    }
-    
-    func processOrder(figi: String, order: OrderInfo) {
-        for i in 0..<self.model.stockData.count {
-            if (self.model.stockData[i].instrument.figi == figi) {
-                self.model.stockData[i].operations.insert(order, at: 0)
-                if self.model.stockData[i].operations.count > 10 {
-                    let _ = self.model.stockData[i].operations.popLast()
-                }
-                
-                if order.type == .Bought {
-                    self.model.stockData[i].boughtCount += order.count
-                    self.model.stockData[i].boughtTotalPrice += order.price.asDouble()
-                } else {
-                    self.model.stockData[i].soldCount += order.count
-                    self.model.stockData[i].soldTotalPrice += order.price.asDouble()
-                }
-                let boughtPerStock = self.model.stockData[i].boughtTotalPrice / Double(self.model.stockData[i].boughtCount)
-                let soldPerStock = self.model.stockData[i].soldTotalPrice / Double(self.model.stockData[i].soldCount)
-                let cnt = Double(min(self.model.stockData[i].boughtCount, self.model.stockData[i].soldCount))
-                if cnt != 0 {
-                    self.model.stockData[i].profitPercentage = 100.0 * (soldPerStock * cnt - boughtPerStock * cnt) / (boughtPerStock * cnt)
-                } else {
-                    self.model.stockData[i].profitPercentage = 0.0
-                }
-                
-                // Re-setting activeStock to initiate redrawing of swiftUI
-                if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[i].instrument.figi {
-                    self.model.activeStock = self.model.stockData[i]
-                } else {
-                    self.model.stockData[i].hasUpdates = true
-                }
-                
-                break
-            }
-        }
-    }
-    
-    func processRSI(figi: String, rsiValue: Float64) {
-        for i in 0..<self.model.stockData.count {
-            if (self.model.stockData[i].instrument.figi == figi) {
-                self.model.stockData[i].rsi.append(rsiValue)
-                
-                // Re-setting activeStock to initiate redrawing of swiftUI
-                if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[i].instrument.figi {
-                    self.model.activeStock = self.model.stockData[i]
-                }
-                
-                break
-            }
-        }
-    }
+				self.model.stockData[i].candles = newCandles
+
+				// Re-setting activeStock to initiate redrawing of swiftUI
+				if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[i].instrument.figi {
+					self.model.activeStock = self.model.stockData[i]
+				}
+
+				break
+			}
+		}
+	}
+
+	func processOrderRequest(figi: String, order: OrderInfo) {
+		for i in 0..<self.model.stockData.count {
+			if (self.model.stockData[i].instrument.figi == figi) {
+				self.model.stockData[i].operations.insert(order, at: 0)
+				if self.model.stockData[i].operations.count > 10 {
+					let _ = self.model.stockData[i].operations.popLast()
+				}
+
+				let std = self.model.stockData[i]
+				self.model.stockData.remove(at: i)
+				self.model.stockData.insert(std, at: 0)
+
+				// Re-setting activeStock to initiate redrawing of swiftUI
+				if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[0].instrument.figi {
+					self.model.activeStock = self.model.stockData[0]
+				} else {
+					self.model.stockData[0].hasUpdates = true
+				}
+				break
+			}
+		}
+	}
+
+	func processOrder(figi: String, order: OrderInfo) {
+		for i in 0..<self.model.stockData.count {
+			if (self.model.stockData[i].instrument.figi == figi) {
+				self.model.stockData[i].operations.insert(order, at: 0)
+				if self.model.stockData[i].operations.count > 10 {
+					let _ = self.model.stockData[i].operations.popLast()
+				}
+
+				if order.type == .Bought {
+					self.model.stockData[i].boughtCount += order.count
+					self.model.stockData[i].boughtTotalPrice += order.price.asDouble()
+				} else {
+					self.model.stockData[i].soldCount += order.count
+					self.model.stockData[i].soldTotalPrice += order.price.asDouble()
+				}
+				let boughtPerStock = self.model.stockData[i].boughtTotalPrice / Double(self.model.stockData[i].boughtCount)
+				let soldPerStock = self.model.stockData[i].soldTotalPrice / Double(self.model.stockData[i].soldCount)
+				let cnt = Double(min(self.model.stockData[i].boughtCount, self.model.stockData[i].soldCount))
+				if cnt != 0 {
+					self.model.stockData[i].profitPercentage = 100.0 * (soldPerStock * cnt - boughtPerStock * cnt) / (boughtPerStock * cnt)
+				} else {
+					self.model.stockData[i].profitPercentage = 0.0
+				}
+
+				// Re-setting activeStock to initiate redrawing of swiftUI
+				if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[i].instrument.figi {
+					self.model.activeStock = self.model.stockData[i]
+				} else {
+					self.model.stockData[i].hasUpdates = true
+				}
+
+				break
+			}
+		}
+	}
+
+	func processRSI(figi: String, rsiValue: Float64) {
+		for i in 0..<self.model.stockData.count {
+			if (self.model.stockData[i].instrument.figi == figi) {
+				self.model.stockData[i].rsi.append(rsiValue)
+
+				// Re-setting activeStock to initiate redrawing of swiftUI
+				if self.model.activeStock != nil && self.model.activeStock!.instrument.figi == self.model.stockData[i].instrument.figi {
+					self.model.activeStock = self.model.stockData[i]
+				}
+
+				break
+			}
+		}
+	}
 
 	@objc
 	func jumpToConsole() {
@@ -237,10 +237,10 @@ class VisualizationViewController: UIViewController {
 		present(self.consoleVC!, animated: true, completion: nil)
 	}
 
-    override func viewWillDisappear(_ animated: Bool) {
-        settingsVC?.stopBot()
-    }
-    
+	override func viewWillDisappear(_ animated: Bool) {
+		settingsVC?.stopBot()
+	}
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
 

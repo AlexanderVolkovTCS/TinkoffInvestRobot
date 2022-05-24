@@ -26,8 +26,8 @@ class MacaLog {
 			content.removeLast()
 		}
 	}
-    
-    func debug(_ str: String) {
-        logger.debug(Logger.Message(stringLiteral: str))
-    }
+
+	func debug(_ str: String) {
+		logger.debug(Logger.Message(stringLiteral: str))
+	}
 }

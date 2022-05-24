@@ -43,7 +43,7 @@ class CandleGraphView: UIView {
 
 	func setChartData(candles: [CandleData]) {
 		let data = CombinedChartData()
-        data.candleData = generateCandleData(candles: candles)
+		data.candleData = generateCandleData(candles: candles)
 
 		chartView.xAxis.axisMaximum = data.xMax + 1
 		chartView.xAxis.axisMinimum = 0
@@ -54,7 +54,7 @@ class CandleGraphView: UIView {
 	func generateCandleData(candles: [CandleData]) -> CandleChartData {
 		var entries: [CandleChartDataEntry] = []
 
-        let start = max(candles.count - GlobalBotConfig.algoConfig.rsiPeriod, 0)
+		let start = max(candles.count - GlobalBotConfig.algoConfig.rsiPeriod, 0)
 		let padding = GlobalBotConfig.algoConfig.rsiPeriod - min(candles.count, GlobalBotConfig.algoConfig.rsiPeriod)
 		for i in start..<candles.count {
 			let candle = candles[i]

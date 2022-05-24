@@ -30,8 +30,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UINavigationControllerD
 		let _ = UINavigationController(rootViewController: dashboardController)
 
 		dashboardController.model = detailController.model
-        detailController.settingsVC = masterController
-        detailController.consoleVC = dashboardController
+		detailController.settingsVC = masterController
+		detailController.consoleVC = dashboardController
 		masterController.visualizerVC = detailController
 
 		let splitViewController = UISplitViewController()

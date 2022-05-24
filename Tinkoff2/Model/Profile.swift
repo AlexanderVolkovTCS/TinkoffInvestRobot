@@ -56,12 +56,24 @@ class SandboxProfileListLoader: ProfileListLoader {
 	}
 
 	func creatAcc() {
+		self.tryCreateAcc(attempt: 0)
+	}
+
+	func tryCreateAcc(attempt: Int) {
 		GlobalBotConfig.sdk.sandboxService.openAccount().sink { result in
 			switch result {
 			case .failure(let error):
-                GlobalBotConfig.logger.debug(error.localizedDescription)
+				if attempt == Globals.MaxRetryAttempts {
+					GlobalBotConfig.logger.debug(error.localizedDescription)
+				} else {
+					// При работе с Sandbox воркерами рекомендуется засыпать дольше,
+					// чем при работае с Tinkoff, из-за возможных ограничений
+					// на использование песочницы в Tinkoff API (see resource exhausted).
+					sleep(5)
+					self.tryCreateAcc(attempt: attempt + 1)
+				}
 			case .finished:
-                break
+				break
 			}
 		} receiveValue: { acc in
 			self.payIn(id: acc.accountID)
@@ -69,6 +81,10 @@ class SandboxProfileListLoader: ProfileListLoader {
 	}
 
 	func payIn(id: String) {
+		self.tryPayIn(id: id, attempt: 0)
+	}
+
+	func tryPayIn(id: String, attempt: Int) {
 		var mv = MoneyValue()
 		mv.currency = "usd"
 		mv.units = 1000
@@ -76,9 +92,17 @@ class SandboxProfileListLoader: ProfileListLoader {
 		GlobalBotConfig.sdk.sandboxService.payIn(accountID: id, amount: mv).sink { result in
 			switch result {
 			case .failure(let error):
-                GlobalBotConfig.logger.debug(error.localizedDescription)
+				if attempt == Globals.MaxRetryAttempts {
+					GlobalBotConfig.logger.debug(error.localizedDescription)
+				} else {
+					// При работе с Sandbox воркерами рекомендуется засыпать дольше,
+					// чем при работае с Tinkoff, из-за возможных ограничений
+					// на использование песочницы в Tinkoff API (see resource exhausted).
+					sleep(5)
+					self.tryPayIn(id: id, attempt: attempt + 1)
+				}
 			case .finished:
-                break
+				break
 			}
 		} receiveValue: { portfolio in
 			self.loadAccs()
@@ -86,12 +110,25 @@ class SandboxProfileListLoader: ProfileListLoader {
 	}
 
 	func loadAccs() {
+		self.tryLoadAccs(attempt: 0)
+	}
+
+	func tryLoadAccs(attempt: Int) {
 		GlobalBotConfig.sdk.sandboxService.getAccounts().sink { result in
 			switch result {
 			case .failure(let error):
-                GlobalBotConfig.logger.debug(error.localizedDescription)
-            case .finished:
-                break
+				print("result=", result)
+				if attempt == Globals.MaxRetryAttempts {
+					GlobalBotConfig.logger.debug(error.localizedDescription)
+				} else {
+					// При работе с Sandbox воркерами рекомендуется засыпать дольше,
+					// чем при работае с Tinkoff, из-за возможных ограничений
+					// на использование песочницы в Tinkoff API (see resource exhausted).
+					sleep(5)
+					self.tryLoadAccs(attempt: attempt + 1)
+				}
+			case .finished:
+				break
 			}
 		} receiveValue: { accresp in
 			if accresp.accounts.count == 0 {
@@ -112,10 +149,19 @@ class TinkoffProfileListLoader: ProfileListLoader {
 
 	override init(callback: @escaping (AccountList) -> ()) {
 		super.init(callback: callback)
+		self.tryLoadAccounts(attempt: 0)
+	}
+
+	func tryLoadAccounts(attempt: Int) {
 		GlobalBotConfig.sdk.userService.getAccounts().sink { result in
 			switch result {
 			case .failure(let error):
-                GlobalBotConfig.logger.debug(error.localizedDescription)
+				if attempt == Globals.MaxRetryAttempts {
+					GlobalBotConfig.logger.debug(error.localizedDescription)
+				} else {
+					sleep(1)
+					self.tryLoadAccounts(attempt: attempt + 1)
+				}
 			case .finished:
 				break
 			}

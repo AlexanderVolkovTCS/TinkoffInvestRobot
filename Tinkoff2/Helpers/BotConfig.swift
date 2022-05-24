@@ -9,22 +9,22 @@ import Foundation
 import TinkoffInvestSDK
 
 public enum BotMode {
-    case Emu
-    case Sandbox
-    case Tinkoff
+	case Emu
+	case Sandbox
+	case Tinkoff
 
-    static func fromIndex(_ id: Int) -> BotMode {
-        switch id {
-        case 0:
-            return .Emu
-        case 1:
-            return .Sandbox
-        case 2:
-            return .Tinkoff
-        default:
-            return .Emu
-        }
-    }
+	static func fromIndex(_ id: Int) -> BotMode {
+		switch id {
+		case 0:
+			return .Emu
+		case 1:
+			return .Sandbox
+		case 2:
+			return .Tinkoff
+		default:
+			return .Emu
+		}
+	}
 }
 
 struct BotConfig {
@@ -35,13 +35,13 @@ struct BotConfig {
 
 	public var algoConfig: AlgoConfig = AlgoConfig()
 	public var logger: MacaLog = MacaLog()
-    
-    public var emuStartDate: Date = Date()
-    
-    public var tradingSchedule: [String:TradingSchedule] = [:]
 
-    public var stat: MacaStat = MacaStat()
-    
+	public var emuStartDate: Date = Date()
+
+	public var tradingSchedule: [String: TradingSchedule] = [:]
+
+	public var stat: MacaStat = MacaStat()
+
 	init() { }
 }
 

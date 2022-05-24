@@ -11,21 +11,21 @@ import TinkoffInvestSDK
 class VisualizerPageModel: ObservableObject {
 	@Published var data: [Int]? = nil
 
-    @Published var currentMode: BotMode = .Tinkoff;
-    
-    @Published var stockData: [StockInfo] = []
-    @Published var activeStock: StockInfo? = nil
+	@Published var currentMode: BotMode = .Tinkoff;
+
+	@Published var stockData: [StockInfo] = []
+	@Published var activeStock: StockInfo? = nil
 	@Published var onStockChange: ((StockInfo) -> ())? = nil
-    
-    @Published var tradingSchedule: [String:TradingSchedule] = [:]
+
+	@Published var tradingSchedule: [String: TradingSchedule] = [:]
 
 	@Published var portfolioData: PortfolioData = PortfolioData()
 
 	@Published var isWaitingForAccountData: Bool = false
 
 	@Published var logger: MacaLog = MacaLog()
-    
-    @Published var stat: MacaStat = MacaStat()
+
+	@Published var stat: MacaStat = MacaStat()
 
 	init() { }
 }
@@ -36,27 +36,27 @@ struct VisualizerPageView: View {
 	let columns = [
 		GridItem(.adaptive(minimum: 200))
 	]
-    
-    func exchangeIsOpened() -> Bool {
-        if self.model.currentMode == .Emu {
-            return true
-        }
-        
-        if self.model.activeStock == nil {
-            return false
-        }
-        
-        if self.model.tradingSchedule[self.model.activeStock!.instrument.exchange] == nil {
-            return true
-        }
-        
-        let ex = self.model.tradingSchedule[self.model.activeStock!.instrument.exchange]!
-        if ex.days.count < 1 {
-            return false
-        }
-        
-        return ex.days[0].startTime.timeIntervalSince1970 <= Date().timeIntervalSince1970 && Date().timeIntervalSince1970 <= ex.days[0].endTime.timeIntervalSince1970
-    }
+
+	func exchangeIsOpened() -> Bool {
+		if self.model.currentMode == .Emu {
+			return true
+		}
+
+		if self.model.activeStock == nil {
+			return false
+		}
+
+		if self.model.tradingSchedule[self.model.activeStock!.instrument.exchange] == nil {
+			return true
+		}
+
+		let ex = self.model.tradingSchedule[self.model.activeStock!.instrument.exchange]!
+		if ex.days.count < 1 {
+			return false
+		}
+
+		return ex.days[0].startTime.timeIntervalSince1970 <= Date().timeIntervalSince1970 && Date().timeIntervalSince1970 <= ex.days[0].endTime.timeIntervalSince1970
+	}
 
 	var body: some View {
 		if self.model.isWaitingForAccountData {
@@ -75,32 +75,32 @@ struct VisualizerPageView: View {
 			}
 		} else {
 			List {
-                Section(header: CardsView(model: model)) {
+				Section(header: CardsView(model: model)) {
 					VStack {
 						if self.model.activeStock != nil {
-                            if exchangeIsOpened() {
-                                Spacer(minLength: 16)
-                                ShortStat(model: model)
-                                
-                                Spacer(minLength: 16)
-                                CandleGraph(model: model)
+							if exchangeIsOpened() {
+								Spacer(minLength: 16)
+								ShortStat(model: model)
 
-                                Spacer(minLength: 16)
-                                RSIGraph(model: model)
-                            } else {
-                                Image(systemName: "clock")
-                                    .font(.system(size: 60))
-                                    .foregroundColor(.gray)
-                                    .frame(alignment: .center)
-                                Text("Биржа закрыта")
-                            }
-                            Spacer(minLength: 16)
-                            InfoView(model: model)
-                            
-                            if exchangeIsOpened() {
-                                Spacer(minLength: 32)
-                                TableView(model: model)
-                            }
+								Spacer(minLength: 16)
+								CandleGraph(model: model)
+
+								Spacer(minLength: 16)
+								RSIGraph(model: model)
+							} else {
+								Image(systemName: "clock")
+									.font(.system(size: 60))
+									.foregroundColor(.gray)
+									.frame(alignment: .center)
+								Text("Биржа закрыта")
+							}
+							Spacer(minLength: 16)
+							InfoView(model: model)
+
+							if exchangeIsOpened() {
+								Spacer(minLength: 32)
+								TableView(model: model)
+							}
 						} else {
 							EmptyView()
 						}
@@ -113,140 +113,140 @@ struct VisualizerPageView: View {
 }
 
 struct ShortStat: View {
-    @ObservedObject var model: VisualizerPageModel
-    @Environment(\.colorScheme) var colorScheme
+	@ObservedObject var model: VisualizerPageModel
+	@Environment(\.colorScheme) var colorScheme
 
-    var columns: [GridItem] = [
-        GridItem(.adaptive(minimum: 120), spacing: 16)
-    ]
-    
-    var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 16)
-                .fill(colorScheme == .dark ? Color(white: 50 / 255) : Color(white: 240 / 255))
-                .frame(maxWidth: .infinity)
-                .frame(maxHeight: .infinity)
-            LazyVGrid(
-                columns: columns,
-                alignment: .center,
-                spacing: 16
-            ) {
-                VStack {
-                    HStack {
-                        Image(systemName: "arrow.down.circle")
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
-                        Text("Куплено".uppercased())
-                            .font(.system(size: 12, weight: .regular, design: .default))
-                            .padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
-                    }
-                    Text(String(format: "%.2f", self.model.activeStock!.boughtTotalPrice) + self.model.activeStock!.instrument.sign())
-                        .font(.system(size: 16, weight: .bold, design: .default))
-                        .padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
-                }
-                VStack {
-                    HStack {
-                        Image(systemName: "arrow.up.circle")
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
-                        Text("Продано".uppercased())
-                            .font(.system(size: 12, weight: .regular, design: .default))
-                            .padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
-                    }
-                    Text(String(format: "%.2f", self.model.activeStock!.soldTotalPrice) + self.model.activeStock!.instrument.sign())
-                        .font(.system(size: 16, weight: .bold, design: .default))
-                        .padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
-                }
-                VStack {
-                    HStack {
-                        Image(systemName: "plus.circle")
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
-                        Text("Куплено ".uppercased() + "(шт.)")
-                            .font(.system(size: 12, weight: .regular, design: .default))
-                            .padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
-                    }
-                    Text(String(self.model.activeStock!.boughtCount))
-                        .font(.system(size: 16, weight: .bold, design: .default))
-                        .padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
-                }
-                VStack {
-                    HStack {
-                        Image(systemName: "minus.circle")
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
-                        Text("Продано ".uppercased() + "(шт.)")
-                            .font(.system(size: 12, weight: .regular, design: .default))
-                            .padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
-                    }
-                    Text(String(self.model.activeStock!.soldCount))
-                        .font(.system(size: 16, weight: .bold, design: .default))
-                        .padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
-                }
-                VStack {
-                    HStack {
-                        Image(systemName: "percent")
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
-                        Text("Прибыль ".uppercased())
-                            .font(.system(size: 12, weight: .regular, design: .default))
-                            .padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
-                    }
-                    Text(String(format: "%.2f", self.model.activeStock!.profitPercentage) + "%")
-                        .font(.system(size: 16, weight: .bold, design: .default))
-                        .padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
-                }
-            }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(16)
-        }
-    }
+	var columns: [GridItem] = [
+		GridItem(.adaptive(minimum: 120), spacing: 16)
+	]
+
+	var body: some View {
+		ZStack {
+			RoundedRectangle(cornerRadius: 16)
+				.fill(colorScheme == .dark ? Color(white: 50 / 255) : Color(white: 240 / 255))
+				.frame(maxWidth: .infinity)
+				.frame(maxHeight: .infinity)
+			LazyVGrid(
+				columns: columns,
+				alignment: .center,
+				spacing: 16
+			) {
+				VStack {
+					HStack {
+						Image(systemName: "arrow.down.circle")
+							.font(.system(size: 14))
+							.foregroundColor(.gray)
+						Text("Куплено".uppercased())
+							.font(.system(size: 12, weight: .regular, design: .default))
+							.padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
+					}
+					Text(String(format: "%.2f", self.model.activeStock!.boughtTotalPrice) + self.model.activeStock!.instrument.sign())
+						.font(.system(size: 16, weight: .bold, design: .default))
+						.padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
+				}
+				VStack {
+					HStack {
+						Image(systemName: "arrow.up.circle")
+							.font(.system(size: 14))
+							.foregroundColor(.gray)
+						Text("Продано".uppercased())
+							.font(.system(size: 12, weight: .regular, design: .default))
+							.padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
+					}
+					Text(String(format: "%.2f", self.model.activeStock!.soldTotalPrice) + self.model.activeStock!.instrument.sign())
+						.font(.system(size: 16, weight: .bold, design: .default))
+						.padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
+				}
+				VStack {
+					HStack {
+						Image(systemName: "plus.circle")
+							.font(.system(size: 14))
+							.foregroundColor(.gray)
+						Text("Куплено ".uppercased() + "(шт.)")
+							.font(.system(size: 12, weight: .regular, design: .default))
+							.padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
+					}
+					Text(String(self.model.activeStock!.boughtCount))
+						.font(.system(size: 16, weight: .bold, design: .default))
+						.padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
+				}
+				VStack {
+					HStack {
+						Image(systemName: "minus.circle")
+							.font(.system(size: 14))
+							.foregroundColor(.gray)
+						Text("Продано ".uppercased() + "(шт.)")
+							.font(.system(size: 12, weight: .regular, design: .default))
+							.padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
+					}
+					Text(String(self.model.activeStock!.soldCount))
+						.font(.system(size: 16, weight: .bold, design: .default))
+						.padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
+				}
+				VStack {
+					HStack {
+						Image(systemName: "percent")
+							.font(.system(size: 14))
+							.foregroundColor(.gray)
+						Text("Прибыль ".uppercased())
+							.font(.system(size: 12, weight: .regular, design: .default))
+							.padding(EdgeInsets(top: 0, leading: -1, bottom: 0, trailing: 0))
+					}
+					Text(String(format: "%.2f", self.model.activeStock!.profitPercentage) + "%")
+						.font(.system(size: 16, weight: .bold, design: .default))
+						.padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
+				}
+			}
+				.frame(maxWidth: .infinity, alignment: .leading)
+				.padding(16)
+		}
+	}
 }
 
 
 struct CandleGraph: View {
-    @ObservedObject var model: VisualizerPageModel
-    public var operation: OrderInfo? = nil
+	@ObservedObject var model: VisualizerPageModel
+	public var operation: OrderInfo? = nil
 
-    var body: some View {
-        VStack {
-            GraphViewUI(model: model)
-                .frame(maxWidth: .infinity)
-                .frame(minHeight: 300)
-            Text("Отображены свечи в интервале \(model.currentMode == .Emu ? "5" : "1") минут")
-                .font(.caption)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .padding(EdgeInsets(top: 2, leading: 16, bottom: 8, trailing: 16))
-        }
-    }
+	var body: some View {
+		VStack {
+			GraphViewUI(model: model)
+				.frame(maxWidth: .infinity)
+				.frame(minHeight: 300)
+			Text("Отображены свечи в интервале \(model.currentMode == .Emu ? "5" : "1") минут")
+				.font(.caption)
+				.frame(maxWidth: .infinity, alignment: .trailing)
+				.padding(EdgeInsets(top: 2, leading: 16, bottom: 8, trailing: 16))
+		}
+	}
 }
 
 struct RSIGraph: View {
-    @ObservedObject var model: VisualizerPageModel
-    public var operation: OrderInfo? = nil
+	@ObservedObject var model: VisualizerPageModel
+	public var operation: OrderInfo? = nil
 
-    var body: some View {
-        VStack {
-            Spacer(minLength: 16)
+	var body: some View {
+		VStack {
+			Spacer(minLength: 16)
 
-            Text("Значение RSI")
-                .font(.system(size: 24, weight: .bold, design: .default))
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(EdgeInsets(top: 0, leading: 16, bottom: 1, trailing: 16))
-            DescriptionTextView(text: "График индикатора технического анализа, определяющий силу тренда и вероятность его смены.")
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(EdgeInsets(top: 2, leading: 16, bottom: 8, trailing: 16))
-            
+			Text("Значение RSI")
+				.font(.system(size: 24, weight: .bold, design: .default))
+				.frame(maxWidth: .infinity, alignment: .leading)
+				.padding(EdgeInsets(top: 0, leading: 16, bottom: 1, trailing: 16))
+			DescriptionTextView(text: "График индикатора технического анализа, определяющий силу тренда и вероятность его смены.")
+				.frame(maxWidth: .infinity, alignment: .leading)
+				.padding(EdgeInsets(top: 2, leading: 16, bottom: 8, trailing: 16))
 
-            Spacer(minLength: 16)
 
-            VStack {
-                RSIGraphViewUI(model: model)
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: 300)
-            }
-        }
-    }
+			Spacer(minLength: 16)
+
+			VStack {
+				RSIGraphViewUI(model: model)
+					.frame(maxWidth: .infinity)
+					.frame(minHeight: 300)
+			}
+		}
+	}
 }
 
 struct GraphViewUI: UIViewRepresentable {
@@ -258,27 +258,27 @@ struct GraphViewUI: UIViewRepresentable {
 
 	func updateUIView(_ uiView: CandleGraphView, context: Context) {
 		if self.model.activeStock == nil {
-            uiView.setChartData(candles: [])
+			uiView.setChartData(candles: [])
 			return
 		}
-        uiView.setChartData(candles: self.model.activeStock!.candles)
+		uiView.setChartData(candles: self.model.activeStock!.candles)
 	}
 }
 
 struct RSIGraphViewUI: UIViewRepresentable {
-    @ObservedObject var model: VisualizerPageModel
+	@ObservedObject var model: VisualizerPageModel
 
-    func makeUIView(context: Context) -> RSIGraphView {
-        RSIGraphView()
-    }
+	func makeUIView(context: Context) -> RSIGraphView {
+		RSIGraphView()
+	}
 
-    func updateUIView(_ uiView: RSIGraphView, context: Context) {
-        if self.model.activeStock == nil {
-            uiView.setChartData(rsi: [])
-            return
-        }
-        uiView.setChartData(rsi: self.model.activeStock!.rsi)
-    }
+	func updateUIView(_ uiView: RSIGraphView, context: Context) {
+		if self.model.activeStock == nil {
+			uiView.setChartData(rsi: [])
+			return
+		}
+		uiView.setChartData(rsi: self.model.activeStock!.rsi)
+	}
 }
 
 struct CardsView: View {
@@ -329,17 +329,17 @@ struct CardsView: View {
 									EmptyView()
 								}
 							}
-                            Text(model.stockData[id].instrument.name)
+							Text(model.stockData[id].instrument.name)
 						}
 							.padding()
-                        if model.stockData[id].hasUpdates {
-                            VStack {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .foregroundColor(.red)
-                                    .position(x: 20, y: -20)
-                                    .frame(width: 10, height: 10, alignment: .leading)
-                            }
-                        }
+						if model.stockData[id].hasUpdates {
+							VStack {
+								RoundedRectangle(cornerRadius: 10)
+									.foregroundColor(.red)
+									.position(x: 20, y: -20)
+									.frame(width: 10, height: 10, alignment: .leading)
+							}
+						}
 					}
 						.onTapGesture {
 						self.model.onStockChange?(model.stockData[id])
@@ -351,8 +351,8 @@ struct CardsView: View {
 }
 
 struct InfoCellView: View {
-    public var title1: String? = nil
-    public var title2: String? = nil
+	public var title1: String? = nil
+	public var title2: String? = nil
 	public var systemImage: String? = nil
 	@Environment(\.colorScheme) var colorScheme
 
@@ -369,12 +369,12 @@ struct InfoCellView: View {
 					.frame(maxWidth: .infinity, alignment: .leading)
 				Spacer()
 				Text(title2 ?? "")
-                    .font(.system(size: 14, weight: .thin, design: .default))
+					.font(.system(size: 14, weight: .thin, design: .default))
 					.frame(maxWidth: .infinity, alignment: .leading)
 					.padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
 				Text(title1 ?? "")
-                    .font(.system(size: 14, weight: .regular, design: .default))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+					.font(.system(size: 14, weight: .regular, design: .default))
+					.frame(maxWidth: .infinity, alignment: .leading)
 			}
 				.frame(height: 120)
 				.frame(maxWidth: .infinity, alignment: .leading)
@@ -399,27 +399,27 @@ struct InfoView: View {
 				alignment: .center,
 				spacing: 16
 			) {
-                if model.currentMode != .Sandbox && model.portfolioData.positions[model.activeStock!.instrument.figi] != nil {
+				if model.currentMode != .Sandbox && model.portfolioData.positions[model.activeStock!.instrument.figi] != nil {
 					InfoCellView(title1: String(model.portfolioData.positions[model.activeStock!.instrument.figi]!.quantity.units), title2: "В портфеле", systemImage: "bag.circle")
 				}
-                if model.activeStock!.instrument.countryOfRiskName != "" {
-                    InfoCellView(title1: model.activeStock!.instrument.countryOfRiskName, title2: "Страна", systemImage: "globe.europe.africa")
-                }
-                if model.activeStock!.instrument.exchange != "" {
-                    InfoCellView(title1: model.activeStock!.instrument.exchange, title2: "Биржа", systemImage: "tag.circle")
-                }
-                if model.activeStock!.instrument.currency != "" {
-                    InfoCellView(title1: model.activeStock!.instrument.currency.uppercased(), title2: "Валюта", systemImage: "dollarsign.circle")
-                }
-                if model.activeStock!.instrument.ticker != "" {
-                    InfoCellView(title1: model.activeStock!.instrument.ticker, title2: "Тикер", systemImage: "ticket")
-                }
-                if model.activeStock!.instrument.classCode != "" {
-                    InfoCellView(title1: model.activeStock!.instrument.classCode, title2: "Класс", systemImage: "123.rectangle")
-                }
-                if model.activeStock!.instrument.isin != "" {
-                    InfoCellView(title1: model.activeStock!.instrument.isin, title2: "ISIN", systemImage: "number.circle")
-                }
+				if model.activeStock!.instrument.countryOfRiskName != "" {
+					InfoCellView(title1: model.activeStock!.instrument.countryOfRiskName, title2: "Страна", systemImage: "globe.europe.africa")
+				}
+				if model.activeStock!.instrument.exchange != "" {
+					InfoCellView(title1: model.activeStock!.instrument.exchange, title2: "Биржа", systemImage: "tag.circle")
+				}
+				if model.activeStock!.instrument.currency != "" {
+					InfoCellView(title1: model.activeStock!.instrument.currency.uppercased(), title2: "Валюта", systemImage: "dollarsign.circle")
+				}
+				if model.activeStock!.instrument.ticker != "" {
+					InfoCellView(title1: model.activeStock!.instrument.ticker, title2: "Тикер", systemImage: "ticket")
+				}
+				if model.activeStock!.instrument.classCode != "" {
+					InfoCellView(title1: model.activeStock!.instrument.classCode, title2: "Класс", systemImage: "123.rectangle")
+				}
+				if model.activeStock!.instrument.isin != "" {
+					InfoCellView(title1: model.activeStock!.instrument.isin, title2: "ISIN", systemImage: "number.circle")
+				}
 			}
 		}
 	}
@@ -429,33 +429,33 @@ struct TableCellView: View {
 	public var operation: OrderInfo? = nil
 
 	var body: some View {
-        if operation != nil {
-            HStack {
-                if operation!.type == .SoldRequest || operation!.type == .BoughtRequest {
-                    Image(systemName: "clock")
-                        .foregroundColor(.gray)
-                    if operation!.type == .SoldRequest {
-                        Text("Заявка на продажу \(operation!.count) инструмента(ов)")
-                    } else {
-                        Text("Заявка на покупку \(operation!.count) инструмента(ов)")
-                    }
-                } else {
-                    Image(systemName: "checkmark.circle")
-                        .foregroundColor(.green)
-                    if operation!.type == .Sold {
-                        Text("Продажа исполнена \(operation!.count) инструмента(ов) за \(operation!.price.asString())")
-                    } else {
-                        Text("Покупка исполнена \(operation!.count) инструмента(ов) за \(operation!.price.asString())")
-                    }
-                }
-                Text(operation!.timeStr)
-                    .foregroundColor(.gray)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(EdgeInsets(top: 4, leading: 0, bottom: 8, trailing: 0))
-        } else {
-            EmptyView()
-        }
+		if operation != nil {
+			HStack {
+				if operation!.type == .SoldRequest || operation!.type == .BoughtRequest {
+					Image(systemName: "clock")
+						.foregroundColor(.gray)
+					if operation!.type == .SoldRequest {
+						Text("Заявка на продажу \(operation!.count) инструмента(ов)")
+					} else {
+						Text("Заявка на покупку \(operation!.count) инструмента(ов)")
+					}
+				} else {
+					Image(systemName: "checkmark.circle")
+						.foregroundColor(.green)
+					if operation!.type == .Sold {
+						Text("Продажа исполнена \(operation!.count) инструмента(ов) за \(operation!.price.asString())")
+					} else {
+						Text("Покупка исполнена \(operation!.count) инструмента(ов) за \(operation!.price.asString())")
+					}
+				}
+				Text(operation!.timeStr)
+					.foregroundColor(.gray)
+			}
+				.frame(maxWidth: .infinity, alignment: .leading)
+				.padding(EdgeInsets(top: 4, leading: 0, bottom: 8, trailing: 0))
+		} else {
+			EmptyView()
+		}
 	}
 }
 
@@ -464,28 +464,28 @@ struct TableView: View {
 
 	var body: some View {
 		VStack {
-            Text("История сделок")
-                .font(.system(size: 24, weight: .bold, design: .default))
-                .frame(maxWidth: .infinity, alignment: .leading)
-            DescriptionTextView(text: "Отображены 10 последних сделок, совершенных Ботом.")
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+			Text("История сделок")
+				.font(.system(size: 24, weight: .bold, design: .default))
+				.frame(maxWidth: .infinity, alignment: .leading)
+			DescriptionTextView(text: "Отображены 10 последних сделок, совершенных Ботом.")
+				.frame(maxWidth: .infinity, alignment: .leading)
+				.padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
 			Spacer()
-            if model.activeStock!.operations.count > 0 {
-                VStack(
-                    alignment: .center,
-                    spacing: 16
-                ) {
-                    ForEach(0..<model.activeStock!.operations.count, id: \.self) { id in
-                        TableCellView(operation: model.activeStock!.operations[id])
-                    }
-                }
-            } else {
-                Text("Сделок пока нет")
-                    .foregroundColor(.gray)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
-            }
+			if model.activeStock!.operations.count > 0 {
+				VStack(
+					alignment: .center,
+					spacing: 16
+				) {
+					ForEach(0..<model.activeStock!.operations.count, id: \.self) { id in
+						TableCellView(operation: model.activeStock!.operations[id])
+					}
+				}
+			} else {
+				Text("Сделок пока нет")
+					.foregroundColor(.gray)
+					.frame(maxWidth: .infinity, alignment: .leading)
+					.padding(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
+			}
 		}
 	}
 }
