@@ -62,23 +62,24 @@ class CandleFetcher {
 
 class EmuCandleFetcher: CandleFetcher {
     public override func run() {
-        // Preload candles for past dates.
-        var req = GetCandlesRequest()
-        req.figi = self.figi!
-        req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: -1, to: GlobalBotConfig.emuStartDate)!)
-        req.to = Google_Protobuf_Timestamp(date: GlobalBotConfig.emuStartDate)
-        req.interval = CandleInterval.candleInterval5Min
-
-        GlobalBotConfig.sdk.marketDataService.getCandels(request: req).sink { result in
-            switch result {
-            case .failure(let error):
-                GlobalBotConfig.logger.debug(error.localizedDescription)
-            case .finished:
-                break
-            }
-        } receiveValue: { candles in
-            // Starting a new thread to emulate candels streaming.
-            DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.global(qos: .userInitiated).async {
+    
+        // В режиме эмуляции, загружаем свечи с указаной даты начала эмуляци.
+        var currentEmulationDate = GlobalBotConfig.emuStartDate
+        let nowDate = Date()
+        var attempts = 0
+        
+        // Загружаем данные со времени начала эмуляции до сегоднешнего дня.
+        while (currentEmulationDate <= nowDate && !self.shouldStop) {
+            var req = GetCandlesRequest()
+            req.figi = self.figi!
+            // Загружаем свечи с прошлого дня по текущий.
+            req.from = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: -1, to: currentEmulationDate)!)
+            req.to = Google_Protobuf_Timestamp(date: currentEmulationDate)
+            req.interval = CandleInterval.candleInterval5Min
+            
+            do {
+                let candles = try GlobalBotConfig.sdk.marketDataService.getCandels(request: req).wait(timeout: 10).singleValue()
                 for candle in candles.candles {
                     if self.shouldStop {
                         return
@@ -88,8 +89,21 @@ class EmuCandleFetcher: CandleFetcher {
                     }
                     sleep(1)
                 }
+                
+            } catch {
+                attempts += 1
+                if attempts > 5 {
+                    GlobalBotConfig.logger.debug("[EmuCandleFetcher: run] Error while working with Tinkoff API")
+                    break
+                }
             }
-        }.store(in: &cancellables)
+            
+            // Сбор свечей прошел успешно, обновляем счетчик попыток на 0.
+            attempts = 0
+            // Переходим на следующий день.
+            currentEmulationDate = Calendar.current.date(byAdding: .day, value: 1, to: currentEmulationDate)!
+            }
+        }
     }
 
     public override func fetchHistoricalData(callback: @escaping (String, [CandleData]) -> ()) {
