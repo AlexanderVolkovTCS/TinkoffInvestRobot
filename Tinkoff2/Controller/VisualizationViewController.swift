@@ -20,11 +20,6 @@ class VisualizationViewController: UIViewController {
 
 	var cancellables = Set<AnyCancellable>()
 
-
-//	var tradesStreamSub: TradesStreamSubscriber? = nil
-
-	var orderSub: OrderSubscriber? = nil
-
 	var postOrder: PostOrder? = nil
 
 	var portfolioLoader: PortfolioLoader? = nil
@@ -58,7 +53,6 @@ class VisualizationViewController: UIViewController {
 	func onBotReadyToStart(portfolio: PortfolioData) {
 		started = true
 		setupModel(portfolio: portfolio)
-		initSubcribers()
         self.model.isWaitingForAccountData = false
         view.setNeedsLayout()
 		navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Статистика", style: .plain, target: self, action: #selector(jumpToConsole))
@@ -70,10 +64,6 @@ class VisualizationViewController: UIViewController {
         self.engine?.stop()
 		self.model.isWaitingForAccountData = false
 		GlobalBotConfig.logger.info("Stopping Bot")
-	}
-
-	func removeSubcribers() {
-        self.orderSub?.cancel()
 	}
 
 	func earlySetupModel() {
@@ -133,12 +123,6 @@ class VisualizationViewController: UIViewController {
         self.model.activeStock!.hasUpdates = false
 		self.navigationItem.title = stock.instrument.name
 	}
-
-	func initSubcribers() {
-		// Should uninitilize everything here and reinit data sources.
-		removeSubcribers()
-	}
-
 
 	func onPortfolioUpdate(portfolio: PortfolioData) {
         if (!started) {
