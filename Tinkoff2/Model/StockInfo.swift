@@ -18,13 +18,15 @@ enum OperationType {
 class OrderInfo {
     public var type: OperationType = .Sold
     public var count: Int64 = 0
+    public var price: MoneyValue = MoneyValue()
     public var timeStr: String = ""
     
     init() {}
     
-    init(type: OperationType, count: Int64) {
+    init(type: OperationType, count: Int64, price: MoneyValue) {
         self.type = type
         self.count = count
+        self.price = price
     }
 }
 
@@ -34,6 +36,11 @@ class StockInfo {
     public var candles: [CandleData] = []
     public var rsi: [Float64] = []
     public var operations: [OrderInfo] = []
+    public var boughtCount: Int64 = 0
+    public var soldCount: Int64 = 0
+    public var boughtTotalPrice: Float64 = 0.0
+    public var soldTotalPrice: Float64 = 0.0
+    public var profitPercentage: Float64 = 0.0
 
 	init () { }
 

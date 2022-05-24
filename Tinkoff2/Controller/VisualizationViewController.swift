@@ -72,8 +72,7 @@ class VisualizationViewController: UIViewController {
 	}
 
 	func removeSubcribers() {
-//		self.tradesStreamSub?.cancel()
-		self.orderSub?.cancel()
+        self.orderSub?.cancel()
 	}
 
 	func earlySetupModel() {
@@ -174,9 +173,9 @@ class VisualizationViewController: UIViewController {
             if (self.model.stockData[i].instrument.figi == figi) {
                 self.model.stockData[i].operations.insert(order, at: 0)
                 if self.model.stockData[i].operations.count > 10 {
-                    self.model.stockData[i].operations.popLast()
+                    let _ = self.model.stockData[i].operations.popLast()
                 }
-            
+                
                 let std = self.model.stockData[i]
                 self.model.stockData.remove(at: i)
                 self.model.stockData.insert(std, at: 0)
@@ -197,7 +196,23 @@ class VisualizationViewController: UIViewController {
             if (self.model.stockData[i].instrument.figi == figi) {
                 self.model.stockData[i].operations.insert(order, at: 0)
                 if self.model.stockData[i].operations.count > 10 {
-                    self.model.stockData[i].operations.popLast()
+                    let _ = self.model.stockData[i].operations.popLast()
+                }
+                
+                if order.type == .Bought {
+                    self.model.stockData[i].boughtCount += order.count
+                    self.model.stockData[i].boughtTotalPrice += order.price.asDouble()
+                } else {
+                    self.model.stockData[i].soldCount += order.count
+                    self.model.stockData[i].soldTotalPrice += order.price.asDouble()
+                }
+                let boughtPerStock = self.model.stockData[i].boughtTotalPrice / Double(self.model.stockData[i].boughtCount)
+                let soldPerStock = self.model.stockData[i].soldTotalPrice / Double(self.model.stockData[i].soldCount)
+                let cnt = Double(min(self.model.stockData[i].boughtCount, self.model.stockData[i].soldCount))
+                if cnt != 0 {
+                    self.model.stockData[i].profitPercentage = 100.0 * (boughtPerStock * cnt - soldPerStock * cnt) / (boughtPerStock * cnt)
+                } else {
+                    self.model.stockData[i].profitPercentage = 0.0
                 }
                 
                 // Re-setting activeStock to initiate redrawing of swiftUI

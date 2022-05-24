@@ -80,6 +80,9 @@ struct VisualizerPageView: View {
 						if self.model.activeStock != nil {
                             if exchangeIsOpened() {
                                 Spacer(minLength: 16)
+                                ShortStat(model: model)
+                                
+                                Spacer(minLength: 16)
                                 CandleGraph(model: model)
 
                                 Spacer(minLength: 16)
@@ -108,6 +111,80 @@ struct VisualizerPageView: View {
 		}
 	}
 }
+
+struct ShortStat: View {
+    @ObservedObject var model: VisualizerPageModel
+    @Environment(\.colorScheme) var colorScheme
+
+    var columns: [GridItem] = [
+        GridItem(.adaptive(minimum: 160), spacing: 32),
+        GridItem(.adaptive(minimum: 160), spacing: 32)
+    ]
+    
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(colorScheme == .dark ? Color(white: 50 / 255) : Color(white: 240 / 255))
+                .frame(maxWidth: .infinity)
+                .frame(maxHeight: .infinity)
+            LazyVGrid(
+                columns: columns,
+                alignment: .center,
+                spacing: 16
+            ) {
+                VStack {
+                    Image(systemName: "plus.circle")
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    Text(String(format: "%.2f", self.model.activeStock!.boughtTotalPrice) + self.model.activeStock!.instrument.sign())
+                        .font(.system(size: 16, weight: .bold, design: .default))
+                        .padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
+                }
+                VStack {
+                    Image(systemName: "minus.circle")
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    Text(String(format: "%.2f", self.model.activeStock!.soldTotalPrice) + self.model.activeStock!.instrument.sign())
+                        .font(.system(size: 16, weight: .bold, design: .default))
+                        .padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
+                }
+                VStack {
+                    Image(systemName: "plus.circle")
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    Text(String(self.model.activeStock!.boughtCount))
+                        .font(.system(size: 16, weight: .bold, design: .default))
+                        .padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
+                }
+                VStack {
+                    Image(systemName: "minus.circle")
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    Text(String(self.model.activeStock!.soldCount))
+                        .font(.system(size: 16, weight: .bold, design: .default))
+                        .padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
+                }
+                VStack {
+                    Image(systemName: "percent")
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    Text(String(format: "%.2f", self.model.activeStock!.profitPercentage) + "%")
+                        .font(.system(size: 16, weight: .bold, design: .default))
+                        .padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
+                }
+            }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .compositingGroup()
+                .padding(16)
+        }
+    }
+}
+
 
 struct CandleGraph: View {
     @ObservedObject var model: VisualizerPageModel
@@ -207,7 +284,7 @@ struct CardsView: View {
 							.fill(self.model.activeStock!.instrument == model.stockData[id].instrument ? (colorScheme == .light ? Color(white: 40 / 255, opacity: 0.1) : Color(white: 180 / 255, opacity: 0.1)) : Color(white: 40 / 255, opacity: 0.0))
 							.frame(maxWidth: .infinity)
 							.frame(maxHeight: .infinity)
-						VStack {
+						HStack {
 							AsyncImage(url: URL(string: model.stockData[id].instrument.instrumentType == "share" ?
 								"https://invest-brands.cdn-tinkoff.ru/\(model.stockData[id].instrument.isin)x160.png"
 								: model.stockData[id].instrument.instrumentType == "etf" ?
@@ -221,7 +298,7 @@ struct CardsView: View {
 									image
 										.resizable()
 										.aspectRatio(contentMode: .fit)
-										.frame(width: 40, height: 40)
+										.frame(width: 30, height: 30)
 										.clipShape(RoundedRectangle(cornerRadius: 25))
 
 								case .failure:

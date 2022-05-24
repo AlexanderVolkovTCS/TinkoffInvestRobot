@@ -31,20 +31,33 @@ struct ConsolePageView: View {
 struct DashboardView: View {
 	@ObservedObject var model: VisualizerPageModel
 
-	var columns: [GridItem] = [
+	var columnsDouble: [GridItem] = [
 		GridItem(.adaptive(minimum: 300), spacing: 32),
 	]
+    
+    var columnsTriple: [GridItem] = [
+        GridItem(.adaptive(minimum: 200), spacing: 32),
+    ]
 
 	var body: some View {
 		VStack {
 			LazyVGrid(
-				columns: columns,
+				columns: columnsDouble,
 				alignment: .center,
 				spacing: 16
 			) {
 				BoughtInstrumentStatView(model: model)
 				SoldInstrumentStatView(model: model)
 			}
+            LazyVGrid(
+                columns: columnsTriple,
+                alignment: .center,
+                spacing: 16
+            ) {
+                CompareRubsStatView(model: model)
+                CompareUSDStatView(model: model)
+                CompareEURStatView(model: model)
+            }
 		}
 	}
 }
@@ -94,7 +107,7 @@ struct SoldInstrumentGraphViewUI: UIViewRepresentable {
 		if self.model.activeStock == nil {
             return
 		}
-        uiView.setChartData(bars: [BarDescriptor(value: Int(self.model.stat.soldStocks), label: "Акции", color: SoftColorList[0]), BarDescriptor(value: Int(self.model.stat.soldETCs), label: "Фонды", color: SoftColorList[1]), BarDescriptor(value: Int(self.model.stat.soldCurrency), label: "Валюта", color: SoftColorList[2])])
+        uiView.setChartData(bars: [BarDescriptor(value: Int(self.model.stat.soldStocks), label: "Акции", color: SoftColorList[0]), BarDescriptor(value: Int(self.model.stat.soldEtfs), label: "Фонды", color: SoftColorList[1]), BarDescriptor(value: Int(self.model.stat.soldCurrency), label: "Валюта", color: SoftColorList[2])])
 	}
 }
 
@@ -115,6 +128,108 @@ struct SoldInstrumentStatView: View {
 				.padding(16)
 		}
 	}
+}
+
+struct CompareRubsGraphViewUI: UIViewRepresentable {
+    @ObservedObject var model: VisualizerPageModel
+
+    func makeUIView(context: Context) -> BarGraphView {
+        BarGraphView()
+    }
+
+    func updateUIView(_ uiView: BarGraphView, context: Context) {
+        if self.model.activeStock == nil {
+            return
+        }
+        uiView.setChartData(bars: [BarDescriptor(value: Int(self.model.stat.boughtProfitRub), label: "Куплено", color: SoftColorList[1]), BarDescriptor(value: Int(self.model.stat.soldProfitRub), label: "Продано", color: SoftColorList[2])])
+    }
+}
+
+struct CompareRubsStatView: View {
+    @ObservedObject var model: VisualizerPageModel
+
+    var body: some View {
+        VStack {
+            Text("Рубль")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .font(.title3)
+                .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+            DescriptionTextView(text: "Сравнение стоимости покупок и продаж в Рублях (RUB)")
+                .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+            CompareRubsGraphViewUI(model: model)
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: 200)
+                .padding(16)
+        }
+    }
+}
+
+struct CompareUSDGraphViewUI: UIViewRepresentable {
+    @ObservedObject var model: VisualizerPageModel
+
+    func makeUIView(context: Context) -> BarGraphView {
+        BarGraphView()
+    }
+
+    func updateUIView(_ uiView: BarGraphView, context: Context) {
+        if self.model.activeStock == nil {
+            return
+        }
+        uiView.setChartData(bars: [BarDescriptor(value: Int(self.model.stat.boughtProfitUSD), label: "Куплено", color: SoftColorList[1]), BarDescriptor(value: Int(self.model.stat.soldProfitUSD), label: "Продано", color: SoftColorList[2])])
+    }
+}
+
+struct CompareUSDStatView: View {
+    @ObservedObject var model: VisualizerPageModel
+
+    var body: some View {
+        VStack {
+            Text("Доллар")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .font(.title3)
+                .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+            DescriptionTextView(text: "Сравнение стоимости покупок и продаж в Долларах (USD)")
+                .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+            CompareUSDGraphViewUI(model: model)
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: 200)
+                .padding(16)
+        }
+    }
+}
+
+struct CompareEURGraphViewUI: UIViewRepresentable {
+    @ObservedObject var model: VisualizerPageModel
+
+    func makeUIView(context: Context) -> BarGraphView {
+        BarGraphView()
+    }
+
+    func updateUIView(_ uiView: BarGraphView, context: Context) {
+        if self.model.activeStock == nil {
+            return
+        }
+        uiView.setChartData(bars: [BarDescriptor(value: Int(self.model.stat.boughtProfitEUR), label: "Куплено", color: SoftColorList[1]), BarDescriptor(value: Int(self.model.stat.soldProfitEUR), label: "Продано", color: SoftColorList[2])])
+    }
+}
+
+struct CompareEURStatView: View {
+    @ObservedObject var model: VisualizerPageModel
+
+    var body: some View {
+        VStack {
+            Text("Евро")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .font(.title3)
+                .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+            DescriptionTextView(text: "Сравнение стоимости покупок и продаж в Евро (EUR)")
+                .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+            CompareEURGraphViewUI(model: model)
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: 200)
+                .padding(16)
+        }
+    }
 }
 
 struct LoggerStatView: View {

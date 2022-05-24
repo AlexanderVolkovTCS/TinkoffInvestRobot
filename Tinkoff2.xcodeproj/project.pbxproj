@@ -45,6 +45,8 @@
 		71F05929283BBCC000CC4A05 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F05928283BBCC000CC4A05 /* Globals.swift */; };
 		71F0592B283BC1A100CC4A05 /* LoginPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F0592A283BC1A100CC4A05 /* LoginPage.swift */; };
 		71F0592F283BED2D00CC4A05 /* TinkoffInvestSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 71F0592E283BED2D00CC4A05 /* TinkoffInvestSDK */; };
+		71F0593D283C91CC00CC4A05 /* RsiEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F0593C283C91CC00CC4A05 /* RsiEngine.swift */; };
+		71F0593F283C9A5A00CC4A05 /* ExtTink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F0593E283C9A5A00CC4A05 /* ExtTink.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -83,6 +85,8 @@
 		71F05923283BBA3000CC4A05 /* TokenStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStorage.swift; sourceTree = "<group>"; };
 		71F05928283BBCC000CC4A05 /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		71F0592A283BC1A100CC4A05 /* LoginPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPage.swift; sourceTree = "<group>"; };
+		71F0593C283C91CC00CC4A05 /* RsiEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RsiEngine.swift; sourceTree = "<group>"; };
+		71F0593E283C9A5A00CC4A05 /* ExtTink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtTink.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +126,7 @@
 			isa = PBXGroup;
 			children = (
 				71440548283A82A1007AE807 /* Tinkoff2.entitlements */,
+				71F0593B283C91AD00CC4A05 /* StratagyEngine */,
 				71440543283A4C8C007AE807 /* Algo */,
 				711DB4FF2838CF1900CF5474 /* Helpers */,
 				711DB4F32838244400CF5474 /* Controller */,
@@ -184,6 +189,7 @@
 				7144055A283ACA47007AE807 /* MacaLog.swift */,
 				7144055C283B534E007AE807 /* MacaStat.swift */,
 				71F05928283BBCC000CC4A05 /* Globals.swift */,
+				71F0593E283C9A5A00CC4A05 /* ExtTink.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -213,6 +219,14 @@
 				7144054D283A9DD2007AE807 /* ConsolePage.swift */,
 			);
 			path = Pages;
+			sourceTree = "<group>";
+		};
+		71F0593B283C91AD00CC4A05 /* StratagyEngine */ = {
+			isa = PBXGroup;
+			children = (
+				71F0593C283C91CC00CC4A05 /* RsiEngine.swift */,
+			);
+			path = StratagyEngine;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -303,12 +317,14 @@
 			files = (
 				71F05929283BBCC000CC4A05 /* Globals.swift in Sources */,
 				711DB50E28391D1300CF5474 /* PostOrder.swift in Sources */,
+				71F0593F283C9A5A00CC4A05 /* ExtTink.swift in Sources */,
 				71F05924283BBA3000CC4A05 /* TokenStorage.swift in Sources */,
 				7113C0FB2837C3DE004C1910 /* SettingsViewController.swift in Sources */,
 				71440545283A4C98007AE807 /* LinkedList.swift in Sources */,
 				71440547283A5AC2007AE807 /* Portfolio.swift in Sources */,
 				7144053C2839FC65007AE807 /* StockInfo.swift in Sources */,
 				7144053728399694007AE807 /* Candles.swift in Sources */,
+				71F0593D283C91CC00CC4A05 /* RsiEngine.swift in Sources */,
 				7144052828393C54007AE807 /* VisualizerPage.swift in Sources */,
 				7144055B283ACA47007AE807 /* MacaLog.swift in Sources */,
 				711DB5072838F21B00CF5474 /* BotConfig.swift in Sources */,

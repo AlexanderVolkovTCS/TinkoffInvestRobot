@@ -72,9 +72,3 @@ class CandleGraphView: UIView {
 		return CandleChartData(dataSet: set)
 	}
 }
-
-extension Quotation {
-	func asDouble() -> Double {
-		return Double(self.units) + (Double(self.nano) / 1e9);
-	}
-}
