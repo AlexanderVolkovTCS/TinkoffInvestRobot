@@ -249,20 +249,32 @@ class TinkoffPostOrder: PostOrder {
                     return
                 }
                 
+                // Дождиаемся выполнения торгового поручения.
                 while (status == OrderExecutionReportStatus.executionReportStatusNew ||
                        status == OrderExecutionReportStatus.executionReportStatusPartiallyfill) {
                     var orderStateReq = GetOrderStateRequest()
                     orderStateReq.accountID = GlobalBotConfig.account.id
                     orderStateReq.orderID = orderID
                     
-                    do {
-                        let state = try GlobalBotConfig.sdk.ordersService.getOrderState(request: orderStateReq).wait(timeout: 10).singleValue()
-                        if (state.lotsExecuted > executed) {
-                            self.dispatchOnBuy(amount: state.lotsExecuted - executed, total: state.executedOrderPrice)
+                    // Совершаем retry запросы при обнаружении ошибок с сетью или Tinkoff API.
+                    var attempts = 0
+                    while attempts < Globals.MaxRetryAttempts {
+                        do {
+                            let state = try GlobalBotConfig.sdk.ordersService.getOrderState(request: orderStateReq).wait(timeout: 10).singleValue()
+                            if (state.lotsExecuted > executed) {
+                                self.dispatchOnBuy(amount: state.lotsExecuted - executed, total: state.executedOrderPrice)
+                            }
+                            status = state.executionReportStatus
+                            executed = state.lotsExecuted
+                        } catch {
+                            GlobalBotConfig.logger.debug("Error loading TinkoffPostOrder.buyMarketPrice \(error.localizedDescription)")
+                            attempts += 1
+                            sleep(1)
                         }
-                        status = state.executionReportStatus
-                        executed = state.lotsExecuted
-                    } catch {
+                    }
+                    
+                    if attempts == Globals.MaxRetryAttempts {
+                        GlobalBotConfig.logger.debug("Error loading TinkoffPostOrder.buyMarketPrice status")
                         break
                     }
                     
@@ -315,17 +327,28 @@ class TinkoffPostOrder: PostOrder {
                     orderStateReq.accountID = GlobalBotConfig.account.id
                     orderStateReq.orderID = orderID
                     
-                    do {
-                        let state = try GlobalBotConfig.sdk.ordersService.getOrderState(request: orderStateReq).wait(timeout: 10).singleValue()
-                        var newTotalAmount = state.totalOrderAmount
-                        newTotalAmount.minus(mv: totalAmount)
-                        if (state.lotsExecuted > executed) {
-                            self.dispatchOnSell(amount: state.lotsExecuted - executed, total: newTotalAmount)
+                    // Совершаем retry запросы при обнаружении ошибок с сетью или Tinkoff API.
+                    var attempts = 0
+                    while attempts < Globals.MaxRetryAttempts {
+                        do {
+                            let state = try GlobalBotConfig.sdk.ordersService.getOrderState(request: orderStateReq).wait(timeout: 10).singleValue()
+                            var newTotalAmount = state.totalOrderAmount
+                            newTotalAmount.minus(mv: totalAmount)
+                            if (state.lotsExecuted > executed) {
+                                self.dispatchOnSell(amount: state.lotsExecuted - executed, total: newTotalAmount)
+                            }
+                            status = state.executionReportStatus
+                            executed = state.lotsExecuted
+                            totalAmount = state.totalOrderAmount
+                        } catch {
+                            GlobalBotConfig.logger.debug("Error loading TinkoffPostOrder.sellMarketPrice \(error.localizedDescription)")
+                            attempts += 1
+                            sleep(1)
                         }
-                        status = state.executionReportStatus
-                        executed = state.lotsExecuted
-                        totalAmount = state.totalOrderAmount
-                    } catch {
+                    }
+                    
+                    if attempts == Globals.MaxRetryAttempts {
+                        GlobalBotConfig.logger.debug("Error loading TinkoffPostOrder.sellMarketPrice status")
                         break
                     }
                     
