@@ -39,6 +39,9 @@ struct CandleData {
     }
 }
 
+// CandleFetcher является базовым классом для воркеров, отвечающих за загрузку свечей.
+// В зависимости от выбранного режима (Эмулятор/Песочница-Тинькофф), RsiEngine создает разные
+// имплементации базового класса (EmuCandleFetcher/TinkoffCandleFetcher).
 class CandleFetcher {
     public init(figi: String,
                 callback: @escaping (String, CandleData) -> ()) {
@@ -120,13 +123,22 @@ class EmuCandleFetcher: CandleFetcher {
                 req.to = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: i + 1, to: now)!)
                 req.interval = CandleInterval.candleInterval5Min
 
-                do {
-                    let historicalCandles = try GlobalBotConfig.sdk.marketDataService.getCandels(request: req).wait(timeout: 10).singleValue()
-                    for historicalCandle in historicalCandles.candles {
-                        candles.append(CandleData(tinkCandle: historicalCandle))
+                var attempt = 0
+                while attempt < Globals.MaxRetryAttempts {
+                    do {
+                        let historicalCandles = try GlobalBotConfig.sdk.marketDataService.getCandels(request: req).wait(timeout: 10).singleValue()
+                        for historicalCandle in historicalCandles.candles {
+                            candles.append(CandleData(tinkCandle: historicalCandle))
+                        }
+                        break
+                    } catch {
+                        attempt += 1
+                        if attempt == Globals.MaxRetryAttempts {
+                            GlobalBotConfig.logger.debug("Error loading EmuCandleFetcher.fetchHistoricalData \(error.localizedDescription)")
+                        } else {
+                            sleep(1)
+                        }
                     }
-                } catch {
-                    break
                 }
                 i+=1
             } while i <= -1
@@ -151,7 +163,23 @@ class TinkoffCandleFetcher: CandleFetcher {
     }
     
     public override func run() {
+        try_subscribe_to_stream(attempt: 0)
+    }
+    
+    // try_subscribe_to_stream(attempt: Int) используется внутри имплементации TinkoffCandleFetcher
+    // для совершения retry запросов при возникновении проблем с сетью / Tinkoff API.
+    private func try_subscribe_to_stream(attempt: Int) {
         GlobalBotConfig.sdk.marketDataServiceStream.subscribeToCandels(figi: self.figi!, interval: SubscriptionInterval.oneMinute).sink { result in
+                switch result {
+                case .failure(let error):
+                    if attempt == Globals.MaxRetryAttempts {
+                        GlobalBotConfig.logger.debug("Error while subscribing for candles stream \(error.localizedDescription)")
+                    } else {
+                        self.try_subscribe_to_stream(attempt: attempt + 1)
+                    }
+                case .finished:
+                    break
+                }
             } receiveValue: { result in
                 switch result.payload {
                     case .candle(let candle):
@@ -169,7 +197,7 @@ class TinkoffCandleFetcher: CandleFetcher {
         DispatchQueue.global(qos: .userInitiated).async {
             let now = Date()
             var candles: [CandleData] = []
-            var i = -3
+            var i = -3 // Загружаем информацию по свечам за предыдущие 3 дня.
 
             repeat {
                 var req = GetCandlesRequest()
@@ -178,13 +206,22 @@ class TinkoffCandleFetcher: CandleFetcher {
                 req.to = Google_Protobuf_Timestamp(date: Calendar.current.date(byAdding: .day, value: i + 1, to: now)!)
                 req.interval = CandleInterval.candleInterval5Min
 
-                do {
-                    let historicalCandles = try GlobalBotConfig.sdk.marketDataService.getCandels(request: req).wait(timeout: 10).singleValue()
-                    for historicalCandle in historicalCandles.candles {
-                        candles.append(CandleData(tinkCandle: historicalCandle))
+                var attempt = 0
+                while attempt < Globals.MaxRetryAttempts {
+                    do {
+                        let historicalCandles = try GlobalBotConfig.sdk.marketDataService.getCandels(request: req).wait(timeout: 10).singleValue()
+                        for historicalCandle in historicalCandles.candles {
+                            candles.append(CandleData(tinkCandle: historicalCandle))
+                        }
+                        break
+                    } catch {
+                        attempt += 1
+                        if attempt == Globals.MaxRetryAttempts {
+                            GlobalBotConfig.logger.debug("Error loading TinkoffCandleFetcher.fetchHistoricalData \(error.localizedDescription)")
+                        } else {
+                            sleep(1)
+                        }
                     }
-                } catch {
-                    break
                 }
                 i+=1
             } while i <= -1

@@ -43,9 +43,11 @@ class PortfolioData {
 	}
 }
 
+// PortfolioLoader является базовым классом для воркеров, отвечающих за загрузку портфолио.
+// В зависимости от выбранного режима (Эмулятор/Песочница/Тинькофф), RsiEngine создает разные
+// имплементации базового класса (EmuPortfolioLoader/SandboxPortfolioLoader/TinkoffPortfolioLoader).
 class PortfolioLoader {
-	init() {
-	}
+	init() {}
 
 	init(profile: Account, callback: @escaping (PortfolioData) -> ()) {
 		self.profile = profile
@@ -80,6 +82,7 @@ class EmuPortfolioLoader: PortfolioLoader {
 	override init(profile: Account, callback: @escaping (PortfolioData) -> ()) {
 		super.init(profile: profile, callback: callback)
         
+        // Эмулируем счет. Виртуально пополняем баланс на 1000 долларов.
 		var pp = PortfolioPosition()
 		pp.figi = "BBG0013HGFT4" // usd
 		pp.quantityLots.units = 1000
@@ -103,10 +106,20 @@ class SandboxPortfolioLoader: PortfolioLoader {
 	}
     
     public override func syncPortfolioWithTink() {
+        self.syncPortfolioWithTink(attempt: 0)
+    }
+    
+    // syncPortfolioWithTink(attempt: Int) используется внутри имплементации SandboxPortfolioLoader
+    // для совершения retry запросов при возникновении проблем с сетью / Tinkoff API.
+    private func syncPortfolioWithTink(attempt: Int) {
         GlobalBotConfig.sdk.sandboxService.getPortfolio(accountID: profile.id).sink { result in
             switch result {
             case .failure(let error):
-                GlobalBotConfig.logger.debug(error.localizedDescription)
+                if attempt == Globals.MaxRetryAttempts {
+                    GlobalBotConfig.logger.debug(error.localizedDescription)
+                } else {
+                    self.syncPortfolioWithTink(attempt: attempt + 1)
+                }
             case .finished:
                 break
             }
@@ -125,10 +138,20 @@ class TinkoffPortfolioLoader: PortfolioLoader {
 	}
     
     public override func syncPortfolioWithTink() {
+        self.syncPortfolioWithTink(attempt: 0)
+    }
+    
+    // syncPortfolioWithTink(attempt: Int) используется внутри имплементации TinkoffPortfolioLoader
+    // для совершения retry запросов при возникновении проблем с сетью / Tinkoff API.
+    private func syncPortfolioWithTink(attempt: Int) {
         GlobalBotConfig.sdk.portfolioService.getPortfolio(accountID: profile.id).sink { result in
             switch result {
             case .failure(let error):
-                GlobalBotConfig.logger.debug(error.localizedDescription)
+                if attempt == Globals.MaxRetryAttempts {
+                    GlobalBotConfig.logger.debug(error.localizedDescription)
+                } else {
+                    self.syncPortfolioWithTink(attempt: attempt + 1)
+                }
             case .finished:
                 break
             }
