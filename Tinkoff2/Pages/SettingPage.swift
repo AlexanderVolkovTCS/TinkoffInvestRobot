@@ -310,6 +310,19 @@ struct BotSetting: View {
                 .padding(EdgeInsets(top: 8, leading: 16, bottom: -8, trailing: 16))
             DescriptionTextView(text: "Настройки параметра алгоритма RSI")
                 .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+            
+            VStack {
+                Text("Стоп-лосс: \(Int(self.model.algoConfig.stopLoss * 100))%")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(EdgeInsets(top: -8, leading: 0, bottom: -8, trailing: 0))
+                Slider(value: Binding(get: {
+                    Double(self.model.algoConfig.stopLoss * 100)
+                }, set: { (newVal) in
+                        self.model.algoConfig.stopLoss = newVal / 100
+                    }), in: 70...99)
+                    .disabled(model.isBotRunning)
+                }
+            .padding()
 
             VStack {
                 Picker("Preset", selection: $presetId) {

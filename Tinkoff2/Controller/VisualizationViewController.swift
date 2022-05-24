@@ -45,7 +45,8 @@ class VisualizationViewController: UIViewController {
         let uts = GlobalBotConfig.algoConfig.upperRsiThreshold
         let lts = GlobalBotConfig.algoConfig.lowerRsiThreshold
         let rsiPeriod = GlobalBotConfig.algoConfig.rsiPeriod
-        let engineConfig = RSIConfig(figis: figis, upperRsiThreshold: uts, lowerRsiThreshold: lts, rsiPeriod: rsiPeriod)
+        let stopLoss = GlobalBotConfig.algoConfig.stopLoss
+        let engineConfig = RSIConfig(figis: figis, upperRsiThreshold: uts, lowerRsiThreshold: lts, rsiPeriod: rsiPeriod, stopLoss: stopLoss)
         self.engine = RSIStrategyEngine(config: engineConfig,
                                         portfolioUpdateCallback: self.onPortfolioUpdate,
                                         candlesUpdateCallback: self.onCandlesUpdate,

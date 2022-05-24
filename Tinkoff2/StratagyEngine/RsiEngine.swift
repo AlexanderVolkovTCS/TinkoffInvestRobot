@@ -13,6 +13,7 @@ struct RSIConfig {
     public var upperRsiThreshold = 70
     public var lowerRsiThreshold = 30
     public var rsiPeriod = 14
+    public var stopLoss = 0.98
 }
 
 struct RSIOpenedPosition {
@@ -147,6 +148,10 @@ class RSIStrategyEngine {
             // Покупаем, если RSI больше верхней границы.
         } else if rsi > Float64(config!.upperRsiThreshold) {
             openLong(figi: figi)
+        } else if stopLossPositions[figi] != nil && stopLossPositions[figi]! >= candle.close.asDouble() {
+            // Продаем, стоп-лосс.
+            GlobalBotConfig.logger.info("[\(figi)] Hit stop-loss")
+            closeLong(figi: figi)
         }
         
         self.candlesUpdateCallback(figi, self.candles[figi]!)
@@ -297,6 +302,9 @@ class RSIStrategyEngine {
         
         self.portfolioLoader!.syncPortfolioWithTink()
         
+        let stopLossMoneyValue = total.asDouble()
+        stopLossPositions[figi] = stopLossMoneyValue * config!.stopLoss
+        
         self.orderUpdateCallback(figi, OrderInfo(type: .Bought, count: amount, price: total))
         GlobalBotConfig.stat.onBuyOrderPosted(figi: figi, amount: amount)
         GlobalBotConfig.stat.onBuyOrderDone(figi: figi, amount: amount, price: total)
@@ -320,6 +328,7 @@ class RSIStrategyEngine {
     
     private var candles: [String : LinkedList<CandleData>] = [:]
     private var openedPositions: [String : Int64] = [:]
+    private var stopLossPositions: [String : Double] = [:]
     
     private var portfolioData = PortfolioData()
     
