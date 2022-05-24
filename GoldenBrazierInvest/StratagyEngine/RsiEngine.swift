@@ -170,12 +170,12 @@ class RSIStrategyEngine {
 		let rsi = calculateRSI(figi: figi)
 		GlobalBotConfig.logger.debug("new rsi = \(rsi)")
 
-		// Продаем, если RSI меньше нижней границы.
+		// Покупаем, если RSI меньше нижней границы. (Акция недооценена).
 		if rsi < Float64(config!.lowerRsiThreshold) {
-			closeLong(figi: figi)
-			// Покупаем, если RSI больше верхней границы.
+            openLong(figi: figi)
+			// Продаем, если RSI больше верхней границы. (Акция переоценена).
 		} else if rsi > Float64(config!.upperRsiThreshold) {
-			openLong(figi: figi)
+            closeLong(figi: figi)
 			// Продаем, стоп-лосс.
 		} else if stopLossPositions[figi] != nil && stopLossPositions[figi]! >= candle.close.asDouble() {
 			GlobalBotConfig.logger.info("[\(figi)] Hit stop-loss")
