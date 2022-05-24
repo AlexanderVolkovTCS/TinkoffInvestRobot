@@ -23,6 +23,9 @@ struct RSIOpenedPosition {
     }
 }
 
+// RSIStrategyEngine является главным компонентом стратегии торгового бота.
+// В конструкторе он принимает коллбэки на обновление состояния.
+// В графическом режиме, коллбэки отвечают за перерисовку интерфейса-визуализации.
 class RSIStrategyEngine {
     public init(config: RSIConfig,
                 portfolioUpdateCallback: @escaping (PortfolioData) -> (),
@@ -38,6 +41,7 @@ class RSIStrategyEngine {
         self.orderUpdateCallback = orderUpdateCallback
         self.rsiUpdateCallback = rsiUpdateCallback
         
+        // Создаем виртуальный загрузчик портфорлио в зависимости от выбраного режима: эмуляция/sandbox/tinkoff.
         switch GlobalBotConfig.mode {
         case .Emu:
             self.portfolioLoader = EmuPortfolioLoader(profile: GlobalBotConfig.account, callback: self.onPortfolio)
@@ -47,6 +51,7 @@ class RSIStrategyEngine {
             self.portfolioLoader = TinkoffPortfolioLoader(profile: GlobalBotConfig.account, callback: self.onPortfolio)
         }
         
+        // Создаем по виртуальному воркеру для каждой торгуемой акции в зависимости от выбраного режима.
         for figi in self.config!.figis {
             switch GlobalBotConfig.mode {
             case .Emu:
@@ -78,7 +83,8 @@ class RSIStrategyEngine {
                 self.candlesFetchers[figi] = TinkoffCandleFetcher(figi: figi, callback: self.onNewCandle)
             }
         }
-
+        
+        // Запрашиваем информацию о исторических свечах для инициализации первичного значения RSI.
         collectHistoricalCandles()
     }
     
@@ -86,20 +92,24 @@ class RSIStrategyEngine {
         stop()
     }
     
+    // stop останавливает работу энжина.
     public func stop() {
+        // Отписываемся от виртуальных воркеров. В зависимости от текущего режима, виртуальные воркеры могут
+        // 1. Просто остановить работу
+        // 2. Остановить работу, преед этим отписавшись от стриминга в Tinkoff API
         for candlesFetcher in self.candlesFetchers {
             candlesFetcher.value.cancel()
         }
     }
 
-    // Используется один раз для инициализации алгоритма историческими свечами.
-    public func collectHistoricalCandles() {
+    // collectHistoricalCandles используется один раз на старте для инициализации алгоритма историческими свечами.
+    private func collectHistoricalCandles() {
         for candlesFetcher in self.candlesFetchers {
             candlesFetcher.value.fetchHistoricalData(callback: onHistoricalCandles)
         }
     }
 
-    // Используется один раз в качестве коллбека при удачном сборе исторических свечей.
+    // onHistoricalCandles используется один раз в качестве коллбэка при удачном сборе исторических свечей.
     private func onHistoricalCandles(figi: String, historicalCandles: [CandleData]) {
         let needCandles = min(config!.rsiPeriod, historicalCandles.count)
         let candlesPayload = historicalCandles.suffix(needCandles)
@@ -115,15 +125,25 @@ class RSIStrategyEngine {
             self.candles[figi]!.append(candle)
         }
 
+        // Информируем UI о получении свечей.
         self.candlesUpdateCallback(figi, self.candles[figi]!)
+        
+        // Информируем UI о первичном значении RSI.
         let rsi = calculateRSI(figi: figi)
         self.rsiUpdateCallback(figi, rsi)
+        
+        // Запускаем стриминг свечей.
         self.candlesFetchers[figi]!.run()
     }
 
+    // onNewCandle вызывается при стриминге свечей.
+    // Параметр candle может содержать:
+    // 1. Текущую обновленную свечу
+    // 2. Новую свечу
     private func onNewCandle(figi: String, candle: CandleData) {
         GlobalBotConfig.logger.debug("new candle! \(figi) \(candle.high.asDouble()) \(candle.time)")
         
+        // Обновляем, если пришла текущая свеча
         var mergedWithLast = false
         let last = self.candles[figi]!.last
         if last != nil {
@@ -133,31 +153,43 @@ class RSIStrategyEngine {
             }
         }
         
+        // Добавляем новую, если пришла новая свеча
         if !mergedWithLast {
+            // Optimization: алгормтму RSI для расчета состояния требуется информация
+            // только о последних свечах. Мы можем удалять предыдущие свечи, если
+            // они больше не влияют на показатель RSI.
+            //
+            // Для быстрого удаления с начала и быстрого добавлвения в конец мы используем LinkedList
             if candles[figi]!.count == self.config!.rsiPeriod {
                 candles[figi]!.remove(at: 0)
             }
             candles[figi]!.append(candle)
         }
 
+        // Перерасчитываем новое состояние RSI.
         let rsi = calculateRSI(figi: figi)
         GlobalBotConfig.logger.debug("new rsi = \(rsi)")
+        
         // Продаем, если RSI меньше нижней границы.
         if rsi < Float64(config!.lowerRsiThreshold) {
             closeLong(figi: figi)
-            // Покупаем, если RSI больше верхней границы.
+        // Покупаем, если RSI больше верхней границы.
         } else if rsi > Float64(config!.upperRsiThreshold) {
             openLong(figi: figi)
+        // Продаем, стоп-лосс.
         } else if stopLossPositions[figi] != nil && stopLossPositions[figi]! >= candle.close.asDouble() {
-            // Продаем, стоп-лосс.
             GlobalBotConfig.logger.info("[\(figi)] Hit stop-loss")
             closeLong(figi: figi)
         }
         
+        // Информируем UI о получении новой свечи.
         self.candlesUpdateCallback(figi, self.candles[figi]!)
+        // Информируем UI о первичном значении RSI.
         self.rsiUpdateCallback(figi, rsi)
     }
     
+    // onNewCandle вызывается при обновлении состояния портфолио.
+    // Мы используем эту функцию для обновления информации о открытых позициях.
     private func onPortfolio(portfolioData: PortfolioData) {
         for position in openedPositions {
             openedPositions[position.key] = 0
@@ -172,9 +204,12 @@ class RSIStrategyEngine {
             }
         }
         
+        // Информируем UI о новом состоянии портфолио.
         self.portfolioUpdateCallback(portfolioData)
     }
 
+    // calculateRSI используется для расчета состояния RSI.
+    // Подробнее о алгоритме RSI - https://ru.wikipedia.org/wiki/Индекс_относительной_силы
     private func calculateRSI(figi: String) -> Float64 {
         if (candles[figi]!.count < 2) {
             return 0
@@ -233,6 +268,7 @@ class RSIStrategyEngine {
         return rsi
     }
 
+    // openLong открывает позицию "figi" для торговли в long, если у пользователя достаточно денег для совершения сделки.
     private func openLong(figi: String) {
         var instrument: Instrument? = nil
         for instr in GlobalBotConfig.figis {
@@ -250,6 +286,9 @@ class RSIStrategyEngine {
         money.nano = candle.nano
         money.currency = instrument!.currency
         
+        // Optimization: используя функцию кэширования портфолио у воркера portfolioLoader, мы можем
+        // быстро проверить наличия средств для совершения сделки.
+        // Это позволяет избежать лишних запросов в Tinkoff API.
         let hasMoney = self.portfolioLoader?.getPortfolioCached().getMoneyValue(currency: instrument!.currency)
         if hasMoney != nil && hasMoney!.units < money.units {
             GlobalBotConfig.logger.debug("openLong: Could not buy (no money) has: \(hasMoney!.asString()), want: \(money.asString())")
@@ -264,6 +303,7 @@ class RSIStrategyEngine {
         }
     }
 
+    // closeLong проверяет есть ли открытые позиции и закрывает их.
     private func closeLong(figi: String) {
         // Проверяем, есть ли открытые позиции, которые следует закрыть.
         if openedPositions[figi] == nil || openedPositions[figi] == 0 {
@@ -294,11 +334,13 @@ class RSIStrategyEngine {
         }
     }
     
+    // onBuySuccess используется в качетсве коллбэка при удачной продаже позиций.
     private func onBuySuccess(figi: String, amount: Int64, total: MoneyValue) {
         if openedPositions[figi] == nil {
             openedPositions[figi] = 0
         }
         
+        // Синхронизируеся с портфолио только при успешной покупке/продаже.
         self.portfolioLoader!.syncPortfolioWithTink()
         
         let stopLossMoneyValue = total.asDouble()
@@ -311,7 +353,8 @@ class RSIStrategyEngine {
     
     private func onSellSuccess(figi: String, amount: Int64, total: MoneyValue) {
         assert(openedPositions[figi] != nil)
-
+        
+        // Синхронизируеся с портфолио только при успешной покупке/продаже.
         self.portfolioLoader!.syncPortfolioWithTink()
         self.orderUpdateCallback(figi, OrderInfo(type: .Sold, count: amount, price: total))
         GlobalBotConfig.stat.onSellOrderPosted(figi: figi, amount: amount)
