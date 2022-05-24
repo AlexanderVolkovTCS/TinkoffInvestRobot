@@ -49,7 +49,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		7113C0F32837C3DE004C1910 /* Tinkoff2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tinkoff2.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7113C0F32837C3DE004C1910 /* GoldenBrazierInvest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GoldenBrazierInvest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7113C0F62837C3DE004C1910 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7113C0F82837C3DE004C1910 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		7113C0FA2837C3DE004C1910 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
@@ -70,7 +70,6 @@
 		7144053D283A466A007AE807 /* AlgoConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoConfig.swift; sourceTree = "<group>"; };
 		71440544283A4C98007AE807 /* LinkedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkedList.swift; sourceTree = "<group>"; };
 		71440546283A5AC2007AE807 /* Portfolio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Portfolio.swift; sourceTree = "<group>"; };
-		71440548283A82A1007AE807 /* Tinkoff2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Tinkoff2.entitlements; sourceTree = "<group>"; };
 		71440549283A96F3007AE807 /* DashboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewController.swift; sourceTree = "<group>"; };
 		7144054D283A9DD2007AE807 /* ConsolePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsolePage.swift; sourceTree = "<group>"; };
 		7144054F283AA690007AE807 /* BarGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarGraphView.swift; sourceTree = "<group>"; };
@@ -107,7 +106,7 @@
 		7113C0EA2837C3DE004C1910 = {
 			isa = PBXGroup;
 			children = (
-				7113C0F52837C3DE004C1910 /* Tinkoff2 */,
+				7113C0F52837C3DE004C1910 /* GoldenBrazierInvest */,
 				7113C0F42837C3DE004C1910 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -115,15 +114,14 @@
 		7113C0F42837C3DE004C1910 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				7113C0F32837C3DE004C1910 /* Tinkoff2.app */,
+				7113C0F32837C3DE004C1910 /* GoldenBrazierInvest.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		7113C0F52837C3DE004C1910 /* Tinkoff2 */ = {
+		7113C0F52837C3DE004C1910 /* GoldenBrazierInvest */ = {
 			isa = PBXGroup;
 			children = (
-				71440548283A82A1007AE807 /* Tinkoff2.entitlements */,
 				71F0593B283C91AD00CC4A05 /* StratagyEngine */,
 				71440543283A4C8C007AE807 /* Algo */,
 				711DB4FF2838CF1900CF5474 /* Helpers */,
@@ -138,7 +136,7 @@
 				7113C1012837C3DF004C1910 /* LaunchScreen.storyboard */,
 				7113C1042837C3DF004C1910 /* Info.plist */,
 			);
-			path = Tinkoff2;
+			path = GoldenBrazierInvest;
 			sourceTree = "<group>";
 		};
 		711DB4F12838243500CF5474 /* Model */ = {
@@ -229,9 +227,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		7113C0F22837C3DE004C1910 /* Tinkoff2 */ = {
+		7113C0F22837C3DE004C1910 /* GoldenBrazierInvest */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7113C1072837C3DF004C1910 /* Build configuration list for PBXNativeTarget "Tinkoff2" */;
+			buildConfigurationList = 7113C1072837C3DF004C1910 /* Build configuration list for PBXNativeTarget "GoldenBrazierInvest" */;
 			buildPhases = (
 				7113C0EF2837C3DE004C1910 /* Sources */,
 				7113C0F02837C3DE004C1910 /* Frameworks */,
@@ -241,7 +239,7 @@
 			);
 			dependencies = (
 			);
-			name = Tinkoff2;
+			name = GoldenBrazierInvest;
 			packageProductDependencies = (
 				711DB4F72838AD3600CF5474 /* Charts */,
 				711DB50B28390DE300CF5474 /* Introspect */,
@@ -251,7 +249,7 @@
 				71F0592E283BED2D00CC4A05 /* TinkoffInvestSDK */,
 			);
 			productName = Tinkoff2;
-			productReference = 7113C0F32837C3DE004C1910 /* Tinkoff2.app */;
+			productReference = 7113C0F32837C3DE004C1910 /* GoldenBrazierInvest.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -269,7 +267,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 7113C0EE2837C3DE004C1910 /* Build configuration list for PBXProject "Tinkoff2" */;
+			buildConfigurationList = 7113C0EE2837C3DE004C1910 /* Build configuration list for PBXProject "GoldenBrazierInvest" */;
 			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -290,7 +288,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				7113C0F22837C3DE004C1910 /* Tinkoff2 */,
+				7113C0F22837C3DE004C1910 /* GoldenBrazierInvest */,
 			);
 		};
 /* End PBXProject section */
@@ -479,25 +477,28 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Tinkoff2/Tinkoff2.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M63KLEQ9VT;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Tinkoff2/Info.plist;
+				INFOPLIST_FILE = GoldenBrazierInvest/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				"IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]" = 15.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.nimelehin.Tinkoff2;
+				PRODUCT_BUNDLE_IDENTIFIER = org.nimelehin.GoldenBrazierInvest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -510,25 +511,28 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Tinkoff2/Tinkoff2.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M63KLEQ9VT;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Tinkoff2/Info.plist;
+				INFOPLIST_FILE = GoldenBrazierInvest/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				"IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]" = 15.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.nimelehin.Tinkoff2;
+				PRODUCT_BUNDLE_IDENTIFIER = org.nimelehin.GoldenBrazierInvest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -539,7 +543,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		7113C0EE2837C3DE004C1910 /* Build configuration list for PBXProject "Tinkoff2" */ = {
+		7113C0EE2837C3DE004C1910 /* Build configuration list for PBXProject "GoldenBrazierInvest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7113C1052837C3DF004C1910 /* Debug */,
@@ -548,7 +552,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7113C1072837C3DF004C1910 /* Build configuration list for PBXNativeTarget "Tinkoff2" */ = {
+		7113C1072837C3DF004C1910 /* Build configuration list for PBXNativeTarget "GoldenBrazierInvest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7113C1082837C3DF004C1910 /* Debug */,
