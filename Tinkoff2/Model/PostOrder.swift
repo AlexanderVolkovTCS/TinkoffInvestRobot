@@ -179,9 +179,15 @@ class SandboxPostOrder: PostOrder {
 			}
 		} receiveValue: { order in
             DispatchQueue.global(qos: .userInitiated).async {
+                var total = price
+                total.nano *= Int32(amount)
+                total.units += Int64(total.nano) / Int64(1e9)
+                total.nano = Int32(Int64(total.nano) % Int64(1e9))
+                total.units *= Int64(Int32(amount))
+                
                 // Add statistics about posting.
                 GlobalBotConfig.logger.info("[\(String(describing: self.figi!))] Closing long: amount \(amount), price \(price.asString())")
-                self.dispatchOnOrderRequest(orderInfo: OrderInfo(type: OperationType.SoldRequest, count: amount, price: price))
+                self.dispatchOnOrderRequest(orderInfo: OrderInfo(type: OperationType.SoldRequest, count: amount, price: total))
                 
                 let executed = order.lotsExecuted
                 let status = order.executionReportStatus
@@ -198,11 +204,6 @@ class SandboxPostOrder: PostOrder {
                 
                 // В следствие особенностей взаимодействия с песочницей, мы не дожидаемся исполнения
                 // getOrderState при работе с sandbox.
-                var total = price
-                total.nano *= Int32(amount)
-                total.units += Int64(total.nano) / Int64(1e9)
-                total.nano = Int32(Int64(total.nano) % Int64(1e9))
-                total.units *= Int64(Int32(amount))
                 self.dispatchOnSell(amount: amount, total: total)
             }
 		}.store(in: &cancellables)
@@ -303,7 +304,7 @@ class TinkoffPostOrder: PostOrder {
                     status == OrderExecutionReportStatus.executionReportStatusRejected ||
                     status == OrderExecutionReportStatus.executionReportStatusCancelled) {
                     
-                    self.dispatchOnSell(amount: executed, total: order.executedOrderPrice)
+                    self.dispatchOnSell(amount: executed, total: order.totalOrderAmount)
                     return
                 }
                 
@@ -316,7 +317,7 @@ class TinkoffPostOrder: PostOrder {
                     do {
                         let state = try GlobalBotConfig.sdk.ordersService.getOrderState(request: orderStateReq).wait(timeout: 10).singleValue()
                         if (state.lotsExecuted > executed) {
-                            self.dispatchOnSell(amount: state.lotsExecuted - executed, total: state.executedOrderPrice)
+                            self.dispatchOnSell(amount: state.lotsExecuted - executed, total: state.totalOrderAmount)
                         }
                         status = state.executionReportStatus
                         executed = state.lotsExecuted

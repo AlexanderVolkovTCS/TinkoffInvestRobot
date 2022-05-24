@@ -117,8 +117,7 @@ struct ShortStat: View {
     @Environment(\.colorScheme) var colorScheme
 
     var columns: [GridItem] = [
-        GridItem(.adaptive(minimum: 160), spacing: 32),
-        GridItem(.adaptive(minimum: 160), spacing: 32)
+        GridItem(.adaptive(minimum: 110), spacing: 16)
     ]
     
     var body: some View {
@@ -133,7 +132,7 @@ struct ShortStat: View {
                 spacing: 16
             ) {
                 VStack {
-                    Image(systemName: "plus.circle")
+                    Image(systemName: "arrow.up.circle")
                         .font(.system(size: 14))
                         .foregroundColor(.gray)
                         .frame(maxWidth: .infinity, alignment: .center)
@@ -142,7 +141,7 @@ struct ShortStat: View {
                         .padding(EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0))
                 }
                 VStack {
-                    Image(systemName: "minus.circle")
+                    Image(systemName: "arrow.down.circle")
                         .font(.system(size: 14))
                         .foregroundColor(.gray)
                         .frame(maxWidth: .infinity, alignment: .center)
@@ -179,7 +178,6 @@ struct ShortStat: View {
                 }
             }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .compositingGroup()
                 .padding(16)
         }
     }
