@@ -378,7 +378,7 @@ struct BotSetting: View {
 						Double(self.model.algoConfig.upperRsiThreshold)
 					}, set: { (newVal) in
 							self.model.algoConfig.upperRsiThreshold = Int(newVal)
-						}), in: 35...85)
+						}), in: 55...95)
 						.disabled(model.isBotRunning || presetId != 2)
 				}
 					.padding()
@@ -393,7 +393,7 @@ struct BotSetting: View {
 						Double(self.model.algoConfig.lowerRsiThreshold)
 					}, set: { (newVal) in
 							self.model.algoConfig.lowerRsiThreshold = Int(newVal)
-						}), in: 10...60)
+						}), in: 5...45)
 						.disabled(model.isBotRunning || presetId != 2)
 				}
 					.padding()
